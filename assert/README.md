@@ -18,17 +18,22 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/assert)
 
 ## Example
 
-assert equal
+### assert err is nil
+
+    fp, err := os.Open("/data/dev/gokit/LICENSE")
+    assert.Nil(t, err)
+
+### assert equal
 
     x := map[string]int{"a": 1, "b": 2}
     y := map[string]int{"a": 1, "b": 2}
-    assert.Equal(x, y, "x shall equal to y")
+    assert.Equal(t, x, y, "x shall equal to y")
 
-assert not equal
+### assert not equal
 
     x := map[string]interface{}{"a": 1, "b": 1}
     y := map[string]interface{}{"a": 1, "b": "1"}
-    assert.NotEqual(x, y, "x shall not equal to y")
+    assert.NotEqual(t, x, y, "x shall not equal to y")
 
 ## LICENSE
 

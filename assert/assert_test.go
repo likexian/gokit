@@ -55,3 +55,13 @@ func TestNotEqual(t *testing.T) {
 	NotEqual(t, A{1, 1}, A{1, 2}, "testing NotEqual failed")
 	NotEqual(t, A{1, 2}, B{1, 2}, "testing NotEqual failed")
 }
+
+func TestNil(t *testing.T) {
+	Nil(t, nil, "testing expect to be nil")
+	NotNil(t, true, "testing expect to be not nil")
+}
+
+func TestTrue(t *testing.T) {
+	True(t, true, "testing expect to be true")
+	False(t, false, "testing expect to be false")
+}
