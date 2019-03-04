@@ -1,1 +1,5 @@
 language: go
+
+sudo: required
+
+script: sudo -E env "PATH=$PATH" go test -v ./...
