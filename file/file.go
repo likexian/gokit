@@ -16,19 +16,34 @@ import (
 	"path/filepath"
 )
 
-// FileExists returns path is exists
+// Version returns package version
+func Version() string {
+	return "0.2.0"
+}
+
+// Author returns package author
+func Author() string {
+	return "[Li Kexian](https://www.likexian.com/)"
+}
+
+// License returns package license
+func License() string {
+	return "Apache License, Version 2.0"
+}
+
+// FileExists returns path is exists, symbolic link will check the target
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
 
-// IsFile returns path is a file
+// IsFile returns path is a file, symbolic link will check the target
 func IsFile(path string) bool {
 	f, err := os.Stat(path)
 	return err == nil && f.Mode().IsRegular()
 }
 
-// IsDir returns path is a dir
+// IsDir returns path is a dir, symbolic link will check the target
 func IsDir(path string) bool {
 	f, err := os.Stat(path)
 	return err == nil && f.Mode().IsDir()
@@ -40,7 +55,7 @@ func IsSymlink(path string) bool {
 	return err == nil && f.Mode()&os.ModeSymlink != 0
 }
 
-// FileSize returns the file size of path
+// FileSize returns the file size of path, symbolic link will check the target
 func FileSize(path string) (int64, error) {
 	f, err := os.Stat(path)
 	if err != nil {
@@ -71,6 +86,26 @@ func WriteText(path, text string) error {
 	}
 
 	return ioutil.WriteFile(path, []byte(text), 0644)
+}
+
+// ChmodAll chmod to path and children, returns the first error it encounters
+func ChmodAll(root string, mode os.FileMode) error {
+	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Chmod(path, mode)
+	})
+}
+
+// ChownAll chown to path and children, returns the first error it encounters
+func ChownAll(root string, uid, gid int) error {
+	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		return os.Chown(path, uid, gid)
+	})
 }
 
 // GetPwd returns the abs dir of current path

@@ -93,7 +93,7 @@ func TestFile(t *testing.T) {
 		t.Fatal("file expect to be not exists")
 	}
 
-	err = os.Symlink("tmp/file", "tmp/link")
+	err = os.Symlink("file", "tmp/link")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,13 +104,23 @@ func TestFile(t *testing.T) {
 	}
 
 	ok = IsFile("tmp/link")
-	if ok {
-		t.Fatal("file expect to be not file")
+	if !ok {
+		t.Fatal("file expect to be file")
 	}
 
 	ok = IsDir("tmp/link")
 	if ok {
 		t.Fatal("file expect to be not dir")
+	}
+
+	err = ChmodAll("tmp", 0777)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = ChownAll("tmp", 0, 0)
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	os.RemoveAll("tmp")
