@@ -10,6 +10,7 @@
 package xfile
 
 import (
+	"bufio"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -18,7 +19,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -31,8 +32,8 @@ func License() string {
 	return "Apache License, Version 2.0"
 }
 
-// FileExists returns path is exists, symbolic link will check the target
-func FileExists(path string) bool {
+// Exists returns path is exists, symbolic link will check the target
+func Exists(path string) bool {
 	_, err := os.Stat(path)
 	return !os.IsNotExist(err)
 }
@@ -55,8 +56,8 @@ func IsSymlink(path string) bool {
 	return err == nil && f.Mode()&os.ModeSymlink != 0
 }
 
-// FileSize returns the file size of path, symbolic link will check the target
-func FileSize(path string) (int64, error) {
+// Size returns the file size of path, symbolic link will check the target
+func Size(path string) (int64, error) {
 	f, err := os.Stat(path)
 	if err != nil {
 		return -1, err
@@ -65,14 +66,37 @@ func FileSize(path string) (int64, error) {
 	return f.Size(), nil
 }
 
-// FileMtime returns the file mtime of path, symbolic link will check the target
-func FileMtime(path string) (int64, error) {
+// MTime returns the file mtime of path, symbolic link will check the target
+func MTime(path string) (int64, error) {
 	f, err := os.Stat(path)
 	if err != nil {
 		return -1, err
 	}
 
 	return f.ModTime().Unix(), nil
+}
+
+// ReadLines returns N lines of file
+func ReadLines(path string, n int) (lines []string, err error) {
+	fd, err := os.Open(path)
+	if err != nil {
+		return
+	}
+
+	defer fd.Close()
+	line_read := 0
+	scanner := bufio.NewScanner(fd)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+		line_read += 1
+		if n > 0 && line_read >= n {
+			break
+		}
+	}
+
+	err = scanner.Err()
+
+	return
 }
 
 // ReadText returns text of file
@@ -88,7 +112,7 @@ func ReadText(path string) (string, error) {
 // WriteText write text to file
 func WriteText(path, text string) error {
 	d := filepath.Dir(path)
-	if d != "" && !FileExists(d) {
+	if d != "" && !Exists(d) {
 		err := os.MkdirAll(d, 0755)
 		if err != nil {
 			return err

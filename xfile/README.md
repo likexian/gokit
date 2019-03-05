@@ -20,7 +20,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xfile)
 
 ### check file is exists
 
-    exists := xfile.FileExists("/data/dev/gokit/LICENSE")
+    exists := xfile.Exists("/data/dev/gokit/LICENSE")
     if exists {
         fmt.Println("file is exists")
     } else {
@@ -29,7 +29,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xfile)
 
 ### get file size
 
-    size, err := xfile.FileSize("/data/dev/gokit/LICENSE")
+    size, err := xfile.Size("/data/dev/gokit/LICENSE")
     if err != nil {
         panic(err)
     } else {

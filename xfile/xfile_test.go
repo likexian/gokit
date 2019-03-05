@@ -22,13 +22,13 @@ func TestFile(t *testing.T) {
 	err = os.Mkdir("tmp", 0755)
 	assert.Nil(t, err)
 
-	ok := FileExists("tmp/dir")
+	ok := Exists("tmp/dir")
 	assert.False(t, ok, "file expect to be not exists")
 
 	err = os.Mkdir("tmp/dir", 0755)
 	assert.Nil(t, err)
 
-	ok = FileExists("tmp/dir")
+	ok = Exists("tmp/dir")
 	assert.True(t, ok, "file expect to be exists")
 
 	ok = IsDir("tmp/dir")
@@ -39,6 +39,17 @@ func TestFile(t *testing.T) {
 
 	ok = IsFile("tmp/file")
 	assert.False(t, ok, "file expect to be not file")
+
+	err = WriteText("tmp/file", "1\n2\n3\n4\n5")
+	assert.Nil(t, err)
+
+	lines, err := ReadLines("tmp/file", 0)
+	assert.Nil(t, err)
+	assert.Equal(t, len(lines), 5)
+
+	lines, err = ReadLines("tmp/file", 1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(lines), 1)
 
 	err = WriteText("tmp/file", "likexian")
 	assert.Nil(t, err)
@@ -53,11 +64,11 @@ func TestFile(t *testing.T) {
 	ok = IsDir("tmp/file")
 	assert.False(t, ok, "file expect to be not dir")
 
-	n, err := FileSize("tmp/file")
+	n, err := Size("tmp/file")
 	assert.Nil(t, err)
 	assert.Equal(t, n, int64(8))
 
-	m, err := FileMtime("tmp/file")
+	m, err := MTime("tmp/file")
 	assert.Nil(t, err)
 	assert.True(t, m > 0)
 

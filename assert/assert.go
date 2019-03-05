@@ -73,7 +73,7 @@ func Panic(t *testing.T, fn func(), args ...interface{}) {
 			if len(args) > 0 {
 				t.Error("! -", fmt.Sprint(args...))
 			} else {
-				t.Error("! -", "assert expect to be panic")
+				t.Error("! -", "assert expected to be panic")
 			}
 		}
 	}()
