@@ -10,137 +10,83 @@
 package xfile
 
 import (
+	"github.com/likexian/gokit/assert"
 	"os"
 	"testing"
 )
 
 func TestFile(t *testing.T) {
 	err := os.RemoveAll("tmp")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	err = os.Mkdir("tmp", 0755)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	ok := FileExists("tmp/dir")
-	if ok {
-		t.Fatal("file expect to be not exists")
-	}
+	assert.False(t, ok, "file expect to be not exists")
 
 	err = os.Mkdir("tmp/dir", 0755)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	ok = FileExists("tmp/dir")
-	if !ok {
-		t.Fatal("file expect to be exists")
-	}
+	assert.True(t, ok, "file expect to be exists")
 
 	ok = IsDir("tmp/dir")
-	if !ok {
-		t.Fatal("file expect to be dir")
-	}
+	assert.True(t, ok, "file expect to be dir")
 
 	ok = IsFile("tmp/dir")
-	if ok {
-		t.Fatal("file expect to be not file")
-	}
+	assert.False(t, ok, "file expect to be not file")
 
 	ok = IsFile("tmp/file")
-	if ok {
-		t.Fatal("file expect to be not file")
-	}
+	assert.False(t, ok, "file expect to be not file")
 
 	err = WriteText("tmp/file", "likexian")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	text, err := ReadText("tmp/file")
-	if err != nil {
-		t.Fatal(err)
-	} else {
-		if text != "likexian" {
-			t.Fatalf("file text expect to be likexian but got %s", text)
-		}
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, text, "likexian")
 
 	ok = IsFile("tmp/file")
-	if !ok {
-		t.Fatal("file expect to be file")
-	}
+	assert.True(t, ok, "file expect to be file")
 
 	ok = IsDir("tmp/file")
-	if ok {
-		t.Fatal("file expect to be not dir")
-	}
+	assert.False(t, ok, "file expect to be not dir")
 
 	n, err := FileSize("tmp/file")
-	if err != nil {
-		t.Fatal(err)
-	} else {
-		if n != 8 {
-			t.Fatalf("file size expect to be 8 but got %d", n)
-		}
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, n, int64(8))
 
 	m, err := FileMtime("tmp/file")
-	if err != nil {
-		t.Fatal(err)
-	} else {
-		if m <= 0 {
-			t.Fatalf("get fail mtime failed")
-		}
-	}
+	assert.Nil(t, err)
+	assert.True(t, m > 0)
 
 	ok = IsSymlink("tmp/link")
-	if ok {
-		t.Fatal("file expect to be not exists")
-	}
+	assert.False(t, ok, "file expect to be not expect")
 
 	err = os.Symlink("file", "tmp/link")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	ok = IsSymlink("tmp/link")
-	if !ok {
-		t.Fatal("file expect to be symbolic link")
-	}
+	assert.True(t, ok, "file expect to be symbolic link")
 
 	ok = IsFile("tmp/link")
-	if !ok {
-		t.Fatal("file expect to be file")
-	}
+	assert.True(t, ok, "file expect to be file")
 
 	ok = IsDir("tmp/link")
-	if ok {
-		t.Fatal("file expect to be not dir")
-	}
+	assert.False(t, ok, "file expect to be not dir")
 
 	err = ChmodAll("tmp", 0777)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	err = ChownAll("tmp", 0, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	os.RemoveAll("tmp")
 
 	pwd := GetPwd()
-	if pwd == "" {
-		t.Fatal("pwd expect to be not empty")
-	}
+	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
 
 	pwd = GetProcPwd()
-	if pwd == "" {
-		t.Fatal("pwd expect to be not empty")
-	}
+	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
 }
