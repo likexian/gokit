@@ -65,3 +65,8 @@ func TestTrue(t *testing.T) {
 	True(t, true, "testing expect to be true")
 	False(t, false, "testing expect to be false")
 }
+
+func TestPanic(t *testing.T) {
+	Panic(t, func() { panic("failed") })
+	Panic(t, func() { panic("failed") }, "assert expect to be panic")
+}

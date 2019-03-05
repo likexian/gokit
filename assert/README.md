@@ -18,6 +18,13 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/assert)
 
 ## Example
 
+### assert panic
+
+    func willItPanic() {
+        panic("failed")
+    }
+    assert.Panic(t, willItPanic)
+
 ### assert err is nil
 
     fp, err := os.Open("/data/dev/gokit/LICENSE")
@@ -28,12 +35,6 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/assert)
     x := map[string]int{"a": 1, "b": 2}
     y := map[string]int{"a": 1, "b": 2}
     assert.Equal(t, x, y, "x shall equal to y")
-
-### assert not equal
-
-    x := map[string]interface{}{"a": 1, "b": 1}
-    y := map[string]interface{}{"a": 1, "b": "1"}
-    assert.NotEqual(t, x, y, "x shall not equal to y")
 
 ## LICENSE
 

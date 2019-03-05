@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -40,7 +40,7 @@ func Equal(t *testing.T, exp, got interface{}, args ...interface{}) {
 		}
 	}
 	ok := reflect.DeepEqual(exp, got)
-	assert(t, 1, ok, fn)
+	assert(t, ok, fn, 1)
 }
 
 // NotEqual assert test value to be not equal
@@ -52,7 +52,7 @@ func NotEqual(t *testing.T, exp, got interface{}, args ...interface{}) {
 		}
 	}
 	ok := !reflect.DeepEqual(exp, got)
-	assert(t, 1, ok, fn)
+	assert(t, ok, fn, 1)
 }
 
 // Nil assert test value to be nil
@@ -75,11 +75,33 @@ func False(t *testing.T, got interface{}, args ...interface{}) {
 	NotEqual(t, true, got, args...)
 }
 
-func assert(t *testing.T, step int, result bool, f func()) {
-	if !result {
-		_, file, line, _ := runtime.Caller(step + 1)
-		t.Errorf("%s:%d", file, line)
-		f()
+// Panic assert testing to be panic
+func Panic(t *testing.T, fn func(), args ...interface{}) {
+	defer func() {
+		err := recover()
+		if err == nil {
+			_, file, line, ok := runtime.Caller(2)
+			if ok {
+				t.Errorf("%s:%d", file, line)
+			}
+			if len(args) > 0 {
+				t.Error("! -", fmt.Sprint(args...))
+			} else {
+				t.Error("! -", "assert expect to be panic")
+			}
+		}
+	}()
+
+	fn()
+}
+
+func assert(t *testing.T, pass bool, fn func(), step int) {
+	if !pass {
+		_, file, line, ok := runtime.Caller(step + 1)
+		if ok {
+			t.Errorf("%s:%d", file, line)
+		}
+		fn()
 		t.FailNow()
 	}
 }
