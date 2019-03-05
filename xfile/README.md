@@ -1,4 +1,4 @@
-# GoKit - file
+# GoKit - xfile
 
 File kits for Golang development.
 
@@ -9,40 +9,40 @@ File kits for Golang development.
 ## Importing
 
     import (
-        "github.com/likexian/gokit/file"
+        "github.com/likexian/gokit/xfile"
     )
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/file)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xfile)
 
 ## Example
 
-check file is exists
+### check file is exists
 
-    exists := file.FileExists("/data/dev/gokit/LICENSE")
+    exists := xfile.FileExists("/data/dev/gokit/LICENSE")
     if exists {
         fmt.Println("file is exists")
     } else {
         fmt.Println("file not exists")
     }
 
-get file size
+### get file size
 
-    size, err := file.FileSize("/data/dev/gokit/LICENSE")
+    size, err := xfile.FileSize("/data/dev/gokit/LICENSE")
     if err != nil {
         panic(err)
     } else {
         fmt.Println("file size is", size)
     }
 
-write text to file
+### write text to file
 
-    err := WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2019, Li Kexian\n")
+    err := xfile.WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2019, Li Kexian\n")
     if err != nil {
         panic(err)
     } else {
-        fmt.Println("write to text successful")
+        fmt.Println("write to file successful")
     }
 
 ## LICENSE

@@ -7,7 +7,7 @@
  *
  */
 
-package file
+package xfile
 
 import (
 	"io/ioutil"
@@ -63,6 +63,16 @@ func FileSize(path string) (int64, error) {
 	}
 
 	return f.Size(), nil
+}
+
+// FileMtime returns the file mtime of path, symbolic link will check the target
+func FileMtime(path string) (int64, error) {
+	f, err := os.Stat(path)
+	if err != nil {
+		return -1, err
+	}
+
+	return f.ModTime().Unix(), nil
 }
 
 // ReadText returns text of file

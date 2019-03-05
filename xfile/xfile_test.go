@@ -7,7 +7,7 @@
  *
  */
 
-package file
+package xfile
 
 import (
 	"os"
@@ -85,6 +85,15 @@ func TestFile(t *testing.T) {
 	} else {
 		if n != 8 {
 			t.Fatalf("file size expect to be 8 but got %d", n)
+		}
+	}
+
+	m, err := FileMtime("tmp/file")
+	if err != nil {
+		t.Fatal(err)
+	} else {
+		if m <= 0 {
+			t.Fatalf("get fail mtime failed")
 		}
 	}
 
