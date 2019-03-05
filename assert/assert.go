@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -33,46 +33,32 @@ func License() string {
 
 // Equal assert test value to be equal
 func Equal(t *testing.T, exp, got interface{}, args ...interface{}) {
-	fn := func() {
-		t.Errorf("! expect %#v, but got %#v", exp, got)
-		if len(args) > 0 {
-			t.Error("! -", fmt.Sprint(args...))
-		}
-	}
-	ok := reflect.DeepEqual(exp, got)
-	assert(t, ok, fn, 1)
+	equal(t, exp, got, 1, args...)
 }
 
 // NotEqual assert test value to be not equal
 func NotEqual(t *testing.T, exp, got interface{}, args ...interface{}) {
-	fn := func() {
-		t.Errorf("! Unexpected: <%#v>", exp)
-		if len(args) > 0 {
-			t.Error("! -", fmt.Sprint(args...))
-		}
-	}
-	ok := !reflect.DeepEqual(exp, got)
-	assert(t, ok, fn, 1)
+	notEqual(t, exp, got, 1, args...)
 }
 
 // Nil assert test value to be nil
 func Nil(t *testing.T, got interface{}, args ...interface{}) {
-	Equal(t, nil, got, args...)
+	equal(t, nil, got, 1, args...)
 }
 
 // NotNil assert test value to be not nil
 func NotNil(t *testing.T, got interface{}, args ...interface{}) {
-	NotEqual(t, nil, got, args...)
+	notEqual(t, nil, got, 1, args...)
 }
 
 // True assert test value to be true
 func True(t *testing.T, got interface{}, args ...interface{}) {
-	Equal(t, true, got, args...)
+	equal(t, true, got, 1, args...)
 }
 
 // False assert test value to be false
 func False(t *testing.T, got interface{}, args ...interface{}) {
-	NotEqual(t, true, got, args...)
+	notEqual(t, true, got, 1, args...)
 }
 
 // Panic assert testing to be panic
@@ -93,6 +79,33 @@ func Panic(t *testing.T, fn func(), args ...interface{}) {
 	}()
 
 	fn()
+}
+
+func equal(t *testing.T, exp, got interface{}, step int, args ...interface{}) {
+	fn := func() {
+		switch got.(type) {
+		case error:
+			t.Errorf("! unexpected error: \"%s\"", got)
+		default:
+			t.Errorf("! expected %#v, but got %#v", exp, got)
+		}
+		if len(args) > 0 {
+			t.Error("! -", fmt.Sprint(args...))
+		}
+	}
+	ok := reflect.DeepEqual(exp, got)
+	assert(t, ok, fn, step+1)
+}
+
+func notEqual(t *testing.T, exp, got interface{}, step int, args ...interface{}) {
+	fn := func() {
+		t.Errorf("! unexpected: <%#v>", exp)
+		if len(args) > 0 {
+			t.Error("! -", fmt.Sprint(args...))
+		}
+	}
+	ok := !reflect.DeepEqual(exp, got)
+	assert(t, ok, fn, step+1)
 }
 
 func assert(t *testing.T, pass bool, fn func(), step int) {
