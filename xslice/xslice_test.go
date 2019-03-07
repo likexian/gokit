@@ -22,6 +22,12 @@ type B struct {
 	x, y int
 }
 
+func TestVersion(t *testing.T) {
+	assert.NotEqual(t, Version(), "")
+	assert.NotEqual(t, Author(), "")
+	assert.NotEqual(t, License(), "")
+}
+
 func TestContains(t *testing.T) {
 	tests := [][]interface{}{
 		[]interface{}{[]int{0, 1, 2}, 1, true},
@@ -62,5 +68,23 @@ func TestContains(t *testing.T) {
 	for _, v := range tests {
 		ok := Contains(v[0], v[1])
 		assert.Equal(t, ok, v[2])
+	}
+}
+
+func TestUnique(t *testing.T) {
+	tests := [][]interface{}{
+		[]interface{}{[]int{0, 0, 1, 1, 1, 2, 2, 3}, []int{0, 1, 2, 3}},
+		[]interface{}{[]int64{0, 0, 1, 1, 1, 2, 2, 3}, []int64{0, 1, 2, 3}},
+		[]interface{}{[]uint64{0, 0, 1, 1, 1, 2, 2, 3}, []uint64{0, 1, 2, 3}},
+		[]interface{}{[]float64{0, 0, 1, 1, 1, 2, 2, 3}, []float64{0, 1, 2, 3}},
+		[]interface{}{[]string{"a", "a", "b", "b", "b", "c"}, []string{"a", "b", "c"}},
+		[]interface{}{[]bool{true, true, true, false}, []bool{true, false}},
+		[]interface{}{[]interface{}{0, 1, 1, "1", 2}, []interface{}{0, 1, "1", 2}},
+		[]interface{}{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
+		[]interface{}{[]interface{}{A{0, 1}, A{1, 2}, A{0, 1}, B{0, 1}}, []interface{}{A{0, 1}, A{1, 2}, B{0, 1}}},
+	}
+	for _, v := range tests {
+		u := Unique(v[0])
+		assert.Equal(t, v[1], u)
 	}
 }

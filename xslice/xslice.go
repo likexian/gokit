@@ -15,7 +15,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -38,7 +38,73 @@ func Contains(array interface{}, value interface{}) bool {
 				return true
 			}
 		}
+	default:
+		panic("not support data type")
 	}
 
 	return false
+}
+
+// Unique returns unique processed array
+func Unique(array interface{}) interface{} {
+	switch array.(type) {
+	case []int:
+		result := []int{}
+		for _, v := range array.([]int) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []int64:
+		result := []int64{}
+		for _, v := range array.([]int64) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []uint64:
+		result := []uint64{}
+		for _, v := range array.([]uint64) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []float64:
+		result := []float64{}
+		for _, v := range array.([]float64) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []string:
+		result := []string{}
+		for _, v := range array.([]string) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []bool:
+		result := []bool{}
+		for _, v := range array.([]bool) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	case []interface{}:
+		result := []interface{}{}
+		for _, v := range array.([]interface{}) {
+			if !Contains(result, v) {
+				result = append(result, v)
+			}
+		}
+		return result
+	default:
+		panic("not support data type")
+	}
 }
