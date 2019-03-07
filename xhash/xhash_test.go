@@ -14,6 +14,12 @@ import (
 	"testing"
 )
 
+func TestVersion(t *testing.T) {
+	assert.NotEqual(t, Version(), "")
+	assert.NotEqual(t, Author(), "")
+	assert.NotEqual(t, License(), "")
+}
+
 func TestMd5(t *testing.T) {
 	h := Md5("12345678")
 	assert.Equal(t, h.Hex(), "25d55ad283aa400af464c76d713c07ad")

@@ -21,6 +21,12 @@ type B struct {
 	x, y int
 }
 
+func TestVersion(t *testing.T) {
+	NotEqual(t, Version(), "")
+	NotEqual(t, Author(), "")
+	NotEqual(t, License(), "")
+}
+
 func TestEqual(t *testing.T) {
 	Equal(t, nil, nil, "testing Equal failed")
 	Equal(t, true, true, "testing Equal failed")

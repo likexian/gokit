@@ -11,6 +11,7 @@ package xfile
 
 import (
 	"bufio"
+	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -19,7 +20,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -33,32 +34,32 @@ func License() string {
 }
 
 // Exists returns path is exists, symbolic link will check the target
-func Exists(path string) bool {
-	_, err := os.Stat(path)
+func Exists(fpath string) bool {
+	_, err := os.Stat(fpath)
 	return !os.IsNotExist(err)
 }
 
 // IsFile returns path is a file, symbolic link will check the target
-func IsFile(path string) bool {
-	f, err := os.Stat(path)
+func IsFile(fpath string) bool {
+	f, err := os.Stat(fpath)
 	return err == nil && f.Mode().IsRegular()
 }
 
 // IsDir returns path is a dir, symbolic link will check the target
-func IsDir(path string) bool {
-	f, err := os.Stat(path)
+func IsDir(fpath string) bool {
+	f, err := os.Stat(fpath)
 	return err == nil && f.Mode().IsDir()
 }
 
 // IsSymlink returns path is a symbolic link
-func IsSymlink(path string) bool {
-	f, err := os.Lstat(path)
+func IsSymlink(fpath string) bool {
+	f, err := os.Lstat(fpath)
 	return err == nil && f.Mode()&os.ModeSymlink != 0
 }
 
 // Size returns the file size of path, symbolic link will check the target
-func Size(path string) (int64, error) {
-	f, err := os.Stat(path)
+func Size(fpath string) (int64, error) {
+	f, err := os.Stat(fpath)
 	if err != nil {
 		return -1, err
 	}
@@ -67,8 +68,8 @@ func Size(path string) (int64, error) {
 }
 
 // MTime returns the file mtime of path, symbolic link will check the target
-func MTime(path string) (int64, error) {
-	f, err := os.Stat(path)
+func MTime(fpath string) (int64, error) {
+	f, err := os.Stat(fpath)
 	if err != nil {
 		return -1, err
 	}
@@ -76,20 +77,72 @@ func MTime(path string) (int64, error) {
 	return f.ModTime().Unix(), nil
 }
 
+// New open a file and return fd
+func New(fpath string) (*os.File, error) {
+	dir, _ := filepath.Split(fpath)
+	if dir != "" && !Exists(dir) {
+		err := os.MkdirAll(dir, 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+}
+
+// Write write bytes data to file
+func Write(fpath string, data []byte) (err error) {
+	fd, err := New(fpath)
+	if err != nil {
+		return
+	}
+
+	n, err := fd.Write(data)
+	if err == nil && n < len(data) {
+		err = io.ErrShortWrite
+	}
+
+	if e := fd.Close(); err == nil {
+		err = e
+	}
+
+	return
+}
+
+// WriteText write text data to file
+func WriteText(fpath, text string) (err error) {
+	return Write(fpath, []byte(text))
+}
+
+// Read returns bytes of file
+func Read(fpath string) ([]byte, error) {
+	return ioutil.ReadFile(fpath)
+}
+
+// ReadText returns text of file
+func ReadText(fpath string) (string, error) {
+	b, err := Read(fpath)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), nil
+}
+
 // ReadLines returns N lines of file
-func ReadLines(path string, n int) (lines []string, err error) {
-	fd, err := os.Open(path)
+func ReadLines(fpath string, n int) (lines []string, err error) {
+	fd, err := os.Open(fpath)
 	if err != nil {
 		return
 	}
 
 	defer fd.Close()
-	line_read := 0
+	nRead := 0
 	scanner := bufio.NewScanner(fd)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
-		line_read += 1
-		if n > 0 && line_read >= n {
+		nRead += 1
+		if n > 0 && nRead >= n {
 			break
 		}
 	}
@@ -99,46 +152,23 @@ func ReadLines(path string, n int) (lines []string, err error) {
 	return
 }
 
-// ReadText returns text of file
-func ReadText(path string) (string, error) {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-
-	return string(b), nil
-}
-
-// WriteText write text to file
-func WriteText(path, text string) error {
-	d := filepath.Dir(path)
-	if d != "" && !Exists(d) {
-		err := os.MkdirAll(d, 0755)
-		if err != nil {
-			return err
-		}
-	}
-
-	return ioutil.WriteFile(path, []byte(text), 0644)
-}
-
 // ChmodAll chmod to path and children, returns the first error it encounters
 func ChmodAll(root string, mode os.FileMode) error {
-	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		return os.Chmod(path, mode)
+		return os.Chmod(fpath, mode)
 	})
 }
 
 // ChownAll chown to path and children, returns the first error it encounters
 func ChownAll(root string, uid, gid int) error {
-	return filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		return os.Chown(path, uid, gid)
+		return os.Chown(fpath, uid, gid)
 	})
 }
 

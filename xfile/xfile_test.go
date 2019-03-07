@@ -15,6 +15,12 @@ import (
 	"testing"
 )
 
+func TestVersion(t *testing.T) {
+	assert.NotEqual(t, Version(), "")
+	assert.NotEqual(t, Author(), "")
+	assert.NotEqual(t, License(), "")
+}
+
 func TestFile(t *testing.T) {
 	err := os.RemoveAll("tmp")
 	assert.Nil(t, err)
@@ -40,6 +46,24 @@ func TestFile(t *testing.T) {
 	ok = IsFile("tmp/file")
 	assert.False(t, ok, "file expect to be not file")
 
+	fd, err := New("tmp/dir/test/")
+	assert.NotNil(t, err)
+
+	fd, err = New("tmp/file")
+	assert.Nil(t, err)
+	err = fd.Close()
+	assert.Nil(t, err)
+
+	ok = IsFile("tmp/file")
+	assert.True(t, ok, "file expect to be file")
+
+	err = Write("tmp/file", []byte("likexian"))
+	assert.Nil(t, err)
+
+	text, err := ReadText("tmp/file")
+	assert.Nil(t, err)
+	assert.Equal(t, text, "likexian")
+
 	err = WriteText("tmp/file", "1\n2\n3\n4\n5")
 	assert.Nil(t, err)
 
@@ -54,7 +78,7 @@ func TestFile(t *testing.T) {
 	err = WriteText("tmp/file", "likexian")
 	assert.Nil(t, err)
 
-	text, err := ReadText("tmp/file")
+	text, err = ReadText("tmp/file")
 	assert.Nil(t, err)
 	assert.Equal(t, text, "likexian")
 
