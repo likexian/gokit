@@ -80,7 +80,7 @@ func MTime(fpath string) (int64, error) {
 // New open a file and return fd
 func New(fpath string) (*os.File, error) {
 	dir, _ := filepath.Split(fpath)
-	if dir != "" && !Exists(dir) {
+	if dir != "" && !IsDir(dir) {
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
 			return nil, err

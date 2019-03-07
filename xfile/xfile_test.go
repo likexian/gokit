@@ -22,10 +22,9 @@ func TestVersion(t *testing.T) {
 }
 
 func TestFile(t *testing.T) {
-	err := os.RemoveAll("tmp")
-	assert.Nil(t, err)
+	defer os.RemoveAll("tmp")
 
-	err = os.Mkdir("tmp", 0755)
+	err := os.Mkdir("tmp", 0755)
 	assert.Nil(t, err)
 
 	ok := Exists("tmp/dir")
@@ -54,11 +53,17 @@ func TestFile(t *testing.T) {
 	err = fd.Close()
 	assert.Nil(t, err)
 
+	fd, err = New("tmp/file/test")
+	assert.NotNil(t, err)
+
 	ok = IsFile("tmp/file")
 	assert.True(t, ok, "file expect to be file")
 
 	err = Write("tmp/file", []byte("likexian"))
 	assert.Nil(t, err)
+
+	err = Write("tmp/file/test", []byte("likexian"))
+	assert.NotNil(t, err)
 
 	text, err := ReadText("tmp/file")
 	assert.Nil(t, err)
@@ -74,6 +79,12 @@ func TestFile(t *testing.T) {
 	lines, err = ReadLines("tmp/file", 1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(lines), 1)
+
+	text, err = ReadText("tmp/not-exists")
+	assert.NotNil(t, err)
+
+	lines, err = ReadLines("tmp/not-exists", 0)
+	assert.NotNil(t, err)
 
 	err = WriteText("tmp/file", "likexian")
 	assert.Nil(t, err)
@@ -96,6 +107,12 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, m > 0)
 
+	n, err = Size("tmp/not-exists")
+	assert.NotNil(t, err)
+
+	n, err = MTime("tmp/not-exists")
+	assert.NotNil(t, err)
+
 	ok = IsSymlink("tmp/link")
 	assert.False(t, ok, "file expect to be not expect")
 
@@ -117,7 +134,11 @@ func TestFile(t *testing.T) {
 	err = ChownAll("tmp", 0, 0)
 	assert.Nil(t, err)
 
-	os.RemoveAll("tmp")
+	err = ChmodAll("tmp/not-exists", 0777)
+	assert.NotNil(t, err)
+
+	err = ChownAll("tmp/not-exists", 0, 0)
+	assert.NotNil(t, err)
 
 	pwd := GetPwd()
 	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
