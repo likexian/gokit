@@ -76,3 +76,8 @@ func TestPanic(t *testing.T) {
 	Panic(t, func() { panic("failed") })
 	Panic(t, func() { panic("failed") }, "assert expect to be panic")
 }
+
+func TestNotPanic(t *testing.T) {
+	NotPanic(t, func() {})
+	NotPanic(t, func() {}, "assert expect to be panic")
+}

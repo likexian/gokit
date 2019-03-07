@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -74,6 +74,26 @@ func Panic(t *testing.T, fn func(), args ...interface{}) {
 				t.Error("! -", fmt.Sprint(args...))
 			} else {
 				t.Error("! -", "assert expected to be panic")
+			}
+		}
+	}()
+
+	fn()
+}
+
+// NotPanic assert testing to be panic
+func NotPanic(t *testing.T, fn func(), args ...interface{}) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			_, file, line, ok := runtime.Caller(2)
+			if ok {
+				t.Errorf("%s:%d", file, line)
+			}
+			if len(args) > 0 {
+				t.Error("! -", fmt.Sprint(args...))
+			} else {
+				t.Error("! -", "assert expected to be not panic")
 			}
 		}
 	}()

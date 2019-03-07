@@ -69,6 +69,9 @@ func TestContains(t *testing.T) {
 		ok := Contains(v[0], v[1])
 		assert.Equal(t, ok, v[2])
 	}
+
+	var test interface{}
+	assert.Panic(t, func() { Contains(test, test) })
 }
 
 func TestUnique(t *testing.T) {
@@ -87,4 +90,7 @@ func TestUnique(t *testing.T) {
 		u := Unique(v[0])
 		assert.Equal(t, v[1], u)
 	}
+
+	var test interface{}
+	assert.Panic(t, func() { Unique(test) })
 }
