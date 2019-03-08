@@ -80,10 +80,10 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(lines), 1)
 
-	text, err = ReadText("tmp/not-exists")
+	_, err = ReadText("tmp/not-exists")
 	assert.NotNil(t, err)
 
-	lines, err = ReadLines("tmp/not-exists", 0)
+	_, err = ReadLines("tmp/not-exists", 0)
 	assert.NotNil(t, err)
 
 	err = WriteText("tmp/file", "likexian")
@@ -107,10 +107,10 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, m > 0)
 
-	n, err = Size("tmp/not-exists")
+	_, err = Size("tmp/not-exists")
 	assert.NotNil(t, err)
 
-	n, err = MTime("tmp/not-exists")
+	_, err = MTime("tmp/not-exists")
 	assert.NotNil(t, err)
 
 	ok = IsSymlink("tmp/link")

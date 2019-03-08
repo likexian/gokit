@@ -65,13 +65,14 @@ func TestContains(t *testing.T) {
 		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, B{1, 2}, true},
 		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, A{1, 2}, false},
 	}
+
 	for _, v := range tests {
 		ok := Contains(v[0], v[1])
 		assert.Equal(t, ok, v[2])
 	}
 
-	var test interface{}
-	assert.Panic(t, func() { Contains(test, test) })
+	test := map[string]interface{}{"test": 1}
+	assert.Panic(t, func() { Contains(test["test"], test["test"]) })
 }
 
 func TestUnique(t *testing.T) {
@@ -86,11 +87,12 @@ func TestUnique(t *testing.T) {
 		[]interface{}{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
 		[]interface{}{[]interface{}{A{0, 1}, A{1, 2}, A{0, 1}, B{0, 1}}, []interface{}{A{0, 1}, A{1, 2}, B{0, 1}}},
 	}
+
 	for _, v := range tests {
 		u := Unique(v[0])
 		assert.Equal(t, v[1], u)
 	}
 
-	var test interface{}
-	assert.Panic(t, func() { Unique(test) })
+	test := map[string]interface{}{"test": 1}
+	assert.Panic(t, func() { Unique(test["test"]) })
 }
