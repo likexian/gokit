@@ -21,14 +21,14 @@ import (
 	"os"
 )
 
-// XHash storing hash object
-type XHash struct {
+// Hashx storing hash object
+type Hashx struct {
 	Hash hash.Hash
 }
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -42,73 +42,73 @@ func License() string {
 }
 
 // Md5 returns md5 hash of string
-func Md5(s string) (h XHash) {
+func Md5(s string) (h Hashx) {
 	h.Hash = md5.New()
 	h.Hash.Write([]byte(s))
 	return
 }
 
 // Sha1 returns sha1 hash of string
-func Sha1(s string) (h XHash) {
+func Sha1(s string) (h Hashx) {
 	h.Hash = sha1.New()
 	h.Hash.Write([]byte(s))
 	return
 }
 
 // Sha256 returns sha256 hash of string
-func Sha256(s string) (h XHash) {
+func Sha256(s string) (h Hashx) {
 	h.Hash = sha256.New()
 	h.Hash.Write([]byte(s))
 	return
 }
 
 // Sha512 returns sha512 hash of string
-func Sha512(s string) (h XHash) {
+func Sha512(s string) (h Hashx) {
 	h.Hash = sha512.New()
 	h.Hash.Write([]byte(s))
 	return
 }
 
 // FileMd5 returns md5 hash of file
-func FileMd5(p string) (h XHash, err error) {
+func FileMd5(p string) (h Hashx, err error) {
 	h.Hash = md5.New()
 	err = h.readFile(p)
 	return
 }
 
 // FileSha1 returns sha1 hash of file
-func FileSha1(p string) (h XHash, err error) {
+func FileSha1(p string) (h Hashx, err error) {
 	h.Hash = sha1.New()
 	err = h.readFile(p)
 	return
 }
 
 // FileSha256 returns sha256 hash of file
-func FileSha256(p string) (h XHash, err error) {
+func FileSha256(p string) (h Hashx, err error) {
 	h.Hash = sha256.New()
 	err = h.readFile(p)
 	return
 }
 
 // FileSha512 returns sha512 hash of file
-func FileSha512(p string) (h XHash, err error) {
+func FileSha512(p string) (h Hashx, err error) {
 	h.Hash = sha512.New()
 	err = h.readFile(p)
 	return
 }
 
 // Hex encoding hash sum as hex string
-func (h *XHash) Hex() string {
+func (h Hashx) Hex() string {
 	return hex.EncodeToString(h.Hash.Sum(nil))
 }
 
 // B64 encoding hash sum as base64 string
-func (h *XHash) B64() string {
+func (h Hashx) B64() string {
 	return base64.StdEncoding.EncodeToString(h.Hash.Sum(nil))
 }
 
 // readFile write file content to hash
-func (h *XHash) readFile(p string) (err error) {
+func (h Hashx) readFile(p string) (err error) {
 	fd, err := os.Open(p)
 	if err != nil {
 		return
