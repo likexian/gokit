@@ -90,7 +90,7 @@ func TestUnique(t *testing.T) {
 
 	for _, v := range tests {
 		u := Unique(v[0])
-		assert.Equal(t, v[1], u)
+		assert.Equal(t, u, v[1])
 	}
 
 	test := map[string]interface{}{"test": 1}

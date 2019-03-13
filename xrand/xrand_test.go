@@ -23,10 +23,10 @@ func TestVersion(t *testing.T) {
 func TestInt(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		v := Int(0)
-		assert.Equal(t, 0, v)
+		assert.Equal(t, v, 0)
 
 		v = Int(1)
-		assert.Equal(t, 0, v)
+		assert.Equal(t, v, 0)
 
 		v = Int(2)
 		assert.True(t, v == 0 || v == 1)
@@ -36,10 +36,10 @@ func TestInt(t *testing.T) {
 func TestIntRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		v := IntRange(0, 0)
-		assert.Equal(t, 0, v)
+		assert.Equal(t, v, 0)
 
 		v = IntRange(0, 1)
-		assert.Equal(t, 0, v)
+		assert.Equal(t, v, 0)
 
 		v = IntRange(0, 2)
 		assert.True(t, v == 0 || v == 1)
@@ -58,14 +58,14 @@ func TestIntRange(t *testing.T) {
 func TestString(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		v := String(10)
-		assert.Equal(t, 10, len(v))
+		assert.Equal(t, len(v), 10)
 	}
 }
 
 func TestStringRange(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		v := StringRange(10, "")
-		assert.Equal(t, "", v)
+		assert.Equal(t, v, "")
 
 		v = StringRange(10, "abc")
 		assert.Equal(t, len(v), 10)
@@ -79,7 +79,7 @@ func TestBytes(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		v, err := Bytes(10)
 		assert.Nil(t, err)
-		assert.Equal(t, 10, len(v))
+		assert.Equal(t, len(v), 10)
 	}
 }
 

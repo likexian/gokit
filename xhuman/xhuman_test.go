@@ -57,7 +57,7 @@ func TestFormatByteSize(t *testing.T) {
 
 	for _, v := range tests {
 		vv := FormatByteSize(v.in, v.p)
-		assert.Equal(t, v.out, vv)
+		assert.Equal(t, vv, v.out)
 	}
 }
 
@@ -92,7 +92,7 @@ func TestParseByteSize(t *testing.T) {
 	for _, v := range tests {
 		vv, err := ParseByteSize(v.in)
 		assert.Nil(t, err)
-		assert.Equal(t, v.out, vv)
+		assert.Equal(t, vv, v.out)
 	}
 
 	for _, v := range []string{"K", "KB", "-1", "-1K", "-1KB", "1AB", "1 K B"} {
@@ -141,7 +141,7 @@ func TestRound(t *testing.T) {
 
 	for _, v := range tests {
 		vv := Round(v.in, v.p)
-		assert.Equal(t, v.out, vv)
+		assert.Equal(t, vv, v.out)
 	}
 }
 
@@ -195,6 +195,6 @@ func TestComma(t *testing.T) {
 
 	for _, v := range tests {
 		vv := Comma(v.in, v.p)
-		assert.Equal(t, v.out, vv)
+		assert.Equal(t, vv, v.out)
 	}
 }
