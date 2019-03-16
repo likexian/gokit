@@ -10,6 +10,7 @@
 package xtime
 
 import (
+	"errors"
 	"github.com/likexian/gokit/assert"
 	"testing"
 	"time"
@@ -88,4 +89,19 @@ func TestTimeToStr(t *testing.T) {
 
 	s = TimeToStr(1552314204, "Mon, 02 Jan 2006 15:04:05")
 	assert.Equal(t, s, "Mon, 11 Mar 2019 22:23:24")
+}
+
+func TestWithTimeout(t *testing.T) {
+	n, err := WithTimeout(func() interface{} { return 10000 }, 1*time.Second)
+	assert.Nil(t, err)
+	assert.Equal(t, n, 10000)
+
+	n, err = WithTimeout(func() interface{} { return errors.New("some error") }, 1*time.Second)
+	assert.Nil(t, n)
+	assert.NotNil(t, err)
+	assert.NotNil(t, err, ErrTimeout)
+
+	n, err = WithTimeout(func() interface{} { Sleep(2); return 10000 }, 1*time.Second)
+	assert.Equal(t, err, ErrTimeout)
+	assert.NotEqual(t, n, 10000)
 }

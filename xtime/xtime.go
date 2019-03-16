@@ -10,12 +10,19 @@
 package xtime
 
 import (
+	"errors"
 	"time"
 )
 
+// TimeCallback is a callback with one return value
+type TimeCallback func() interface{}
+
+// ErrTimeout is timeout error
+var ErrTimeout = errors.New("xtime: callback timeout")
+
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -95,4 +102,25 @@ func TimeToStr(n int64, layout ...string) string {
 	}
 
 	return time.Unix(n, 0).Format(format)
+}
+
+// WithTimeout execute the callback and return value or return timeout error if timeout
+func WithTimeout(fn TimeCallback, timeout time.Duration) (interface{}, error) {
+	end := make(chan interface{})
+	go func() {
+		end <- fn()
+	}()
+
+	t := time.After(timeout)
+	select {
+	case <-t:
+		return nil, ErrTimeout
+	case r := <-end:
+		if r != nil {
+			if err, ok := r.(error); ok {
+				return nil, err
+			}
+		}
+		return r, nil
+	}
 }
