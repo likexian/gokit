@@ -92,16 +92,69 @@ func TestTimeToStr(t *testing.T) {
 }
 
 func TestWithTimeout(t *testing.T) {
-	n, err := WithTimeout(func() interface{} { return 10000 }, 1*time.Second)
-	assert.Nil(t, err)
-	assert.Equal(t, n, 10000)
+	r, _ := WithTimeout(func() interface{} { return 10000 }, 1*time.Second)
+	assert.Equal(t, <-r, 10000)
 
-	n, err = WithTimeout(func() interface{} { return errors.New("some error") }, 1*time.Second)
-	assert.Nil(t, n)
-	assert.NotNil(t, err)
-	assert.NotNil(t, err, ErrTimeout)
+	r, _ = WithTimeout(func() interface{} { return errors.New("some error") }, 1*time.Second)
+	assert.NotNil(t, <-r)
 
-	n, err = WithTimeout(func() interface{} { Sleep(2); return 10000 }, 1*time.Second)
-	assert.Equal(t, err, ErrTimeout)
-	assert.NotEqual(t, n, 10000)
+	r, _ = WithTimeout(func() interface{} { Sleep(2); t.Log("i run after timeout"); return 10000 }, 1*time.Second)
+	assert.Equal(t, <-r, ErrTimeouted)
+
+	r, cancel := WithTimeout(func() interface{} { Sleep(2); t.Log("i run after cancel"); return 10000 }, 1*time.Second)
+	cancel()
+	assert.Equal(t, <-r, ErrCanceled)
+
+	Sleep(3)
+}
+
+func TestSetTimeout(t *testing.T) {
+	r, _ := SetTimeout(func() interface{} { return 10000 }, 1*time.Second)
+	start := S()
+	assert.Equal(t, <-r, 10000)
+	assert.Equal(t, S()-start, int64(1))
+
+	r, _ = SetTimeout(func() interface{} { return errors.New("some error") }, 1*time.Second)
+	start = S()
+	assert.NotNil(t, <-r)
+	assert.Equal(t, S()-start, int64(1))
+
+	r, cancel := SetTimeout(func() interface{} { Sleep(2); t.Log("i will not run"); return 10000 }, 1*time.Second)
+	start = S()
+	cancel()
+	assert.Equal(t, <-r, ErrCanceled)
+	assert.Equal(t, S()-start, int64(0))
+
+	Sleep(3)
+}
+
+func TestSetInterval(t *testing.T) {
+	r, _ := SetInterval(func() interface{} { return 10000 }, 1*time.Second)
+	start := S()
+	assert.Equal(t, <-r, 10000)
+	assert.Equal(t, S()-start, int64(1))
+
+	r, _ = SetInterval(func() interface{} { return errors.New("some error") }, 1*time.Second)
+	start = S()
+	assert.NotNil(t, <-r)
+	assert.Equal(t, S()-start, int64(1))
+
+	r, cancel := SetInterval(func() interface{} { Sleep(2); t.Log("i will not run"); return 10000 }, 1*time.Second)
+	start = S()
+	cancel()
+	assert.Equal(t, <-r, ErrCanceled)
+	assert.Equal(t, S()-start, int64(0))
+
+	r, cancel = SetInterval(func() interface{} { return 10000 }, 1*time.Second)
+	start = S()
+	ints := []int{}
+	for i := 0; i < 3; i++ {
+		ints = append(ints, (<-r).(int))
+	}
+	cancel()
+	assert.Equal(t, <-r, ErrCanceled)
+	assert.Equal(t, ints, []int{10000, 10000, 10000})
+	assert.Equal(t, S()-start, int64(3))
+
+	Sleep(3)
 }

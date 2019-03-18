@@ -17,12 +17,15 @@ import (
 // TimeCallback is a callback with one return value
 type TimeCallback func() interface{}
 
-// ErrTimeout is timeout error
-var ErrTimeout = errors.New("xtime: callback timeout")
+// ErrCanceled is canceled error
+var ErrCanceled = errors.New("xtime: canceled")
+
+// ErrTimeouted is timeouted error
+var ErrTimeouted = errors.New("xtime: timeouted")
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -104,23 +107,67 @@ func TimeToStr(n int64, layout ...string) string {
 	return time.Unix(n, 0).Format(format)
 }
 
-// WithTimeout execute the callback and return value or return timeout error if timeout
-func WithTimeout(fn TimeCallback, timeout time.Duration) (interface{}, error) {
-	end := make(chan interface{})
+// WithTimeout execute the callback with timeout return a chan and cancel func
+func WithTimeout(fn TimeCallback, timeout time.Duration) (chan interface{}, func()) {
+	q := make(chan bool)
+	r := make(chan interface{})
+
 	go func() {
-		end <- fn()
+		r <- fn()
 	}()
 
-	t := time.After(timeout)
-	select {
-	case <-t:
-		return nil, ErrTimeout
-	case r := <-end:
-		if r != nil {
-			if err, ok := r.(error); ok {
-				return nil, err
+	go func() {
+		t := time.After(timeout)
+		select {
+		case <-t:
+			r <- ErrTimeouted
+			return
+		case <-q:
+			r <- ErrCanceled
+			return
+		}
+	}()
+
+	return r, func() { close(q) }
+}
+
+// SetTimeout execute the callback after timeout return a chan and cancel func
+func SetTimeout(fn TimeCallback, timeout time.Duration) (chan interface{}, func()) {
+	q := make(chan bool)
+	r := make(chan interface{})
+
+	go func() {
+		t := time.After(timeout)
+		select {
+		case <-t:
+			r <- fn()
+		case <-q:
+			r <- ErrCanceled
+			return
+		}
+	}()
+
+	return r, func() { close(q) }
+}
+
+// SetInterval execute the callback every timeout return a chan and cancel func
+func SetInterval(fn TimeCallback, timeout time.Duration) (chan interface{}, func()) {
+	q := make(chan bool)
+	r := make(chan interface{})
+
+	go func() {
+		t := time.NewTicker(timeout)
+		for {
+			select {
+			case <-t.C:
+				go func() { r <- fn() }()
+			case <-q:
+				t.Stop()
+				r <- ErrCanceled
+				return
 			}
 		}
-		return r, nil
-	}
+	}()
+
+	return r, func() { close(q) }
 }
