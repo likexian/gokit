@@ -30,176 +30,91 @@ func TestVersion(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	req, err := New("GET", BASEURL)
+	req := New()
+
+	_, err := req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "GET")
 	assert.Equal(t, req.Request.URL.String(), BASEURL)
 
-	req, err = New("CODE", BASEURL)
+	_, err = req.Do("CODE", BASEURL)
+	assert.NotNil(t, err)
+	_, err = req.Do("GET", "")
+	assert.NotNil(t, err)
+	_, err = req.Do("GET", "::")
 	assert.NotNil(t, err)
 
-	req, err = New("GET", "")
-	assert.NotNil(t, err)
-
-	req, err = New("GET", "::")
-	assert.NotNil(t, err)
-
-	req, err = New("get", BASEURL)
+	_, err = req.Do("get", BASEURL)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "GET")
 	assert.Equal(t, req.Request.URL.String(), BASEURL)
 
-	req, err = New("POST", BASEURL+"post")
+	_, err = req.Do("POST", BASEURL+"post")
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "POST")
 	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
 
-	req, err = New("GET", BASEURL)
 	clientId := req.ClientId
-	req, err = New("GET", BASEURL)
+	req = New()
+	_, err = req.Do("GET", BASEURL)
 	assert.NotEqual(t, req.ClientId, clientId)
 }
 
-func TestNext(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	err = req.Next("POST", BASEURL+"post")
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Method, "POST")
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-
-	err = req.Next("Code", BASEURL+"post")
-	assert.NotNil(t, err)
-
-	req, err = New("GET", BASEURL)
-	clientId := req.ClientId
-	err = req.Next("POST", BASEURL+"post")
-	assert.Equal(t, req.ClientId, clientId)
-}
-
-func TestSetMethod(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	err = req.SetMethod("CODE")
-	assert.NotNil(t, err)
-
-	err = req.SetMethod("POST")
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Method, "POST")
-
-	clientId := req.ClientId
-	err = req.SetMethod("PUT")
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Method, "PUT")
-	assert.Equal(t, req.ClientId, clientId)
-}
-
-func TestSetURL(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	err = req.SetURL("")
-	assert.NotNil(t, err)
-
-	err = req.SetURL("::")
-	assert.NotNil(t, err)
-
-	err = req.SetURL(BASEURL + "post")
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-
-	clientId := req.ClientId
-	err = req.SetURL(BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL)
-	assert.Equal(t, req.ClientId, clientId)
-}
-
-func TestSetClientKey(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.ClientKey, "")
-	req.SetClientKey(BASEURL)
-	assert.Equal(t, req.ClientKey, BASEURL)
+func TestSetSignKey(t *testing.T) {
+	req := New()
+	assert.Equal(t, req.SignKey, "")
+	req.SetSignKey(BASEURL)
+	assert.Equal(t, req.SignKey, BASEURL)
 }
 
 func TestSetHost(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
+	req := New()
 	host := req.Request.Host
 	req.SetHost("likexian.com")
 	assert.Equal(t, req.Request.Host, "likexian.com")
 	assert.NotEqual(t, req.Request.Host, host)
-
-	err = req.Next("GET", BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Host, host)
 }
 
 func TestSetHeader(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	author := req.Request.Header.Get("X-Author")
+	req := New()
+	author := req.GetHeader("X-Author")
 	assert.Equal(t, author, "")
 	req.SetHeader("X-Author", "likexian")
-	assert.Equal(t, req.Request.Header.Get("X-Author"), "likexian")
-
-	err = req.Next("GET", BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Header.Get("X-Author"), "likexian")
+	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
 }
 
 func TestSetUA(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	ua := req.Request.Header.Get("User-Agent")
+	req := New()
+	ua := req.GetHeader("User-Agent")
 	assert.Equal(t, ua, fmt.Sprintf("GoKit XHTTP Client/%s", Version()))
 	req.SetUA("Http Client by likexian")
-	assert.Equal(t, req.Request.Header.Get("User-Agent"), "Http Client by likexian")
-
-	err = req.Next("GET", BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Header.Get("User-Agent"), "Http Client by likexian")
+	assert.Equal(t, req.GetHeader("User-Agent"), "Http Client by likexian")
 }
 
 func TestSetReferer(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-
-	referer := req.Request.Header.Get("referer")
+	req := New()
+	referer := req.GetHeader("referer")
 	assert.Equal(t, referer, "")
 	req.SetHeader("referer", BASEURL)
-	assert.Equal(t, req.Request.Header.Get("referer"), BASEURL)
-
-	err = req.Next("GET", BASEURL)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.Header.Get("referer"), BASEURL)
+	assert.Equal(t, req.GetHeader("referer"), BASEURL)
 }
 
 func TestGetHeader(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
 
 	for _, k := range []string{"Connection", "Content-Type", "Date", "Server"} {
-		h, err := rsp.GetHeader(k)
-		assert.Nil(t, err)
+		h := rsp.GetHeader(k)
 		assert.NotEqual(t, h, "")
 	}
 }
 
 func TestBytes(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -213,9 +128,7 @@ func TestBytes(t *testing.T) {
 	assert.NotEqual(t, trace.Timestamp, "")
 	assert.NotEqual(t, trace.Nonce, "")
 
-	err = req.Next("GET", BASEURL+"get")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -231,9 +144,8 @@ func TestBytes(t *testing.T) {
 	assert.NotEqual(t, rsp.Trace.RequestId, trace.RequestId)
 
 	trace = rsp.Trace
-	req, err = New("GET", BASEURL+"status/404")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	req = New()
+	rsp, err = req.Do("GET", BASEURL+"status/404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 404)
@@ -242,9 +154,8 @@ func TestBytes(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -254,9 +165,7 @@ func TestString(t *testing.T) {
 	assert.NotEqual(t, len(s), 0)
 	assert.Equal(t, s[0:1], "<")
 
-	err = req.Next("GET", BASEURL+"get")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -275,9 +184,8 @@ func TestFile(t *testing.T) {
 		os.RemoveAll("tmp")
 	}()
 
-	req, err := New("GET", BASEURL+"static/favicon.ico")
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL+"static/favicon.ico")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -287,9 +195,7 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	err = req.Next("GET", BASEURL)
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -299,9 +205,7 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	err = req.Next("GET", BASEURL+"get")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -311,9 +215,7 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	err = req.Next("GET", BASEURL+"get")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -323,18 +225,14 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	err = req.Next("GET", BASEURL+"get")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
 	ss, err = rsp.File("get.html")
 	assert.NotNil(t, err)
 
-	err = req.Next("GET", BASEURL+"404")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 404)
@@ -343,43 +241,34 @@ func TestFile(t *testing.T) {
 }
 
 func TestSetFollowRedirect(t *testing.T) {
-	req, err := New("GET", BASEURL+"redirect/3")
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
-	loc, err := rsp.GetHeader("Location")
-	assert.Nil(t, err)
+	loc := rsp.GetHeader("Location")
 	assert.Equal(t, loc, "")
 
-	req, err = New("GET", BASEURL+"redirect/3")
-	assert.Nil(t, err)
 	req.SetFollowRedirect(false)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 302)
-	loc, err = rsp.GetHeader("Location")
-	assert.Nil(t, err)
+	loc = rsp.GetHeader("Location")
 	assert.Equal(t, loc, "/relative-redirect/2")
 
-	req, err = New("GET", BASEURL+"redirect/3")
-	assert.Nil(t, err)
 	req.SetFollowRedirect(true)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
-	loc, err = rsp.GetHeader("Location")
-	assert.Nil(t, err)
+	loc = rsp.GetHeader("Location")
 	assert.Equal(t, loc, "")
 }
 
 func TestSetGzip(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	req := New()
+	rsp, err := req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -388,10 +277,8 @@ func TestSetGzip(t *testing.T) {
 	assert.NotEqual(t, len(s), 0)
 	assert.Equal(t, s[0:1], "<")
 
-	req, err = New("GET", BASEURL)
-	assert.Nil(t, err)
 	req.SetGzip(false)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -400,10 +287,8 @@ func TestSetGzip(t *testing.T) {
 	assert.NotEqual(t, len(s), 0)
 	assert.Equal(t, s[0:1], "<")
 
-	req, err = New("GET", BASEURL)
-	assert.Nil(t, err)
 	req.SetGzip(true)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
@@ -414,8 +299,7 @@ func TestSetGzip(t *testing.T) {
 }
 
 func TestSetVerifyTls(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
+	req := New()
 	assert.False(t, req.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 
 	req.SetVerifyTls(false)
@@ -426,8 +310,7 @@ func TestSetVerifyTls(t *testing.T) {
 }
 
 func TestSetKeepAlive(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
+	req := New()
 	assert.False(t, req.Client.Transport.(*http.Transport).DisableKeepAlives)
 
 	req.SetKeepAlive(0)
@@ -438,8 +321,7 @@ func TestSetKeepAlive(t *testing.T) {
 }
 
 func TestSetTimeout(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
+	req := New()
 
 	timeout := req.GetTimeout()
 	timeout.ClientTimeout = 10
@@ -451,89 +333,68 @@ func TestSetTimeout(t *testing.T) {
 }
 
 func TestSetProxy(t *testing.T) {
-	req, err := New("GET", BASEURL)
-	assert.Nil(t, err)
-	req.SetProxy("127.0.0.1:8080")
-	_, err = req.Do()
+	req := New().SetProxy("127.0.0.1:8080")
+	_, err := req.Do("GET", BASEURL)
 	assert.NotNil(t, err)
 }
 
 func TestSetEnableCookie(t *testing.T) {
 	// not enable cookies
-	req, err := New("GET", BASEURL+"cookies/set/k/v")
+	req := New()
 	req.SetFollowRedirect(false)
-	assert.Nil(t, err)
-	rsp, err := req.Do()
+	rsp, err := req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	err = req.Next("GET", BASEURL+"cookies")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// enable cookies
-	err = req.Next("GET", BASEURL+"cookies/set/k/v")
 	req.SetEnableCookie(true)
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	err = req.Next("GET", BASEURL+"cookies")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
 	// delete cookies
-	err = req.Next("GET", BASEURL+"cookies/delete?k=")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies/delete?k=")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
-	err = req.Next("GET", BASEURL+"cookies")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// set cookie again
-	err = req.Next("GET", BASEURL+"cookies/set/k/v")
 	req.SetEnableCookie(true)
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	err = req.Next("GET", BASEURL+"cookies")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
 	// disable cookies
-	err = req.Next("GET", BASEURL+"cookies/set/k/v")
 	req.SetEnableCookie(false)
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	err = req.Next("GET", BASEURL+"cookies")
-	assert.Nil(t, err)
-	rsp, err = req.Do()
+	rsp, err = req.Do("GET", BASEURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)

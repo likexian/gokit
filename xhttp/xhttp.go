@@ -41,13 +41,13 @@ type Timeout struct {
 
 // Request storing request data
 type Request struct {
-	Request   *http.Request
-	Timeout   Timeout
-	Client    *http.Client
-	ClientId  string
-	ClientKey string
-	Retries   int
-	Debug     bool
+	Request  *http.Request
+	Timeout  Timeout
+	Client   *http.Client
+	ClientId string
+	SignKey  string
+	Retries  int
+	Debug    bool
 }
 
 // Trace storing trace data
@@ -85,7 +85,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -98,8 +98,8 @@ func License() string {
 	return "Apache License, Version 2.0"
 }
 
-// New init a new http request
-func New(method, surl string) (r *Request, err error) {
+// New init a new xhttp client
+func New() (r *Request) {
 	timeout := Timeout{
 		ConnTimeout:           10,
 		TLSHandshakeTimeout:   5,
@@ -110,7 +110,9 @@ func New(method, surl string) (r *Request, err error) {
 	}
 
 	request := &http.Request{
-		Header: make(http.Header),
+		Header: http.Header{
+			"User-Agent": []string{fmt.Sprintf("GoKit XHTTP Client/%s", Version())},
+		},
 	}
 
 	client := &http.Client{
@@ -121,116 +123,74 @@ func New(method, surl string) (r *Request, err error) {
 	}
 
 	r = &Request{
-		Request:   request,
-		Timeout:   timeout,
-		Client:    client,
-		ClientId:  UniqueId(fmt.Sprintf("%d", xtime.Ns())),
-		ClientKey: "",
-		Retries:   0,
-		Debug:     false,
-	}
-
-	r.SetHeader("User-Agent", fmt.Sprintf("GoKit XHTTP Client/%s", Version()))
-	err = r.Next(method, surl)
-
-	return
-}
-
-// Next set next http request method and url
-func (r *Request) Next(method, surl string) (err error) {
-	r.Request.Host = ""
-	r.Request.Header.Del("Cookie")
-
-	err = r.SetMethod(method)
-	if err != nil {
-		return
-	}
-
-	err = r.SetURL(surl)
-	if err != nil {
-		return
+		Request:  request,
+		Timeout:  timeout,
+		Client:   client,
+		ClientId: UniqueId(fmt.Sprintf("%d", xtime.Ns())),
+		SignKey:  "",
+		Retries:  0,
+		Debug:    false,
 	}
 
 	return
 }
 
-// SetMethod set http request method
-func (r *Request) SetMethod(method string) error {
-	method = strings.ToUpper(strings.TrimSpace(method))
-	if !xslice.Contains(SUPPORT_METHOD, method) {
-		return fmt.Errorf("xhttp: not supported method: %s", method)
-	}
-
-	r.Request.Method = method
-
-	return nil
+// GetHeader return request header value by name
+func (r *Request) GetHeader(name string) string {
+	return r.Request.Header.Get(name)
 }
 
-// SetURL set http request url
-func (r *Request) SetURL(surl string) error {
-	surl = strings.TrimSpace(surl)
-	if surl == "" {
-		return fmt.Errorf("xhttp: no request url specify")
-	}
-
-	u, err := url.Parse(surl)
-	if err != nil {
-		return fmt.Errorf("xhttp: parse url failed: %s", err.Error())
-	}
-
-	r.Request.URL = u
-
-	return nil
-}
-
-// SetClientKey set key for generating requestid
-func (r *Request) SetClientKey(key string) {
-	r.ClientKey = key
+// SetSignKey set key for signing requestid
+func (r *Request) SetSignKey(key string) *Request {
+	r.SignKey = key
+	return r
 }
 
 // SetHost set http request host
-func (r *Request) SetHost(host string) {
+func (r *Request) SetHost(host string) *Request {
 	r.Request.Host = host
+	return r
 }
 
 // SetHeader set http request header
-func (r *Request) SetHeader(key, value string) {
+func (r *Request) SetHeader(key, value string) *Request {
 	r.Request.Header.Set(key, value)
+	return r
 }
 
 // SetUA set http request user-agent
-func (r *Request) SetUA(ua string) {
+func (r *Request) SetUA(ua string) *Request {
 	r.SetHeader("User-Agent", ua)
+	return r
 }
 
 // SetReferer set http request referer
-func (r *Request) SetReferer(referer string) {
+func (r *Request) SetReferer(referer string) *Request {
 	r.SetHeader("Referer", referer)
+	return r
 }
 
 // SetGzip set http request gzip
-func (r *Request) SetGzip(gzip bool) {
+func (r *Request) SetGzip(gzip bool) *Request {
 	r.Client.Transport.(*http.Transport).DisableCompression = !gzip
+	return r
 }
 
 // SetVerifyTls set http request tls verify
-func (r *Request) SetVerifyTls(verify bool) {
+func (r *Request) SetVerifyTls(verify bool) *Request {
 	r.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = !verify
+	return r
 }
 
 // SetKeepAlive set http keepalive timeout
-func (r *Request) SetKeepAlive(timeout int) {
+func (r *Request) SetKeepAlive(timeout int) *Request {
 	r.Timeout.KeepAliveTimeout = timeout
 	r.SetTimeout(r.Timeout)
-}
-
-// GetTimeout get http request timeout
-func (r *Request) GetTimeout() Timeout {
-	return r.Timeout
+	return r
 }
 
 // SetTimeout set http request timeout
-func (r *Request) SetTimeout(timeout Timeout) {
+func (r *Request) SetTimeout(timeout Timeout) *Request {
 	r.Timeout = timeout
 	if r.Timeout.KeepAliveTimeout <= 0 {
 		r.Client.Transport.(*http.Transport).DisableKeepAlives = true
@@ -245,22 +205,31 @@ func (r *Request) SetTimeout(timeout Timeout) {
 	r.Client.Transport.(*http.Transport).ResponseHeaderTimeout = time.Duration(r.Timeout.ResponseHeaderTimeout) * time.Second
 	r.Client.Transport.(*http.Transport).ExpectContinueTimeout = time.Duration(r.Timeout.ExpectContinueTimeout) * time.Second
 	r.Client.Timeout = time.Duration(r.Timeout.ClientTimeout) * time.Second
+	return r
+}
+
+// GetTimeout get http request timeout
+func (r *Request) GetTimeout() Timeout {
+	return r.Timeout
 }
 
 // SetProxy set http request proxy
-func (r *Request) SetProxy(proxy string) {
+func (r *Request) SetProxy(proxy string) *Request {
 	if !strings.HasPrefix(proxy, "http://") &&
 		!strings.HasPrefix(proxy, "https://") &&
 		!strings.HasPrefix(proxy, "socks5://") {
 		proxy = "http://" + proxy
 	}
+
 	r.Client.Transport.(*http.Transport).Proxy = func(req *http.Request) (*url.URL, error) {
 		return url.ParseRequestURI(proxy)
 	}
+
+	return r
 }
 
 // SetFollowRedirect set http request follow redirect
-func (r *Request) SetFollowRedirect(follow bool) {
+func (r *Request) SetFollowRedirect(follow bool) *Request {
 	if follow {
 		r.Client.CheckRedirect = nil
 	} else {
@@ -268,10 +237,12 @@ func (r *Request) SetFollowRedirect(follow bool) {
 			return http.ErrUseLastResponse
 		}
 	}
+
+	return r
 }
 
 // SetEnableCookie set http request enable cookie
-func (r *Request) SetEnableCookie(enable bool) {
+func (r *Request) SetEnableCookie(enable bool) *Request {
 	if enable {
 		if r.Client.Jar == nil {
 			r.Client.Jar, _ = cookiejar.New(nil)
@@ -281,10 +252,34 @@ func (r *Request) SetEnableCookie(enable bool) {
 			r.Client.Jar = nil
 		}
 	}
+
+	return r
 }
 
 // Do send http request and return response
-func (r *Request) Do() (s *Response, err error) {
+func (r *Request) Do(method, surl string) (s *Response, err error) {
+	r.Request.Host = ""
+	r.Request.Header.Del("Cookie")
+
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if !xslice.Contains(SUPPORT_METHOD, method) {
+		return nil, fmt.Errorf("xhttp: not supported method: %s", method)
+	}
+
+	r.Request.Method = method
+
+	surl = strings.TrimSpace(surl)
+	if surl == "" {
+		return nil, fmt.Errorf("xhttp: no request url specify")
+	}
+
+	u, err := url.Parse(surl)
+	if err != nil {
+		return nil, fmt.Errorf("xhttp: parse url failed: %s", err.Error())
+	}
+
+	r.Request.URL = u
+
 	s = &Response{
 		Method: r.Request.Method,
 		URL:    r.Request.URL,
@@ -300,11 +295,8 @@ func (r *Request) Do() (s *Response, err error) {
 		s.Trace.SendTime = xtime.Ms() - startAt
 	}()
 
-	s.Trace.RequestId = UniqueId(s.Trace.Timestamp, s.Trace.Nonce, s.Method, s.URL.String(), r.ClientKey)
-
-	r.Request.Header.Set("X-XHTTP-Timestamp", s.Trace.Timestamp)
-	r.Request.Header.Set("X-XHTTP-Nonce", s.Trace.Nonce)
-	r.Request.Header.Set("X-XHTTP-RequestId", s.Trace.RequestId)
+	s.Trace.RequestId = UniqueId(s.Trace.Timestamp, s.Trace.Nonce, s.Method, s.URL.String(), r.SignKey)
+	r.Request.Header.Set("X-XHTTP-RequestId", fmt.Sprintf("%s%s%s", s.Trace.Timestamp, s.Trace.Nonce, s.Trace.RequestId))
 
 	s.Response, err = r.Client.Do(r.Request)
 
@@ -317,12 +309,8 @@ func (r *Response) Close() {
 }
 
 // GetHeader return response header value by name
-func (r *Response) GetHeader(name string) (v string, err error) {
-	if v, ok := r.Response.Header[name]; ok {
-		return v[0], nil
-	}
-
-	return
+func (r *Response) GetHeader(name string) string {
+	return r.Response.Header.Get(name)
 }
 
 // File save response body to file
