@@ -10,6 +10,7 @@
 package xfile
 
 import (
+	"fmt"
 	"github.com/likexian/gokit/assert"
 	"os"
 	"testing"
@@ -145,4 +146,46 @@ func TestFile(t *testing.T) {
 
 	pwd = GetProcPwd()
 	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
+}
+
+func TestListDir(t *testing.T) {
+	defer os.RemoveAll("tmp")
+
+	ls, err := ListDir("", "", -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 3)
+
+	ls, err = ListDir("tmp", "", -1)
+	assert.NotNil(t, err)
+	assert.Equal(t, len(ls), 0)
+
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+		}
+	}
+
+	ls, err = ListDir("tmp", "", -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 110)
+
+	ls, err = ListDir("tmp", "dir", -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 10)
+
+	ls, err = ListDir("tmp", "file", -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 100)
+
+	ls, err = ListDir("tmp", "", 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
+
+	ls, err = ListDir("tmp", "dir", 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
+
+	ls, err = ListDir("tmp", "file", 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
 }

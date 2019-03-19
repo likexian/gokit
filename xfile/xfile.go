@@ -16,11 +16,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -148,6 +149,57 @@ func ReadLines(fpath string, n int) (lines []string, err error) {
 	}
 
 	err = scanner.Err()
+
+	return
+}
+
+// ListDir list dir and children, filter by type, returns up to n
+func ListDir(fpath, ftype string, n int) (ls [][]string, err error) {
+	if fpath == "" {
+		fpath = "."
+	}
+
+	if !strings.HasSuffix(fpath, "/") {
+		fpath += "/"
+	}
+
+	fd, err := os.Open(fpath)
+	if err != nil {
+		return
+	}
+
+	defer fd.Close()
+	fs, err := fd.Readdir(-1)
+	if err != nil {
+		return
+	}
+
+	for _, f := range fs {
+		tpath := fpath + f.Name()
+		if f.IsDir() {
+			if ftype == "" || ftype == "dir" {
+				ls = append(ls, []string{"dir", tpath})
+				if n > 0 && len(ls) >= n {
+					return
+				}
+			}
+			tls, err := ListDir(tpath, ftype, n-len(ls))
+			if err != nil {
+				return ls, err
+			}
+			ls = append(ls, tls...)
+			if n > 0 && len(ls) >= n {
+				return ls, nil
+			}
+		} else {
+			if ftype == "" || ftype == "file" {
+				ls = append(ls, []string{"file", tpath})
+				if n > 0 && len(ls) >= n {
+					return
+				}
+			}
+		}
+	}
 
 	return
 }
