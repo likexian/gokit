@@ -11,11 +11,12 @@ package xslice
 
 import (
 	"reflect"
+	"strings"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -37,6 +38,20 @@ func Contains(array interface{}, value interface{}) bool {
 			if reflect.DeepEqual(value, s.Index(i).Interface()) {
 				return true
 			}
+		}
+	case reflect.Map:
+		s := reflect.ValueOf(array).MapKeys()
+		for i := 0; i < len(s); i++ {
+			if reflect.DeepEqual(value, s[i].Interface()) {
+				return true
+			}
+		}
+	case reflect.String:
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.String:
+			return strings.Contains(array.(string), value.(string))
+		default:
+			return false
 		}
 	default:
 		panic("not support data type")

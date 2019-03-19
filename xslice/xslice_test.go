@@ -64,6 +64,16 @@ func TestContains(t *testing.T) {
 		[]interface{}{[]A{A{0, 1}, A{1, 2}, A{1, 3}}, A{1, 2}, true},
 		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, B{1, 2}, true},
 		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, A{1, 2}, false},
+
+		[]interface{}{"abc", "a", true},
+		[]interface{}{"abc", "d", false},
+		[]interface{}{"abc", 1, false},
+		[]interface{}{"abc", true, false},
+
+		[]interface{}{map[string]int{"a": 1}, "a", true},
+		[]interface{}{map[string]int{"a": 1}, "d", false},
+		[]interface{}{map[string]int{"a": 1}, 1, false},
+		[]interface{}{map[string]int{"a": 1}, true, false},
 	}
 
 	for _, v := range tests {
