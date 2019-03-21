@@ -18,13 +18,19 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhash)
 
 ## Example
 
-### get md5 of string
+### Get md5 of string
 
     h := xhash.Md5("12345678")
     fmt.Println(h.Hex())
     fmt.Println(h.B64())
 
-### get md5 of file
+## Get Hmac Md5 of string
+
+    h := xhash.HmacMd5("12345678", "key")
+    fmt.Println(h.Hex())
+    fmt.Println(h.B64())
+
+### Get md5 of file
 
     h, err := xhash.FileMd5("12345678")
     if err != nil {

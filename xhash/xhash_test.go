@@ -44,6 +44,28 @@ func TestSha512(t *testing.T) {
 	assert.Equal(t, h.B64(), "+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==")
 }
 
+func TestHmacMd5(t *testing.T) {
+	h := HmacMd5("12345678", "12345678")
+	assert.Equal(t, h.Hex(), "70c787ae5b3a408f81592bc8f1a58dee")
+	assert.Equal(t, h.B64(), "cMeHrls6QI+BWSvI8aWN7g==")
+}
+
+func TestHmacSha1(t *testing.T) {
+	h := HmacSha1("12345678", "12345678")
+	assert.Equal(t, h.Hex(), "bfe4e34faad3a0b218ffd053bbafd09b552f4a5d")
+	assert.Equal(t, h.B64(), "v+TjT6rToLIY/9BTu6/Qm1UvSl0=")
+}
+func TestHmacSha256(t *testing.T) {
+	h := HmacSha256("12345678", "12345678")
+	assert.Equal(t, h.Hex(), "e220691b3e23647fc17c4b282bb469ac77fbadb8f5c77898294e42de95add560")
+	assert.Equal(t, h.B64(), "4iBpGz4jZH/BfEsoK7RprHf7rbj1x3iYKU5C3pWt1WA=")
+}
+func TestHmacSha512(t *testing.T) {
+	h := HmacSha512("12345678", "12345678")
+	assert.Equal(t, h.Hex(), "2d0d1bcb4db52eaf3d8c3ae229cd5cc16059fa853637311d4822d8c9054e1c59015919598c843c79e273569ea9fc549d61f279b2289fb539920b825f2ff2d43f")
+	assert.Equal(t, h.B64(), "LQ0by021Lq89jDriKc1cwWBZ+oU2NzEdSCLYyQVOHFkBWRlZjIQ8eeJzVp6p/FSdYfJ5siiftTmSC4JfL/LUPw==")
+}
+
 func TestFileMd5(t *testing.T) {
 	_, err := FileMd5("/i-am-not-exists")
 	assert.NotNil(t, err)

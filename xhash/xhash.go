@@ -10,6 +10,7 @@
 package xhash
 
 import (
+	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
 	"crypto/sha256"
@@ -28,7 +29,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -65,6 +66,34 @@ func Sha256(s string) (h Hashx) {
 // Sha512 returns sha512 hash of string
 func Sha512(s string) (h Hashx) {
 	h.Hash = sha512.New()
+	h.Hash.Write([]byte(s))
+	return
+}
+
+// HmacMd5 returns hmac md5 hash of string and key
+func HmacMd5(s, k string) (h Hashx) {
+	h.Hash = hmac.New(md5.New, []byte(k))
+	h.Hash.Write([]byte(s))
+	return
+}
+
+// HmacSha1 returns hmac sha1 hash of string and key
+func HmacSha1(s, k string) (h Hashx) {
+	h.Hash = hmac.New(sha1.New, []byte(k))
+	h.Hash.Write([]byte(s))
+	return
+}
+
+// HmacSha256 returns hmac sha256 hash of string and key
+func HmacSha256(s, k string) (h Hashx) {
+	h.Hash = hmac.New(sha256.New, []byte(k))
+	h.Hash.Write([]byte(s))
+	return
+}
+
+// HmacSha512 returns hmac sha512 hash of string and key
+func HmacSha512(s, k string) (h Hashx) {
+	h.Hash = hmac.New(sha512.New, []byte(k))
 	h.Hash.Write([]byte(s))
 	return
 }
