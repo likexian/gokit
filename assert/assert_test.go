@@ -72,6 +72,21 @@ func TestTrue(t *testing.T) {
 	False(t, false, "testing expect to be false")
 }
 
+func TestZero(t *testing.T) {
+	Zero(t, []interface{}{}, "testing expect to be zero")
+	NotZero(t, true, "testing expect to be not zero")
+}
+
+func TestContains(t *testing.T) {
+	Contains(t, []int{1, 2, 3}, 2, "testing expect to be zero")
+	Contains(t, []string{"a", "b", "c"}, "b", "testing expect to be not zero")
+}
+
+func TestLen(t *testing.T) {
+	Len(t, []int{0, 1, 2}, 3, "length expect to be 3")
+	NotLen(t, []int{0, 1, 2}, 1, "length expect to be not 1")
+}
+
 func TestPanic(t *testing.T) {
 	Panic(t, func() { panic("failed") })
 	Panic(t, func() { panic("failed") }, "why not panic")
@@ -80,88 +95,4 @@ func TestPanic(t *testing.T) {
 func TestNotPanic(t *testing.T) {
 	NotPanic(t, func() {})
 	NotPanic(t, func() {}, "why panic")
-}
-
-func TestIsEmpty(t *testing.T) {
-	var i interface{}
-	tests := []interface{}{
-		i,
-		"",
-		[]byte{},
-		[]int{},
-		[]string{},
-		map[string]int{},
-		map[string]string{},
-		map[string]interface{}{},
-	}
-
-	for _, v := range tests {
-		True(t, IsEmpty(v))
-		Empty(t, v)
-	}
-
-	i = "a"
-	tests = []interface{}{
-		i,
-		"a",
-		[]byte{0},
-		[]int{0},
-		[]string{"a"},
-		map[string]int{"a": 1},
-		map[string]string{"a": ""},
-		map[string]interface{}{"a": "b"},
-		0,
-		1,
-		false,
-		true,
-	}
-
-	for _, v := range tests {
-		False(t, IsEmpty(v), v)
-		NotEmpty(t, v)
-	}
-}
-
-func TestIsZero(t *testing.T) {
-	tests := []interface{}{
-		0,
-		int(0),
-		int8(0),
-		int32(0),
-		int64(0),
-		uint(0),
-		uint8(0),
-		uint32(0),
-		uint64(0),
-		float32(0),
-		float64(0),
-	}
-
-	for _, v := range tests {
-		True(t, IsZero(v))
-		Zero(t, v)
-	}
-
-	tests = []interface{}{
-		1,
-		int(1),
-		int8(1),
-		int32(1),
-		int64(1),
-		uint(1),
-		uint8(1),
-		uint32(1),
-		uint64(1),
-		float32(0.1),
-		float64(0.1),
-		"",
-		"a",
-		true,
-		false,
-	}
-
-	for _, v := range tests {
-		False(t, IsZero(v))
-		NotZero(t, v)
-	}
 }

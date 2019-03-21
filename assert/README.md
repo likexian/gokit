@@ -36,6 +36,33 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/assert)
     y := map[string]int{"a": 1, "b": 2}
     assert.Equal(t, x, y, "x shall equal to y")
 
+### check string in array
+
+    ok := xslice.IsContains([]string{"a", "b", "c"}, "b")
+    if ok {
+        fmt.Println("value in array")
+    } else {
+        fmt.Println("value not in array")
+    }
+
+### check string in interface array
+
+    ok := xslice.IsContains([]interface{}{0, "1", 2}, "1")
+    if ok {
+        fmt.Println("value in array")
+    } else {
+        fmt.Println("value not in array")
+    }
+
+### check object in struct array
+
+    ok := xslice.IsContains([]A{A{0, 1}, A{1, 2}, A{1, 3}}, A{1, 2})
+    if ok {
+        fmt.Println("value in array")
+    } else {
+        fmt.Println("value not in array")
+    }
+
 ## LICENSE
 
 Copyright 2019, Li Kexian

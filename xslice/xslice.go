@@ -10,13 +10,12 @@
 package xslice
 
 import (
-	"reflect"
-	"strings"
+	"github.com/likexian/gokit/assert"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -29,44 +28,13 @@ func License() string {
 	return "Apache License, Version 2.0"
 }
 
-// Contains returns whether value is within array
-func Contains(array interface{}, value interface{}) bool {
-	switch reflect.TypeOf(array).Kind() {
-	case reflect.Slice:
-		s := reflect.ValueOf(array)
-		for i := 0; i < s.Len(); i++ {
-			if reflect.DeepEqual(value, s.Index(i).Interface()) {
-				return true
-			}
-		}
-	case reflect.Map:
-		s := reflect.ValueOf(array).MapKeys()
-		for i := 0; i < len(s); i++ {
-			if reflect.DeepEqual(value, s[i].Interface()) {
-				return true
-			}
-		}
-	case reflect.String:
-		switch reflect.TypeOf(value).Kind() {
-		case reflect.String:
-			return strings.Contains(array.(string), value.(string))
-		default:
-			return false
-		}
-	default:
-		panic("not support data type")
-	}
-
-	return false
-}
-
 // Unique returns unique processed array
 func Unique(array interface{}) interface{} {
 	switch array.(type) {
 	case []int:
 		result := []int{}
 		for _, v := range array.([]int) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -74,7 +42,7 @@ func Unique(array interface{}) interface{} {
 	case []int64:
 		result := []int64{}
 		for _, v := range array.([]int64) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -82,7 +50,7 @@ func Unique(array interface{}) interface{} {
 	case []uint64:
 		result := []uint64{}
 		for _, v := range array.([]uint64) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -90,7 +58,7 @@ func Unique(array interface{}) interface{} {
 	case []float64:
 		result := []float64{}
 		for _, v := range array.([]float64) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -98,7 +66,7 @@ func Unique(array interface{}) interface{} {
 	case []string:
 		result := []string{}
 		for _, v := range array.([]string) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -106,7 +74,7 @@ func Unique(array interface{}) interface{} {
 	case []bool:
 		result := []bool{}
 		for _, v := range array.([]bool) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
@@ -114,12 +82,12 @@ func Unique(array interface{}) interface{} {
 	case []interface{}:
 		result := []interface{}{}
 		for _, v := range array.([]interface{}) {
-			if !Contains(result, v) {
+			if !assert.IsContains(result, v) {
 				result = append(result, v)
 			}
 		}
 		return result
 	default:
-		panic("not support data type")
+		return array
 	}
 }

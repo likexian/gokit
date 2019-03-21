@@ -18,32 +18,15 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xslice)
 
 ## Example
 
-### check string in array
+### Get unique of string array
 
-    ok := xslice.Contains([]string{"a", "b", "c"}, "b")
-    if ok {
-        fmt.Println("value in array")
-    } else {
-        fmt.Println("value not in array")
-    }
+    array := xslice.Unique([]string{"a", "a", "b", "b", "b", "c"})
+    fmt.Println("new array:", array)
 
-### check string in interface array
+### Get unique of int array
 
-    ok := xslice.Contains([]interface{}{0, "1", 2}, "1")
-    if ok {
-        fmt.Println("value in array")
-    } else {
-        fmt.Println("value not in array")
-    }
-
-### check object in struct array
-
-    ok := xslice.Contains([]A{A{0, 1}, A{1, 2}, A{1, 3}}, A{1, 2})
-    if ok {
-        fmt.Println("value in array")
-    } else {
-        fmt.Println("value not in array")
-    }
+    array := xslice.Unique([]int{0, 0, 1, 1, 1, 2, 2, 3})
+    fmt.Println("new array:", array)
 
 ## LICENSE
 

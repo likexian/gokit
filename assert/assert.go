@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -61,24 +61,34 @@ func False(t *testing.T, got interface{}, args ...interface{}) {
 	notEqual(t, got, true, 1, args...)
 }
 
-// Empty assert test value to be empty
-func Empty(t *testing.T, got interface{}, args ...interface{}) {
-	equal(t, IsEmpty(got), true, 1, args...)
-}
-
-// Empty assert test value to be empty
-func NotEmpty(t *testing.T, got interface{}, args ...interface{}) {
-	notEqual(t, IsEmpty(got), true, 1, args...)
-}
-
-// Zero assert test value to be zero
+// Zero assert test value to be zero value
 func Zero(t *testing.T, got interface{}, args ...interface{}) {
 	equal(t, IsZero(got), true, 1, args...)
 }
 
-// Empty assert test value to be zero
+// NotZero assert test value to be not zero value
 func NotZero(t *testing.T, got interface{}, args ...interface{}) {
 	notEqual(t, IsZero(got), true, 1, args...)
+}
+
+// Len assert length of test vaue to be exp
+func Len(t *testing.T, got interface{}, exp int, args ...interface{}) {
+	equal(t, VLen(got), exp, 1, args...)
+}
+
+// NotLen assert length of test vaue to be not exp
+func NotLen(t *testing.T, got interface{}, exp int, args ...interface{}) {
+	notEqual(t, VLen(got), exp, 1, args...)
+}
+
+// Contains assert test value to be contains
+func Contains(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsContains(got, exp), true, 1, args...)
+}
+
+// NotContains assert test value to be contains
+func NotContains(t *testing.T, got, exp interface{}, args ...interface{}) {
+	notEqual(t, IsContains(got, exp), true, 1, args...)
 }
 
 // Panic assert testing to be panic
@@ -148,41 +158,5 @@ func assert(t *testing.T, pass bool, fn func(), step int) {
 		}
 		fn()
 		t.FailNow()
-	}
-}
-
-// IsEmpty returns value is empty
-func IsEmpty(v interface{}) bool {
-	vv := reflect.ValueOf(v)
-	if !vv.IsValid() {
-		return true
-	}
-
-	switch vv.Kind() {
-	case reflect.Ptr, reflect.Interface:
-		return IsEmpty(vv.Elem())
-	case reflect.Array, reflect.Slice, reflect.Map, reflect.String:
-		return vv.Len() == 0
-	default:
-		return false
-	}
-}
-
-// IsZero returns value is zero
-func IsZero(v interface{}) bool {
-	vv := reflect.ValueOf(v)
-	if !vv.IsValid() {
-		return true
-	}
-
-	switch vv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return vv.Int() == 0
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return vv.Uint() == 0
-	case reflect.Float32, reflect.Float64:
-		return vv.Float() == 0
-	default:
-		return false
 	}
 }
