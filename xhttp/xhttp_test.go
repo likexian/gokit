@@ -60,6 +60,80 @@ func TestNew(t *testing.T) {
 	assert.NotEqual(t, req.ClientId, clientId)
 }
 
+func TestMethod(t *testing.T) {
+	rsp, err := Get(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Head(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Post(BASEURL + "post")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Put(BASEURL + "put")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Patch(BASEURL + "patch")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Delete(BASEURL + "delete")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = Options(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	req := New()
+
+	rsp, err = req.Get(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Head(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Post(BASEURL + "post")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Put(BASEURL + "put")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Patch(BASEURL + "patch")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Delete(BASEURL + "delete")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+
+	rsp, err = req.Options(BASEURL + "get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+}
+
 func TestSetSignKey(t *testing.T) {
 	req := New()
 	assert.Equal(t, req.SignKey, "")
@@ -124,9 +198,9 @@ func TestBytes(t *testing.T) {
 	assert.NotEqual(t, len(b), 0)
 	assert.Equal(t, string(b[0:1]), "<")
 
-	trace := rsp.Trace
-	assert.NotEqual(t, trace.Timestamp, "")
-	assert.NotEqual(t, trace.Nonce, "")
+	tracing := rsp.Tracing
+	assert.NotEqual(t, tracing.Timestamp, "")
+	assert.NotEqual(t, tracing.Nonce, "")
 
 	rsp, err = req.Do("GET", BASEURL+"get")
 	assert.Nil(t, err)
@@ -138,19 +212,19 @@ func TestBytes(t *testing.T) {
 	assert.NotEqual(t, len(b), 0)
 	assert.Equal(t, string(b[0:1]), "{")
 
-	assert.NotEqual(t, rsp.Trace.Timestamp, "")
-	assert.NotEqual(t, rsp.Trace.Nonce, trace.Nonce)
-	assert.Equal(t, rsp.Trace.ClientId, trace.ClientId)
-	assert.NotEqual(t, rsp.Trace.RequestId, trace.RequestId)
+	assert.NotEqual(t, rsp.Tracing.Timestamp, "")
+	assert.NotEqual(t, rsp.Tracing.Nonce, tracing.Nonce)
+	assert.Equal(t, rsp.Tracing.ClientId, tracing.ClientId)
+	assert.NotEqual(t, rsp.Tracing.RequestId, tracing.RequestId)
 
-	trace = rsp.Trace
+	tracing = rsp.Tracing
 	req = New()
 	rsp, err = req.Do("GET", BASEURL+"status/404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 404)
-	assert.NotEqual(t, rsp.Trace.ClientId, trace.ClientId)
-	assert.NotEqual(t, rsp.Trace.RequestId, trace.RequestId)
+	assert.NotEqual(t, rsp.Tracing.ClientId, tracing.ClientId)
+	assert.NotEqual(t, rsp.Tracing.RequestId, tracing.RequestId)
 }
 
 func TestString(t *testing.T) {

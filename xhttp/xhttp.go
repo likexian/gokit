@@ -12,10 +12,10 @@ package xhttp
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xhash"
 	"github.com/likexian/gokit/xrand"
-	"github.com/likexian/gokit/xslice"
 	"github.com/likexian/gokit/xtime"
 	"io"
 	"io/ioutil"
@@ -50,14 +50,15 @@ type Request struct {
 	Debug    bool
 }
 
-// Trace storing trace data
-type Trace struct {
+// Tracing storing tracing data
+type Tracing struct {
 	ClientId  string
 	RequestId string
 	Timestamp string
 	Nonce     string
 	SendTime  int64
 	RecvTime  int64
+	Retries   int64
 }
 
 // Response storing response data
@@ -65,7 +66,7 @@ type Response struct {
 	Method   string
 	URL      *url.URL
 	Response *http.Response
-	Trace    Trace
+	Tracing  Tracing
 }
 
 // SUPPORT_METHOD list all supported http method
@@ -77,15 +78,16 @@ var (
 		"PUT",
 		"PATCH",
 		"DELETE",
-		"CONNECT",
 		"OPTIONS",
-		"TRACE",
 	}
 )
 
+// DefaultRequest is default request
+var DefaultRequest = New()
+
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -133,6 +135,76 @@ func New() (r *Request) {
 	}
 
 	return
+}
+
+// Get do http GET request and returns response
+func Get(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("GET", surl, args...)
+}
+
+// Head do http HEAD request and returns response
+func Head(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("HEAD", surl, args...)
+}
+
+// Post do http POST request and returns response
+func Post(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("POST", surl, args...)
+}
+
+// Put do http PUT request and returns response
+func Put(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("PUT", surl, args...)
+}
+
+// Patch do http PATCH request and returns response
+func Patch(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("PATCH", surl, args...)
+}
+
+// Delete do http DELETE request and returns response
+func Delete(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("DELETE", surl, args...)
+}
+
+// Options do http OPTIONS request and returns response
+func Options(surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do("OPTIONS", surl, args...)
+}
+
+// Get do http GET request and returns response
+func (r *Request) Get(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("GET", surl, args...)
+}
+
+// Head do http HEAD request and returns response
+func (r *Request) Head(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("HEAD", surl, args...)
+}
+
+// Post do http POST request and returns response
+func (r *Request) Post(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("POST", surl, args...)
+}
+
+// Put do http PUT request and returns response
+func (r *Request) Put(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("PUT", surl, args...)
+}
+
+// Patch do http PATCH request and returns response
+func (r *Request) Patch(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("PATCH", surl, args...)
+}
+
+// Delete do http DELETE request and returns response
+func (r *Request) Delete(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("DELETE", surl, args...)
+}
+
+// Options do http OPTIONS request and returns response
+func (r *Request) Options(surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do("OPTIONS", surl, args...)
 }
 
 // GetHeader return request header value by name
@@ -257,12 +329,12 @@ func (r *Request) SetEnableCookie(enable bool) *Request {
 }
 
 // Do send http request and return response
-func (r *Request) Do(method, surl string) (s *Response, err error) {
+func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
 	r.Request.Header.Del("Cookie")
 
 	method = strings.ToUpper(strings.TrimSpace(method))
-	if !xslice.Contains(SUPPORT_METHOD, method) {
+	if !assert.IsContains(SUPPORT_METHOD, method) {
 		return nil, fmt.Errorf("xhttp: not supported method: %s", method)
 	}
 
@@ -283,7 +355,7 @@ func (r *Request) Do(method, surl string) (s *Response, err error) {
 	s = &Response{
 		Method: r.Request.Method,
 		URL:    r.Request.URL,
-		Trace: Trace{
+		Tracing: Tracing{
 			Timestamp: fmt.Sprintf("%d", xtime.S()),
 			Nonce:     fmt.Sprintf("%d", xrand.IntRange(1000000, 9999999)),
 			ClientId:  r.ClientId,
@@ -292,11 +364,12 @@ func (r *Request) Do(method, surl string) (s *Response, err error) {
 
 	startAt := xtime.Ms()
 	defer func() {
-		s.Trace.SendTime = xtime.Ms() - startAt
+		s.Tracing.SendTime = xtime.Ms() - startAt
 	}()
 
-	s.Trace.RequestId = UniqueId(s.Trace.Timestamp, s.Trace.Nonce, s.Method, s.URL.String(), r.SignKey)
-	r.Request.Header.Set("X-XHTTP-RequestId", fmt.Sprintf("%s%s%s", s.Trace.Timestamp, s.Trace.Nonce, s.Trace.RequestId))
+	s.Tracing.RequestId = UniqueId(s.Tracing.Timestamp, s.Tracing.Nonce, s.Method, s.URL.String(), r.SignKey)
+	r.Request.Header.Set("X-XHTTP-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
+		s.Tracing.Nonce, s.Tracing.RequestId))
 
 	s.Response, err = r.Client.Do(r.Request)
 
@@ -350,7 +423,7 @@ func (r *Response) File(paths ...string) (size int64, err error) {
 
 	startAt := xtime.Ms()
 	defer func() {
-		r.Trace.RecvTime = xtime.Ms() - startAt
+		r.Tracing.RecvTime = xtime.Ms() - startAt
 	}()
 
 	fd, err := xfile.New(fpath)
@@ -368,7 +441,7 @@ func (r *Response) File(paths ...string) (size int64, err error) {
 func (r *Response) Bytes() (b []byte, err error) {
 	startAt := xtime.Ms()
 	defer func() {
-		r.Trace.RecvTime = xtime.Ms() - startAt
+		r.Tracing.RecvTime = xtime.Ms() - startAt
 	}()
 
 	defer r.Response.Body.Close()
