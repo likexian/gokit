@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.8.0"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -73,12 +73,12 @@ func NotZero(t *testing.T, got interface{}, args ...interface{}) {
 
 // Len assert length of test vaue to be exp
 func Len(t *testing.T, got interface{}, exp int, args ...interface{}) {
-	equal(t, VLen(got), exp, 1, args...)
+	equal(t, Length(got), exp, 1, args...)
 }
 
 // NotLen assert length of test vaue to be not exp
 func NotLen(t *testing.T, got interface{}, exp int, args ...interface{}) {
-	notEqual(t, VLen(got), exp, 1, args...)
+	notEqual(t, Length(got), exp, 1, args...)
 }
 
 // Contains assert test value to be contains
@@ -89,6 +89,26 @@ func Contains(t *testing.T, got, exp interface{}, args ...interface{}) {
 // NotContains assert test value to be contains
 func NotContains(t *testing.T, got, exp interface{}, args ...interface{}) {
 	notEqual(t, IsContains(got, exp), true, 1, args...)
+}
+
+// Lt assert test value less than exp
+func Lt(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsLt(got, exp), true, 1, args...)
+}
+
+// Le assert test value less than exp or equal
+func Le(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsLe(got, exp), true, 1, args...)
+}
+
+// Gt assert test value greater than exp
+func Gt(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsGt(got, exp), true, 1, args...)
+}
+
+// Ge assert test value greater than exp or equal
+func Ge(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsGe(got, exp), true, 1, args...)
 }
 
 // Panic assert testing to be panic

@@ -22,9 +22,9 @@ type B struct {
 }
 
 func TestVersion(t *testing.T) {
-	NotEqual(t, Version(), "")
-	NotEqual(t, Author(), "")
-	NotEqual(t, License(), "")
+	Contains(t, Version(), ".")
+	Contains(t, Author(), "likexian")
+	Contains(t, License(), "Apache License")
 }
 
 func TestEqual(t *testing.T) {
@@ -85,6 +85,15 @@ func TestContains(t *testing.T) {
 func TestLen(t *testing.T) {
 	Len(t, []int{0, 1, 2}, 3, "length expect to be 3")
 	NotLen(t, []int{0, 1, 2}, 1, "length expect to be not 1")
+}
+
+func TestLtGt(t *testing.T) {
+	Lt(t, 1, 2, "testing expect to be less")
+	Le(t, 1, 2, "testing expect to be less or equal")
+	Le(t, 1, 1, "testing expect to be less or equal")
+	Gt(t, 2, 1, "testing expect to be greater")
+	Ge(t, 2, 1, "testing expect to be greater or equal")
+	Ge(t, 1, 1, "testing expect to be greater or equal")
 }
 
 func TestPanic(t *testing.T) {

@@ -72,7 +72,10 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestIsContains(t *testing.T) {
+	var i interface{}
 	tests := [][]interface{}{
+		[]interface{}{i, i, false},
+
 		[]interface{}{[]int{0, 1, 2}, 1, true},
 		[]interface{}{[]int{0, 1, 2}, 3, false},
 		[]interface{}{[]int{0, 1, 2}, int64(1), false},
@@ -131,7 +134,7 @@ func TestIsContains(t *testing.T) {
 	}
 }
 
-func TestVLen(t *testing.T) {
+func TestLength(t *testing.T) {
 	var i interface{}
 	tests := [][]interface{}{
 		[]interface{}{i, 0},
@@ -178,6 +181,221 @@ func TestVLen(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		Equal(t, VLen(v[0]), v[1])
+		Equal(t, Length(v[0]), v[1])
+	}
+}
+
+func TestCompare(t *testing.T) {
+	var i interface{}
+	tests := []struct {
+		x   interface{}
+		y   interface{}
+		op  string
+		err error
+	}{
+		{i, i, CMP.LT, ErrInvalid},
+
+		{"a", "b", CMP.LT, nil},
+		{"b", "a", CMP.LT, ErrGreater},
+		{"a", "a", CMP.LT, ErrGreater},
+		{"a", 1, CMP.LT, ErrInvalid},
+		{"a", "b", CMP.LE, nil},
+		{"b", "a", CMP.LE, ErrGreater},
+		{"a", "a", CMP.LE, nil},
+		{"a", 1, CMP.LE, ErrInvalid},
+		{"b", "a", CMP.GT, nil},
+		{"a", "b", CMP.GT, ErrLess},
+		{"a", "a", CMP.GT, ErrLess},
+		{"a", 1, CMP.GT, ErrInvalid},
+		{"b", "a", CMP.GE, nil},
+		{"a", "b", CMP.GE, ErrLess},
+		{"a", "a", CMP.GE, nil},
+		{"a", 1, CMP.GE, ErrInvalid},
+
+		{int(1), int(2), CMP.LT, nil},
+		{int(2), int(1), CMP.LT, ErrGreater},
+		{int(1), int(1), CMP.LT, ErrGreater},
+		{int(1), "1", CMP.LT, ErrGreater},
+		{int(1), "a", CMP.LT, ErrInvalid},
+		{int(1), int(2), CMP.LE, nil},
+		{int(2), int(1), CMP.LE, ErrGreater},
+		{int(1), int(1), CMP.LE, nil},
+		{int(1), "1", CMP.LE, nil},
+		{int(1), "a", CMP.LE, ErrInvalid},
+		{int(2), int(1), CMP.GT, nil},
+		{int(1), int(2), CMP.GT, ErrLess},
+		{int(1), int(1), CMP.GT, ErrLess},
+		{int(1), "1", CMP.GT, ErrLess},
+		{int(1), "a", CMP.GT, ErrInvalid},
+		{int(2), int(1), CMP.GE, nil},
+		{int(1), int(2), CMP.GE, ErrLess},
+		{int(1), int(1), CMP.GE, nil},
+		{int(1), "1", CMP.GE, nil},
+		{int(1), "a", CMP.GE, ErrInvalid},
+
+		{uint(1), uint(2), CMP.LT, nil},
+		{uint(2), uint(1), CMP.LT, ErrGreater},
+		{uint(1), uint(1), CMP.LT, ErrGreater},
+		{uint(1), "1", CMP.LT, ErrGreater},
+		{uint(1), "a", CMP.LT, ErrInvalid},
+		{uint(1), uint(2), CMP.LE, nil},
+		{uint(2), uint(1), CMP.LE, ErrGreater},
+		{uint(1), uint(1), CMP.LE, nil},
+		{uint(1), "1", CMP.LE, nil},
+		{uint(1), "a", CMP.LE, ErrInvalid},
+		{uint(2), uint(1), CMP.GT, nil},
+		{uint(1), uint(2), CMP.GT, ErrLess},
+		{uint(1), uint(1), CMP.GT, ErrLess},
+		{uint(1), "1", CMP.GT, ErrLess},
+		{uint(1), "a", CMP.GT, ErrInvalid},
+		{uint(2), uint(1), CMP.GE, nil},
+		{uint(1), uint(2), CMP.GE, ErrLess},
+		{uint(1), uint(1), CMP.GE, nil},
+		{uint(1), "1", CMP.GE, nil},
+		{uint(1), "a", CMP.GE, ErrInvalid},
+
+		{float64(1), float64(2), CMP.LT, nil},
+		{float64(2), float64(1), CMP.LT, ErrGreater},
+		{float64(1), float64(1), CMP.LT, ErrGreater},
+		{float64(1), "1", CMP.LT, ErrGreater},
+		{float64(1), "a", CMP.LT, ErrInvalid},
+		{float64(1), float64(2), CMP.LE, nil},
+		{float64(2), float64(1), CMP.LE, ErrGreater},
+		{float64(1), float64(1), CMP.LE, nil},
+		{float64(1), "1", CMP.LE, nil},
+		{float64(1), "a", CMP.LE, ErrInvalid},
+		{float64(2), float64(1), CMP.GT, nil},
+		{float64(1), float64(2), CMP.GT, ErrLess},
+		{float64(1), float64(1), CMP.GT, ErrLess},
+		{float64(1), "1", CMP.GT, ErrLess},
+		{float64(1), "a", CMP.GT, ErrInvalid},
+		{float64(2), float64(1), CMP.GE, nil},
+		{float64(1), float64(2), CMP.GE, ErrLess},
+		{float64(1), float64(1), CMP.GE, nil},
+		{float64(1), "1", CMP.GE, nil},
+		{float64(1), "a", CMP.GE, ErrInvalid},
+
+		{[]int{1}, []int{1, 2}, CMP.LT, nil},
+		{[]int{1, 2}, []int{1}, CMP.LT, ErrGreater},
+		{[]int{1}, []int{1}, CMP.LT, ErrGreater},
+		{[]int{1}, "1", CMP.LT, ErrInvalid},
+		{[]int{1}, []int{1, 2}, CMP.LE, nil},
+		{[]int{1, 2}, []int{1}, CMP.LE, ErrGreater},
+		{[]int{1}, []int{1}, CMP.LE, nil},
+		{[]int{1}, "1", CMP.LE, ErrInvalid},
+		{[]int{1, 2}, []int{1}, CMP.GT, nil},
+		{[]int{1}, []int{1, 2}, CMP.GT, ErrLess},
+		{[]int{1}, []int{1}, CMP.GT, ErrLess},
+		{[]int{1}, "1", CMP.GT, ErrInvalid},
+		{[]int{1, 2}, []int{1}, CMP.GE, nil},
+		{[]int{1}, []int{1, 2}, CMP.GE, ErrLess},
+		{[]int{1}, []int{1}, CMP.GE, nil},
+		{[]int{1}, "1", CMP.GE, ErrInvalid},
+
+		{map[string]int{"a": 1}, map[string]int{"a": 1, "b": 2}, CMP.LT, nil},
+		{map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1}, CMP.LT, ErrGreater},
+		{map[string]int{"a": 1}, map[string]int{"a": 1}, CMP.LT, ErrGreater},
+		{map[string]int{"a": 1}, "1", CMP.LT, ErrInvalid},
+		{map[string]int{"a": 1}, map[string]int{"a": 1, "b": 2}, CMP.LE, nil},
+		{map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1}, CMP.LE, ErrGreater},
+		{map[string]int{"a": 1}, map[string]int{"a": 1}, CMP.LE, nil},
+		{map[string]int{"a": 1}, "1", CMP.LE, ErrInvalid},
+		{map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1}, CMP.GT, nil},
+		{map[string]int{"a": 1}, map[string]int{"a": 1, "b": 2}, CMP.GT, ErrLess},
+		{map[string]int{"a": 1}, map[string]int{"a": 1}, CMP.GT, ErrLess},
+		{map[string]int{"a": 1}, "1", CMP.GT, ErrInvalid},
+		{map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1}, CMP.GE, nil},
+		{map[string]int{"a": 1}, map[string]int{"a": 1, "b": 2}, CMP.GE, ErrLess},
+		{map[string]int{"a": 1}, map[string]int{"a": 1}, CMP.GE, nil},
+		{map[string]int{"a": 1}, "1", CMP.GE, ErrInvalid},
+	}
+
+	for _, v := range tests {
+		vv := Compare(v.x, v.y, v.op)
+		Equal(t, vv, v.err)
+		if v.op == CMP.LT {
+			Equal(t, IsLt(v.x, v.y), v.err == nil)
+		}
+		if v.op == CMP.LE {
+			Equal(t, IsLe(v.x, v.y), v.err == nil)
+		}
+		if v.op == CMP.GT {
+			Equal(t, IsGt(v.x, v.y), v.err == nil)
+		}
+		if v.op == CMP.GE {
+			Equal(t, IsGe(v.x, v.y), v.err == nil)
+		}
+	}
+}
+
+func TestToInt64(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out interface{}
+		err error
+	}{
+		{int64(1), int64(1), nil},
+		{uint64(1), int64(1), nil},
+		{float64(1), int64(1), nil},
+		{"1", int64(1), nil},
+		{"1a", int64(0), ErrInvalid},
+		{"aa", int64(0), ErrInvalid},
+		{true, int64(0), ErrInvalid},
+		{[]int{1}, int64(0), ErrInvalid},
+		{map[string]int{"a": 1}, int64(0), ErrInvalid},
+	}
+
+	for _, v := range tests {
+		vv, err := ToInt64(v.in)
+		Equal(t, err, v.err)
+		Equal(t, vv, v.out)
+	}
+}
+
+func TestToUint64(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out interface{}
+		err error
+	}{
+		{int64(1), uint64(1), nil},
+		{uint64(1), uint64(1), nil},
+		{float64(1), uint64(1), nil},
+		{"1", uint64(1), nil},
+		{"1a", uint64(0), ErrInvalid},
+		{"aa", uint64(0), ErrInvalid},
+		{true, uint64(0), ErrInvalid},
+		{[]int{1}, uint64(0), ErrInvalid},
+		{map[string]int{"a": 1}, uint64(0), ErrInvalid},
+	}
+
+	for _, v := range tests {
+		vv, err := ToUint64(v.in)
+		Equal(t, err, v.err)
+		Equal(t, vv, v.out)
+	}
+}
+
+func TestToFloat64(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out interface{}
+		err error
+	}{
+		{int64(1), float64(1), nil},
+		{uint64(1), float64(1), nil},
+		{float64(1), float64(1), nil},
+		{"1", float64(1), nil},
+		{"1a", float64(0), ErrInvalid},
+		{"aa", float64(0), ErrInvalid},
+		{true, float64(0), ErrInvalid},
+		{[]int{1}, float64(0), ErrInvalid},
+		{map[string]int{"a": 1}, float64(0), ErrInvalid},
+	}
+
+	for _, v := range tests {
+		vv, err := ToFloat64(v.in)
+		Equal(t, err, v.err)
+		Equal(t, vv, v.out)
 	}
 }
