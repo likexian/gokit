@@ -10,6 +10,7 @@
 package assert
 
 import (
+	"regexp"
 	"testing"
 )
 
@@ -131,6 +132,29 @@ func TestIsContains(t *testing.T) {
 
 	for _, v := range tests {
 		Equal(t, IsContains(v[0], v[1]), v[2])
+	}
+}
+
+func TestIsMatch(t *testing.T) {
+	var i interface{}
+	tests := []struct {
+		r   interface{}
+		v   interface{}
+		out bool
+	}{
+		{regexp.MustCompile("v\\d+"), "v100", true},
+		{"v\\d+", "v100", true},
+		{"\\d+\\.\\d+", 100.1, true},
+		{regexp.MustCompile("v\\d+"), "x100", false},
+		{"v\\d+", "x100", false},
+		{"\\d+\\.\\d+", "x100", false},
+		{"v\\d+", i, false},
+		{i, 100.1, false},
+	}
+
+	for _, v := range tests {
+		vv := IsMatch(v.r, v.v)
+		Equal(t, vv, v.out, v)
 	}
 }
 

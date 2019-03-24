@@ -18,7 +18,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.9.0"
+	return "0.10.0"
 }
 
 // Author returns package author
@@ -89,6 +89,16 @@ func Contains(t *testing.T, got, exp interface{}, args ...interface{}) {
 // NotContains assert test value to be contains
 func NotContains(t *testing.T, got, exp interface{}, args ...interface{}) {
 	notEqual(t, IsContains(got, exp), true, 1, args...)
+}
+
+// Match assert test value match exp pattern
+func Match(t *testing.T, got, exp interface{}, args ...interface{}) {
+	equal(t, IsMatch(got, exp), true, 1, args...)
+}
+
+// NotMatch assert test value not match exp pattern
+func NotMatch(t *testing.T, got, exp interface{}, args ...interface{}) {
+	notEqual(t, IsMatch(got, exp), true, 1, args...)
 }
 
 // Lt assert test value less than exp

@@ -82,6 +82,11 @@ func TestContains(t *testing.T) {
 	Contains(t, []string{"a", "b", "c"}, "b", "testing expect to be not zero")
 }
 
+func TestMatch(t *testing.T) {
+	Match(t, "li*", "likexian", "testing expect to be match")
+	NotMatch(t, "li.kexian", "likexian", "testing expect to be not match")
+}
+
 func TestLen(t *testing.T) {
 	Len(t, []int{0, 1, 2}, 3, "length expect to be 3")
 	NotLen(t, []int{0, 1, 2}, 1, "length expect to be not 1")

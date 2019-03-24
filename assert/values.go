@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -101,6 +102,22 @@ func IsContains(array interface{}, value interface{}) bool {
 	default:
 		return reflect.DeepEqual(array, value)
 	}
+}
+
+// IsMatch returns if value v contains any match of pattern r
+//   IsMatch(regexp.MustCompile("v\d+"), "v100")
+//   IsMatch("v\d+", "v100")
+//   IsMatch("\d+\.\d+", 100.1)
+func IsMatch(r interface{}, v interface{}) bool {
+	var re *regexp.Regexp
+
+	if v, ok := r.(*regexp.Regexp); ok {
+		re = v
+	} else {
+		re = regexp.MustCompile(fmt.Sprint(r))
+	}
+
+	return re.MatchString(fmt.Sprint(v))
 }
 
 // Length returns length of value
