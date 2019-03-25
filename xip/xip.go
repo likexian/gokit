@@ -21,7 +21,7 @@ var ErrInvalid = errors.New("xip: not valid value")
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -90,4 +90,86 @@ func HexToUint32(s string) (uint32, error) {
 		return 0, ErrInvalid
 	}
 	return binary.BigEndian.Uint32(buf), nil
+}
+
+// GetEthIPv4 returns all interface ipv4 without loopback
+func GetEthIPv4() (ips []string, err error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return
+	}
+
+	for _, v := range addrs {
+		if ipnet, ok := v.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To4() != nil {
+			if IsIPv4(ipnet.IP.String()) {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+
+	return
+}
+
+// GetEthIPv4ByInterface returns interface ipv4 by name
+func GetEthIPv4ByInterface(name string) (ips []string, err error) {
+	iface, err := net.InterfaceByName(name)
+	if err != nil {
+		return
+	}
+
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return
+	}
+
+	for _, v := range addrs {
+		if ipnet, ok := v.(*net.IPNet); ok && ipnet.IP.To4() != nil {
+			if IsIPv4(ipnet.IP.String()) {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+
+	return
+}
+
+// GetEthIPv6 returns all interface ipv6 without loopback
+func GetEthIPv6() (ips []string, err error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return
+	}
+
+	for _, v := range addrs {
+		if ipnet, ok := v.(*net.IPNet); ok && !ipnet.IP.IsLoopback() && ipnet.IP.To16() != nil {
+			if IsIPv6(ipnet.IP.String()) {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+
+	return
+}
+
+// GetEthIPv6ByInterface returns interface ipv6 by name
+func GetEthIPv6ByInterface(name string) (ips []string, err error) {
+	iface, err := net.InterfaceByName(name)
+	if err != nil {
+		return
+	}
+
+	addrs, err := iface.Addrs()
+	if err != nil {
+		return
+	}
+
+	for _, v := range addrs {
+		if ipnet, ok := v.(*net.IPNet); ok && ipnet.IP.To16() != nil {
+			if IsIPv6(ipnet.IP.String()) {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+
+	return
 }

@@ -195,3 +195,33 @@ func TestHexToUint32(t *testing.T) {
 		assert.Equal(t, vv, v.out)
 	}
 }
+
+func TestGetEthIPv4(t *testing.T) {
+	ips, err := GetEthIPv4()
+	assert.Nil(t, err)
+	assert.Gt(t, len(ips), 0)
+}
+
+func TestGetEthIPv4ByInterface(t *testing.T) {
+	ips, err := GetEthIPv4ByInterface("lo")
+	if err != nil {
+		ips, err = GetEthIPv4ByInterface("lo0")
+	}
+	assert.Nil(t, err)
+	assert.Gt(t, len(ips), 0)
+}
+
+func TestGetEthIPv6(t *testing.T) {
+	ips, err := GetEthIPv6()
+	assert.Nil(t, err)
+	assert.Gt(t, len(ips), 0)
+}
+
+func TestGetEthIPv6ByInterface(t *testing.T) {
+	ips, err := GetEthIPv6ByInterface("lo")
+	if err != nil {
+		ips, err = GetEthIPv6ByInterface("lo0")
+	}
+	assert.Nil(t, err)
+	assert.Gt(t, len(ips), 0)
+}
