@@ -10,6 +10,7 @@
 package xhttp
 
 import (
+	"bytes"
 	"crypto/tls"
 	"fmt"
 	"github.com/likexian/gokit/assert"
@@ -50,6 +51,55 @@ type Request struct {
 	Debug    bool
 }
 
+// param storing QueryParam and FormParam data set by Do
+type param struct {
+	url.Values
+}
+
+// getValues return values pointer
+func (p *param) getValues() url.Values {
+	if p.Values == nil {
+		p.Values = make(url.Values)
+	}
+
+	return p.Values
+}
+
+func (p *param) Update(m param) {
+	if m.Values == nil {
+		return
+	}
+	vv := p.getValues()
+	for m, n := range m.Values {
+		for _, nn := range n {
+			vv.Set(m, nn)
+		}
+	}
+}
+
+// Adds add map data to param
+func (p *param) Adds(m map[string]interface{}) {
+	if len(m) == 0 {
+		return
+	}
+
+	vv := p.getValues()
+	for k, v := range m {
+		vv.Add(k, fmt.Sprint(v))
+	}
+}
+
+// IsEmpty returns param is empty
+func (p *param) IsEmpty() bool {
+	return p.Values == nil
+}
+
+// QueryParam is query param map pass to xhttp
+type QueryParam map[string]interface{}
+
+// FormParam is form param map pass to xhttp
+type FormParam map[string]interface{}
+
 // Tracing storing tracing data
 type Tracing struct {
 	ClientId  string
@@ -87,7 +137,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -343,6 +393,43 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	surl = strings.TrimSpace(surl)
 	if surl == "" {
 		return nil, fmt.Errorf("xhttp: no request url specify")
+	}
+
+	var formParam param
+	var queryParam param
+
+	for _, v := range args {
+		switch vv := v.(type) {
+		case FormParam:
+			formParam.Adds(vv)
+		case QueryParam:
+			queryParam.Adds(vv)
+		case url.Values:
+			if assert.IsContains([]string{"POST", "PUT"}, method) {
+				formParam.Update(param{vv})
+			} else {
+				queryParam.Update(param{vv})
+			}
+		}
+	}
+
+	if !formParam.IsEmpty() {
+		q := formParam.Encode()
+		r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(q)))
+		r.Request.ContentLength = int64(len(q))
+		r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	} else {
+		r.Request.Body = nil
+		r.Request.ContentLength = 0
+	}
+
+	if !queryParam.IsEmpty() {
+		q := queryParam.Encode()
+		if strings.Contains(surl, "?") {
+			surl += "&" + q
+		} else {
+			surl += "?" + q
+		}
 	}
 
 	u, err := url.Parse(surl)

@@ -14,6 +14,7 @@ import (
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -24,9 +25,9 @@ const (
 )
 
 func TestVersion(t *testing.T) {
-	assert.NotEqual(t, Version(), "")
-	assert.NotEqual(t, Author(), "")
-	assert.NotEqual(t, License(), "")
+	Contains(t, Version(), ".")
+	Contains(t, Author(), "likexian")
+	Contains(t, License(), "Apache License")
 }
 
 func TestNew(t *testing.T) {
@@ -472,4 +473,69 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
+}
+
+func Test_QueryParam(t *testing.T) {
+	req := New()
+
+	query := QueryParam{"k": "v"}
+	_, err := req.Do("GET", BASEURL+"get", query)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"get?k=v")
+
+	query = QueryParam{"a": "1", "b": 2, "c": 3}
+	_, err = req.Do("GET", req.Request.URL.String(), query)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"get?k=v&a=1&b=2&c=3")
+
+	query = QueryParam{}
+	_, err = req.Do("GET", BASEURL+"get", query)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"get")
+}
+
+func Test_FormParam(t *testing.T) {
+	req := New()
+
+	form := FormParam{"k": "v"}
+	rsp, err := req.Do("POST", BASEURL+"post", form)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
+
+	form = FormParam{"a": "1", "b": 2, "c": 3}
+	rsp, err = req.Do("POST", req.Request.URL.String(), form)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"a": "1"`)
+	assert.Contains(t, text, `"b": "2"`)
+	assert.Contains(t, text, `"c": "3"`)
+
+	form = FormParam{}
+	rsp, err = req.Do("POST", BASEURL+"post", form)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"form": {}`)
+}
+
+func Test_ValuesParam(t *testing.T) {
+	req := New()
+	values := url.Values{"k": []string{"v"}}
+
+	_, err := req.Do("GET", BASEURL+"get", values)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"get?k=v")
+
+	rsp, err := req.Do("POST", BASEURL+"post", values)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
 }
