@@ -25,9 +25,9 @@ const (
 )
 
 func TestVersion(t *testing.T) {
-	Contains(t, Version(), ".")
-	Contains(t, Author(), "likexian")
-	Contains(t, License(), "Apache License")
+	assert.Contains(t, Version(), ".")
+	assert.Contains(t, Author(), "likexian")
+	assert.Contains(t, License(), "Apache License")
 }
 
 func TestNew(t *testing.T) {
@@ -148,6 +148,10 @@ func TestSetHost(t *testing.T) {
 	req.SetHost("likexian.com")
 	assert.Equal(t, req.Request.Host, "likexian.com")
 	assert.NotEqual(t, req.Request.Host, host)
+
+	var h Host = "likexian.com"
+	_, _ = req.Do("GET", BASEURL, h)
+	assert.Equal(t, req.Request.Host, "likexian.com")
 }
 
 func TestSetHeader(t *testing.T) {
@@ -156,6 +160,21 @@ func TestSetHeader(t *testing.T) {
 	assert.Equal(t, author, "")
 	req.SetHeader("X-Author", "likexian")
 	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
+
+	h1 := Header{
+		"X-Version": Version(),
+	}
+	_, _ = req.Do("GET", BASEURL, h1)
+	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
+	assert.Equal(t, req.GetHeader("X-Version"), Version())
+
+	h2 := http.Header{
+		"X-License": []string{License()},
+	}
+	_, _ = req.Do("GET", BASEURL, h2)
+	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
+	assert.Equal(t, req.GetHeader("X-Version"), Version())
+	assert.Equal(t, req.GetHeader("X-License"), License())
 }
 
 func TestSetUA(t *testing.T) {

@@ -51,6 +51,18 @@ type Request struct {
 	Debug    bool
 }
 
+// Host is http host
+type Host string
+
+// Header is http request header
+type Header map[string]string
+
+// QueryParam is query param map pass to xhttp
+type QueryParam map[string]interface{}
+
+// FormParam is form param map pass to xhttp
+type FormParam map[string]interface{}
+
 // param storing QueryParam and FormParam data set by Do
 type param struct {
 	url.Values
@@ -94,12 +106,6 @@ func (p *param) IsEmpty() bool {
 	return p.Values == nil
 }
 
-// QueryParam is query param map pass to xhttp
-type QueryParam map[string]interface{}
-
-// FormParam is form param map pass to xhttp
-type FormParam map[string]interface{}
-
 // Tracing storing tracing data
 type Tracing struct {
 	ClientId  string
@@ -137,7 +143,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -400,6 +406,18 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 
 	for _, v := range args {
 		switch vv := v.(type) {
+		case Host:
+			r.SetHost(string(vv))
+		case Header:
+			for k, v := range vv {
+				r.SetHeader(k, v)
+			}
+		case http.Header:
+			for k, v := range vv {
+				for _, vv := range v {
+					r.SetHeader(k, vv)
+				}
+			}
 		case FormParam:
 			formParam.Adds(vv)
 		case QueryParam:
