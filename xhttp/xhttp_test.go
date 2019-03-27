@@ -10,6 +10,7 @@
 package xhttp
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
@@ -204,6 +205,44 @@ func TestGetHeader(t *testing.T) {
 		h := rsp.GetHeader(k)
 		assert.NotEqual(t, h, "")
 	}
+}
+
+func Test_SetBody(t *testing.T) {
+	req := New()
+
+	req.SetBody("x=o")
+	rsp, err := req.Do("POST", BASEURL+"post")
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"x": "o"`)
+
+	rsp, err = req.Do("POST", BASEURL+"post", "k=v")
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
+
+	rsp, err = req.Do("POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"a": "1"`)
+	assert.Contains(t, text, `"b": "2"`)
+	assert.Contains(t, text, `"c": "3"`)
+
+	var b bytes.Buffer
+	b.Write([]byte("k=v"))
+
+	rsp, err = req.Do("POST", BASEURL+"post", b)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
 }
 
 func TestBytes(t *testing.T) {

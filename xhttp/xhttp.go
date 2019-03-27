@@ -143,7 +143,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -384,6 +384,17 @@ func (r *Request) SetEnableCookie(enable bool) *Request {
 	return r
 }
 
+// SetBody set http request body
+func (r *Request) SetBody(s string) {
+	if s == "" {
+		r.Request.Body = nil
+	} else {
+		r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(s)))
+	}
+	r.Request.ContentLength = int64(len(s))
+	r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+}
+
 // Do send http request and return response
 func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
@@ -428,17 +439,18 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 			} else {
 				queryParam.Update(param{vv})
 			}
+		case string:
+			r.SetBody(vv)
+		case []byte:
+			r.SetBody(string(vv))
+		case bytes.Buffer:
+			r.SetBody(vv.String())
 		}
 	}
 
 	if !formParam.IsEmpty() {
 		q := formParam.Encode()
-		r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(q)))
-		r.Request.ContentLength = int64(len(q))
-		r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	} else {
-		r.Request.Body = nil
-		r.Request.ContentLength = 0
+		r.SetBody(q)
 	}
 
 	if !queryParam.IsEmpty() {
@@ -477,6 +489,8 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
 	s.Response, err = r.Client.Do(r.Request)
+
+	r.SetBody("")
 
 	return
 }
