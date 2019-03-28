@@ -17,11 +17,24 @@ import (
 	"strings"
 )
 
-var ErrInvalid = errors.New("xip: not valid value")
+// ErrInvalidIP ip value is invalid
+var ErrInvalidIP = errors.New("xip: not valid ip string")
+
+// ErrInvalidHex hex string is invalid
+var ErrInvalidHex = errors.New("xip: not valid hex string")
+
+// PrivateIPs is private ip
+var PrivateIPs = []string{
+	"10.0.0.0/8",
+	"172.16.0.0/12",
+	"192.168.0.0/16",
+	"100.64.0.0/10",
+	"fc00::/7",
+}
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -60,7 +73,7 @@ func IsIPv6(ip string) bool {
 // IPv4ToLong returns uint32 of ip, -1 for error
 func IPv4ToLong(ip string) (uint32, error) {
 	if !IsIPv4(ip) {
-		return 0, ErrInvalid
+		return 0, ErrInvalidIP
 	}
 
 	return binary.BigEndian.Uint32(net.ParseIP(ip).To4()), nil
@@ -87,7 +100,7 @@ func Uint32ToHex(i uint32) string {
 func HexToUint32(s string) (uint32, error) {
 	buf, err := hex.DecodeString(s)
 	if err != nil {
-		return 0, ErrInvalid
+		return 0, ErrInvalidHex
 	}
 	return binary.BigEndian.Uint32(buf), nil
 }
@@ -172,4 +185,39 @@ func GetEthIPv6ByInterface(name string) (ips []string, err error) {
 	}
 
 	return
+}
+
+// IsContains returns if ip is in cidr
+func IsContains(cidr, ip string) bool {
+	_, ipnet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return false
+	}
+
+	ipaddr := net.ParseIP(ip)
+	if ipaddr == nil {
+		return false
+	}
+
+	return ipnet.Contains(ipaddr)
+}
+
+// IsPrivate return ip is private
+func IsPrivate(ip string) bool {
+	ipaddr := net.ParseIP(ip)
+	if ipaddr == nil {
+		return false
+	}
+
+	if ipaddr.IsLoopback() || ipaddr.IsLinkLocalMulticast() || ipaddr.IsLinkLocalUnicast() {
+		return true
+	}
+
+	for _, v := range PrivateIPs {
+		if IsContains(v, ip) {
+			return true
+		}
+	}
+
+	return false
 }

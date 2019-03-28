@@ -207,7 +207,7 @@ func TestGetHeader(t *testing.T) {
 	}
 }
 
-func Test_SetBody(t *testing.T) {
+func TestSetBody(t *testing.T) {
 	req := New()
 
 	req.SetBody("x=o")
@@ -533,7 +533,7 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 }
 
-func Test_QueryParam(t *testing.T) {
+func TestQueryParam(t *testing.T) {
 	req := New()
 
 	query := QueryParam{"k": "v"}
@@ -552,7 +552,7 @@ func Test_QueryParam(t *testing.T) {
 	assert.Equal(t, req.Request.URL.String(), BASEURL+"get")
 }
 
-func Test_FormParam(t *testing.T) {
+func TestFormParam(t *testing.T) {
 	req := New()
 
 	form := FormParam{"k": "v"}
@@ -582,7 +582,7 @@ func Test_FormParam(t *testing.T) {
 	assert.Contains(t, text, `"form": {}`)
 }
 
-func Test_ValuesParam(t *testing.T) {
+func TestValuesParam(t *testing.T) {
 	req := New()
 	values := url.Values{"k": []string{"v"}}
 

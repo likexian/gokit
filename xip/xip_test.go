@@ -122,17 +122,17 @@ func TestIPv4ToLong(t *testing.T) {
 		out uint32
 		err error
 	}{
-		{"", uint32(0), ErrInvalid},
-		{"1.1.1.256", uint32(0), ErrInvalid},
-		{"1.1.1.1:80", uint32(0), ErrInvalid},
-		{"1.1.1.s", uint32(0), ErrInvalid},
-		{"i.a.m.s", uint32(0), ErrInvalid},
+		{"", uint32(0), ErrInvalidIP},
+		{"1.1.1.256", uint32(0), ErrInvalidIP},
+		{"1.1.1.1:80", uint32(0), ErrInvalidIP},
+		{"1.1.1.s", uint32(0), ErrInvalidIP},
+		{"i.a.m.s", uint32(0), ErrInvalidIP},
 		{"0.0.0.0", 0, nil},
 		{"1.1.1.1", 16843009, nil},
 		{"127.0.0.1", 2130706433, nil},
 		{"255.255.255.255", 4294967295, nil},
-		{"::1", uint32(0), ErrInvalid},
-		{"2404:6800:4005:806::2004", uint32(0), ErrInvalid},
+		{"::1", uint32(0), ErrInvalidIP},
+		{"2404:6800:4005:806::2004", uint32(0), ErrInvalidIP},
 	}
 
 	for _, v := range tests {
@@ -186,7 +186,7 @@ func TestHexToUint32(t *testing.T) {
 		{"01010101", 16843009, nil},
 		{"7f000001", 2130706433, nil},
 		{"ffffffff", 4294967295, nil},
-		{"s", 0, ErrInvalid},
+		{"s", 0, ErrInvalidHex},
 	}
 
 	for _, v := range tests {
@@ -224,4 +224,46 @@ func TestGetEthIPv6ByInterface(t *testing.T) {
 	}
 	assert.Nil(t, err)
 	assert.Gt(t, len(ips), 0)
+}
+
+func TestIsContains(t *testing.T) {
+	tests := []struct {
+		cidr string
+		ip   string
+		out  bool
+	}{
+		{"1", "1", false},
+		{"1.1.1.1", "1", false},
+		{"1.1.1.1", "1.1.1.1", false},
+		{"1.1.1.0/24", "1.1.1.1", true},
+		{"1.1.1.0/24", "1.1.2.1", false},
+		{"2404:6800:4005:806::0", "2404:6800:4005:806::0", false},
+		{"2404:6800:4005:806::0/64", "2404:6800:4005:806::0", true},
+		{"2404:6800:4005:806::0/64", "2404:6800:4005:807::0", false},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, IsContains(v.cidr, v.ip), v.out)
+	}
+}
+
+func TestIsPrivate(t *testing.T) {
+	tests := []struct {
+		ip  string
+		out bool
+	}{
+		{"1", false},
+		{"127.0.0.1", true},
+		{"10.0.0.0", true},
+		{"192.168.1.1", true},
+		{"100.64.1.1", true},
+		{"0.0.0.0", false},
+		{"1.1.1.1", false},
+		{"fc00::1", true},
+		{"2404:6800:4005:806::0", false},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, IsPrivate(v.ip), v.out, v)
+	}
 }
