@@ -11,6 +11,7 @@ package xfile
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -19,9 +20,22 @@ import (
 	"strings"
 )
 
+// ErrNotExists file is exists error
+var ErrNotExists = errors.New("xfile: file is not exists")
+
+// ErrHasExists file is exists error
+var ErrHasExists = errors.New("xfile: file is exists")
+
+// LsFile is list file info
+type LsFile struct {
+	Type string
+	Path string
+	Name string
+}
+
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -37,6 +51,12 @@ func License() string {
 // Exists returns path is exists, symbolic link will check the target
 func Exists(fpath string) bool {
 	_, err := os.Stat(fpath)
+	return !os.IsNotExist(err)
+}
+
+// Lexists returns path is exists, symbolic link will not follow
+func Lexists(fpath string) bool {
+	_, err := os.Lstat(fpath)
 	return !os.IsNotExist(err)
 }
 
@@ -76,6 +96,80 @@ func MTime(fpath string) (int64, error) {
 	}
 
 	return f.ModTime().Unix(), nil
+}
+
+// Copy copy file and folder from src to dst
+func Copy(src, dst string) error {
+	if src == "" {
+		src = "."
+	}
+
+	if dst == "" {
+		dst = "."
+	}
+
+	if strings.TrimRight(src, "/") == strings.TrimRight(dst, "/") {
+		return ErrHasExists
+	}
+
+	if Exists(dst) {
+		return ErrHasExists
+	}
+
+	f, err := os.Lstat(src)
+	if err != nil {
+		return err
+	}
+
+	if f.Mode()&os.ModeSymlink != 0 {
+		target, err := os.Readlink(src)
+		if err != nil {
+			return err
+		}
+		return os.Symlink(target, dst)
+	} else if f.Mode().IsDir() {
+		if !strings.HasSuffix(src, "/") {
+			src += "/"
+		}
+		if !strings.HasSuffix(dst, "/") {
+			dst += "/"
+		}
+		err = os.MkdirAll(dst, 0755)
+		if err != nil {
+			return err
+		}
+		ls, err := ListDir(src, "", -1)
+		if err != nil {
+			return err
+		}
+		for _, v := range ls {
+			Copy(src+v.Name, dst+v.Name)
+		}
+		if err = os.Chtimes(dst, f.ModTime(), f.ModTime()); err != nil {
+			return err
+		}
+		return os.Chmod(dst, f.Mode())
+	} else {
+		fd, err := os.Open(src)
+		if err != nil {
+			return err
+		}
+		defer fd.Close()
+		td, err := New(dst)
+		if err != nil {
+			return err
+		}
+		defer td.Close()
+		if _, err = io.Copy(td, fd); err != nil {
+			return err
+		}
+	}
+
+	if err = os.Chtimes(dst, f.ModTime(), f.ModTime()); err != nil {
+		return err
+	}
+
+	return os.Chmod(dst, f.Mode())
 }
 
 // New open a file and return fd
@@ -154,7 +248,7 @@ func ReadLines(fpath string, n int) (lines []string, err error) {
 }
 
 // ListDir list dir and children, filter by type, returns up to n
-func ListDir(fpath, ftype string, n int) (ls [][]string, err error) {
+func ListDir(fpath, ftype string, n int) (ls []LsFile, err error) {
 	if fpath == "" {
 		fpath = "."
 	}
@@ -178,7 +272,7 @@ func ListDir(fpath, ftype string, n int) (ls [][]string, err error) {
 		tpath := fpath + f.Name()
 		if f.IsDir() {
 			if ftype == "" || ftype == "dir" {
-				ls = append(ls, []string{"dir", tpath})
+				ls = append(ls, LsFile{"dir", tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}
@@ -193,7 +287,7 @@ func ListDir(fpath, ftype string, n int) (ls [][]string, err error) {
 			}
 		} else {
 			if ftype == "" || ftype == "file" {
-				ls = append(ls, []string{"file", tpath})
+				ls = append(ls, LsFile{"file", tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}

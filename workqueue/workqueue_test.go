@@ -68,7 +68,7 @@ func TestFileLine(t *testing.T) {
 	files, err := xfile.ListDir("tmp", "file", -1)
 	assert.Nil(t, err)
 	for _, v := range files {
-		wq.Add(v[1])
+		wq.Add(v.Path)
 	}
 
 	result := wq.Wait()

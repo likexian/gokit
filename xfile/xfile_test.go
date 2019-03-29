@@ -17,9 +17,9 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	assert.NotEqual(t, Version(), "")
-	assert.NotEqual(t, Author(), "")
-	assert.NotEqual(t, License(), "")
+	assert.Contains(t, Version(), ".")
+	assert.Contains(t, Author(), "likexian")
+	assert.Contains(t, License(), "Apache License")
 }
 
 func TestFile(t *testing.T) {
@@ -188,4 +188,42 @@ func TestListDir(t *testing.T) {
 	ls, err = ListDir("tmp", "file", 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
+}
+
+func TestCopy(t *testing.T) {
+	defer os.RemoveAll("tmp")
+
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), fmt.Sprintf("%d", i+j))
+		}
+	}
+
+	os.Symlink("tmp/0", "tmp/100")
+
+	err := Copy("", "")
+	assert.Equal(t, err, ErrHasExists)
+
+	err = Copy("tmp/0", "tmp/1")
+	assert.Equal(t, err, ErrHasExists)
+
+	err = Copy("tmp/10", "tmp/11")
+	assert.NotNil(t, err)
+
+	err = Copy("tmp/100", "tmp/101")
+	assert.Nil(t, err)
+	assert.True(t, Lexists("tmp/101"))
+
+	err = Copy("tmp/0/0.txt", "tmp/0/10.txt")
+	assert.Nil(t, err)
+	assert.True(t, Exists("tmp/0/10.txt"))
+
+	err = Copy("tmp/0", "tmp/102")
+	assert.Nil(t, err)
+	assert.True(t, Exists("tmp/102"))
+	ls, err := ListDir("tmp/0", "", -1)
+	assert.Nil(t, err)
+	for _, v := range ls {
+		assert.True(t, Exists("tmp/102/"+v.Name))
+	}
 }
