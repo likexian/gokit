@@ -10,17 +10,21 @@
 package xos
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"github.com/likexian/gokit/xfile"
 	"os"
+	"os/exec"
 	"os/user"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -31,6 +35,56 @@ func Author() string {
 // License returns package license
 func License() string {
 	return "Apache License, Version 2.0"
+}
+
+// Exec exec command and returns
+func Exec(cmd string, args ...string) (stdout, stderr string, err error) {
+	bufOut := new(bytes.Buffer)
+	bufErr := new(bytes.Buffer)
+
+	c := exec.Command(cmd, args...)
+	c.Stdout = bufOut
+	c.Stderr = bufErr
+	err = c.Run()
+
+	return bufOut.String(), bufErr.String(), err
+}
+
+// TimeoutExec exec command with timeout and returns
+func TimeoutExec(timeout int, cmd string, args ...string) (stdout, stderr string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	bufOut := new(bytes.Buffer)
+	bufErr := new(bytes.Buffer)
+
+	c := exec.Command(cmd, args...)
+	c.Stdout = bufOut
+	c.Stderr = bufErr
+	c.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+
+	if err = c.Start(); err != nil {
+		return
+	}
+
+	end := make(chan bool, 1)
+	defer close(end)
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
+			return
+		case <-end:
+			return
+		}
+	}()
+
+	if err = c.Wait(); err != nil {
+		return
+	}
+
+	return bufOut.String(), bufErr.String(), err
 }
 
 // SetUser Set process user

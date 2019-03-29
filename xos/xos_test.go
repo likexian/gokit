@@ -17,9 +17,29 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	assert.NotEqual(t, Version(), "")
-	assert.NotEqual(t, Author(), "")
-	assert.NotEqual(t, License(), "")
+	assert.Contains(t, Version(), ".")
+	assert.Contains(t, Author(), "likexian")
+	assert.Contains(t, License(), "Apache License")
+}
+
+func TestExec(t *testing.T) {
+	_, _, err := Exec("xx")
+	assert.NotNil(t, err)
+
+	stdout, stderr, err := Exec("ls", "-lh")
+	assert.Nil(t, err)
+	assert.NotEqual(t, stdout, "")
+	assert.Equal(t, stderr, "")
+}
+
+func TestTimeoutExec(t *testing.T) {
+	_, _, err := TimeoutExec(1, "sleep", "3")
+	assert.NotNil(t, err)
+
+	stdout, stderr, err := TimeoutExec(3, "sleep", "1")
+	assert.Nil(t, err)
+	assert.Equal(t, stdout, "")
+	assert.Equal(t, stderr, "")
 }
 
 func TestLookupUser(t *testing.T) {
