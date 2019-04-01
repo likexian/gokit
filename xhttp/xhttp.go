@@ -153,7 +153,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.8.0"
+	return "0.8.1"
 }
 
 // Author returns package author
@@ -439,6 +439,8 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 					r.SetHeader(k, vv)
 				}
 			}
+		case *http.Cookie:
+			r.Request.AddCookie(vv)
 		case FormParam:
 			formParam.Adds(vv)
 		case QueryParam:

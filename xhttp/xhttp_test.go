@@ -541,6 +541,14 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
+
+	// set cookies by args
+	cookie := &http.Cookie{Name: "k", Value: "likexian"}
+	req.SetEnableCookie(true)
+	rsp, err = req.Do("GET", BASEURL, cookie)
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, len(req.Request.Cookies()), 1)
 }
 
 func TestQueryParam(t *testing.T) {
