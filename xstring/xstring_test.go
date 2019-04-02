@@ -45,10 +45,33 @@ func TestIsLetter(t *testing.T) {
 		{'@', false},
 		{'\t', false},
 		{'\n', false},
+		{' ', false},
 	}
 
 	for _, v := range tests {
 		assert.Equal(t, IsLetter(v.in), v.out)
+	}
+}
+
+func TestIsLetters(t *testing.T) {
+	tests := []struct {
+		in  string
+		out bool
+	}{
+		{"a", true},
+		{"ab", true},
+		{"Ab", true},
+		{"AB", true},
+		{"a0", false},
+		{"10", false},
+		{"a+", false},
+		{"a@", false},
+		{"a.", false},
+		{"a\n", false},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, IsLetters(v.in), v.out)
 	}
 }
 
@@ -89,6 +112,38 @@ func TestReverse(t *testing.T) {
 
 	for _, v := range tests {
 		assert.Equal(t, Reverse(v.in), v.out)
+	}
+}
+
+func TestToString(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out string
+	}{
+		{nil, "<nil>"},
+		{"abc", "abc"},
+		{[]byte("abc"), "abc"},
+		{true, "true"},
+		{int(1), "1"},
+		{int8(1), "1"},
+		{int16(1), "1"},
+		{int32(1), "1"},
+		{int64(1), "1"},
+		{uint(1), "1"},
+		{uint8(1), "1"},
+		{uint16(1), "1"},
+		{uint32(1), "1"},
+		{uint64(1), "1"},
+		{float32(1), "1.00"},
+		{float64(1.0), "1.00"},
+		{[]int{1, 2, 3}, "[1 2 3]"},
+		{[]string{"1", "2", "3"}, `[1 2 3]`},
+		{[]interface{}{"1", 2, "3"}, `[1 2 3]`},
+		{map[string]int{"a": 1}, "map[a:1]"},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, ToString(v.in), v.out, v)
 	}
 }
 

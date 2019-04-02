@@ -27,7 +27,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -44,6 +44,17 @@ func License() string {
 func IsLetter(s uint8) bool {
 	n := (s | 0x20) - 'a'
 	return n >= 0 && n < 26
+}
+
+// IsLetters returns if s is all english letter
+func IsLetters(s string) bool {
+	for _, v := range s {
+		if !IsLetter(uint8(v)) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // IsNumeric returns if s is a number
@@ -63,6 +74,44 @@ func Reverse(s string) string {
 	}
 
 	return string(runes[n:])
+}
+
+// ToString convert v to string
+func ToString(v interface{}) string {
+	switch vv := v.(type) {
+	case []byte:
+		return string(vv)
+	case string:
+		return vv
+	case bool:
+		return strconv.FormatBool(vv)
+	case int:
+		return strconv.FormatInt(int64(vv), 10)
+	case int8:
+		return strconv.FormatInt(int64(vv), 10)
+	case int16:
+		return strconv.FormatInt(int64(vv), 10)
+	case int32:
+		return strconv.FormatInt(int64(vv), 10)
+	case int64:
+		return strconv.FormatInt(int64(vv), 10)
+	case uint:
+		return strconv.FormatUint(uint64(vv), 10)
+	case uint8:
+		return strconv.FormatUint(uint64(vv), 10)
+	case uint16:
+		return strconv.FormatUint(uint64(vv), 10)
+	case uint32:
+		return strconv.FormatUint(uint64(vv), 10)
+	case uint64:
+		return strconv.FormatUint(uint64(vv), 10)
+	case float32:
+		return strconv.FormatFloat(float64(vv), 'f', 2, 64)
+	case float64:
+		return strconv.FormatFloat(float64(vv), 'f', 2, 64)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }
 
 // Expand replaces {var} of string s based on the value map m
