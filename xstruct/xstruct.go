@@ -51,7 +51,7 @@ var errNotSettable = errors.New("xstruct: not a settable field")
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -64,10 +64,10 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// New return a new xstruct object
-func New(v interface{}) (s *Struct, err error) {
+// New return a new xstruct object, it panic if not struct
+func New(v interface{}) *Struct {
 	if !IsStruct(v) {
-		return nil, ErrNotStruct
+		panic(ErrNotStruct)
 	}
 
 	vv := reflect.ValueOf(v)
@@ -75,17 +75,43 @@ func New(v interface{}) (s *Struct, err error) {
 		vv = vv.Elem()
 	}
 
-	s = &Struct{
+	s := &Struct{
 		data:  v,
 		value: vv,
 	}
 
-	return
+	return s
 }
 
 // Name returns name of struct
 func (s *Struct) Name() string {
 	return s.value.Type().Name()
+}
+
+// Struct returns nested struct with name, it panic if not field
+func (s *Struct) Struct(name string) *Struct {
+	tt := s.value.Type()
+	_, ok := tt.FieldByName(name)
+	if !ok {
+		panic(ErrNotField)
+	}
+
+	return New(s.value.FieldByName(name).Interface())
+}
+
+// Map returns struct name value as map
+func (s *Struct) Map() map[string]interface{} {
+	result := map[string]interface{}{}
+
+	fs := s.Fields()
+	for _, v := range fs {
+		if !v.IsExport() {
+			continue
+		}
+		result[v.data.Name] = v.value.Interface()
+	}
+
+	return result
 }
 
 // Names returns names of struct
@@ -146,27 +172,6 @@ func (s *Struct) Fields() []*Field {
 	}
 
 	return fields
-}
-
-// MustStruct returns nested struct with name, panic if error
-func (s *Struct) MustStruct(name string) *Struct {
-	s, err := s.Struct(name)
-	if err != nil {
-		panic(err)
-	}
-
-	return s
-}
-
-// Struct returns nested struct with name
-func (s *Struct) Struct(name string) (*Struct, error) {
-	tt := s.value.Type()
-	_, ok := tt.FieldByName(name)
-	if !ok {
-		return nil, ErrNotField
-	}
-
-	return New(s.value.FieldByName(name).Interface())
 }
 
 // MustField returns a field with name, panic if error
