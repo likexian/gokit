@@ -147,6 +147,25 @@ func TestToString(t *testing.T) {
 	}
 }
 
+func TestJoin(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out string
+	}{
+		{nil, "<nil>"},
+		{"abc", "abc"},
+		{int(1), "1"},
+		{[]int{1, 2, 3}, "1, 2, 3"},
+		{[]string{"1", "2", "3"}, `1, 2, 3`},
+		{[]interface{}{"1", 2, "3"}, `1, 2, 3`},
+		{map[string]int{"a": 1}, "map[a:1]"},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Join(v.in, ", "), v.out, v)
+	}
+}
+
 func TestExpand(t *testing.T) {
 	h := map[string]interface{}{"hello": "world"}
 	m := map[string]interface{}{"name": "Li Kexian", "money": 100}

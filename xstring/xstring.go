@@ -21,13 +21,14 @@ package xstring
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -111,6 +112,29 @@ func ToString(v interface{}) string {
 		return strconv.FormatFloat(float64(vv), 'f', 2, 64)
 	default:
 		return fmt.Sprintf("%v", v)
+	}
+}
+
+// Join concatenates the elements and returns string
+func Join(v interface{}, sep string) string {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() == reflect.Ptr || vv.Kind() == reflect.Interface {
+		if vv.IsNil() {
+			return ""
+		} else {
+			vv = vv.Elem()
+		}
+	}
+
+	switch vv.Kind() {
+	case reflect.Slice, reflect.Array:
+		as := []string{}
+		for i := 0; i < vv.Len(); i++ {
+			as = append(as, ToString(vv.Index(i)))
+		}
+		return strings.Join(as, sep)
+	default:
+		return ToString(v)
 	}
 }
 
