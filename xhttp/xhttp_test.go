@@ -217,42 +217,12 @@ func TestGetHeader(t *testing.T) {
 	}
 }
 
-func TestSetBody(t *testing.T) {
+func TestSetClient(t *testing.T) {
 	req := New()
-
-	req.SetBody("x=o")
-	rsp, err := req.Do("POST", BASEURL+"post")
+	rsp, err := req.Do("GET", BASEURL, &http.Client{})
 	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-	text, err := rsp.String()
-	assert.Nil(t, err)
-	assert.Contains(t, text, `"x": "o"`)
-
-	rsp, err = req.Do("POST", BASEURL+"post", "k=v")
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-	text, err = rsp.String()
-	assert.Nil(t, err)
-	assert.Contains(t, text, `"k": "v"`)
-
-	rsp, err = req.Do("POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-	text, err = rsp.String()
-	assert.Nil(t, err)
-	assert.Contains(t, text, `"a": "1"`)
-	assert.Contains(t, text, `"b": "2"`)
-	assert.Contains(t, text, `"c": "3"`)
-
-	var b bytes.Buffer
-	b.Write([]byte("k=v"))
-
-	rsp, err = req.Do("POST", BASEURL+"post", b)
-	assert.Nil(t, err)
-	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
-	text, err = rsp.String()
-	assert.Nil(t, err)
-	assert.Contains(t, text, `"k": "v"`)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
 }
 
 func TestBytes(t *testing.T) {
@@ -604,14 +574,89 @@ func TestValuesParam(t *testing.T) {
 	req := New()
 	values := url.Values{"k": []string{"v"}}
 
+	// url.Values as query string
 	_, err := req.Do("GET", BASEURL+"get", values)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), BASEURL+"get?k=v")
 
+	// url.Values as form data
 	rsp, err := req.Do("POST", BASEURL+"post", values)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
 	text, err := rsp.String()
 	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
+}
+
+func TestPostBody(t *testing.T) {
+	req := New()
+
+	// Post string
+	rsp, err := req.Do("POST", BASEURL+"post", "k=v")
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
+
+	// Post []byte
+	rsp, err = req.Do("POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"a": "1"`)
+	assert.Contains(t, text, `"b": "2"`)
+	assert.Contains(t, text, `"c": "3"`)
+
+	// Post bytes.Buffer
+	var b bytes.Buffer
+	b.Write([]byte("k=v"))
+	rsp, err = req.Do("POST", BASEURL+"post", b)
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"k": "v"`)
+
+	// Post json
+	rsp, err = req.Do("POST", BASEURL+"post", `{"k": "v"}`, Header{"Content-Type": "application/json"})
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"data": "{\"k\": \"v\"}"`)
+}
+
+func TestPostFile(t *testing.T) {
+	req := New()
+
+	// Test post one file
+	rsp, err := req.Do("POST", BASEURL+"post", FormFile{"file": "../go.mod"})
+	assert.Nil(t, err)
+	defer rsp.Close()
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"Content-Type": "multipart/form-data`)
+	assert.Contains(t, text, `"file": "module github.com/likexian/gokit`)
+
+	// Test post more files
+	rsp, err = req.Do("POST", BASEURL+"post", FormFile{"file_0": "../go.mod"}, FormFile{"file_1": "../go.sum"})
+	assert.Nil(t, err)
+	defer rsp.Close()
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"Content-Type": "multipart/form-data`)
+	assert.Contains(t, text, `"file_0": "module github.com/likexian/gokit`)
+	assert.Contains(t, text, `"file_1": "github.com/likexian/gokit`)
+
+	// Test post file and form
+	rsp, err = req.Do("POST", BASEURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod"})
+	assert.Nil(t, err)
+	defer rsp.Close()
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"Content-Type": "multipart/form-data`)
+	assert.Contains(t, text, `"file": "module github.com/likexian/gokit`)
 	assert.Contains(t, text, `"k": "v"`)
 }

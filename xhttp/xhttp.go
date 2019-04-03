@@ -30,6 +30,7 @@ import (
 	"github.com/likexian/gokit/xtime"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
@@ -52,10 +53,10 @@ type Timeout struct {
 
 // Request storing request data
 type Request struct {
+	ClientId string
 	Request  *http.Request
 	Timeout  Timeout
 	Client   *http.Client
-	ClientId string
 	SignKey  string
 	Retries  int
 	Debug    bool
@@ -72,6 +73,9 @@ type QueryParam map[string]interface{}
 
 // FormParam is form param map pass to xhttp
 type FormParam map[string]interface{}
+
+// FormFile is form file for upload, formfield: filename
+type FormFile map[string]string
 
 // param storing QueryParam and FormParam data set by Do
 type param struct {
@@ -153,7 +157,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.8.1"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -191,10 +195,10 @@ func New() (r *Request) {
 	}
 
 	r = &Request{
+		ClientId: UniqueId(fmt.Sprintf("%d", xtime.Ns())),
 		Request:  request,
 		Timeout:  timeout,
 		Client:   client,
-		ClientId: UniqueId(fmt.Sprintf("%d", xtime.Ns())),
 		SignKey:  "",
 		Retries:  0,
 		Debug:    false,
@@ -394,21 +398,11 @@ func (r *Request) SetEnableCookie(enable bool) *Request {
 	return r
 }
 
-// SetBody set http request body
-func (r *Request) SetBody(s string) {
-	if s == "" {
-		r.Request.Body = nil
-	} else {
-		r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(s)))
-	}
-	r.Request.ContentLength = int64(len(s))
-	r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-}
-
 // Do send http request and return response
 func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
 	r.Request.Header.Del("Cookie")
+	r.Request.Header.Del("Content-Type")
 
 	method = strings.ToUpper(strings.TrimSpace(method))
 	if !assert.IsContains(SUPPORT_METHOD, method) {
@@ -422,8 +416,11 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		return nil, fmt.Errorf("xhttp: no request url specify")
 	}
 
+	var formBody string
 	var formParam param
 	var queryParam param
+
+	formFile := FormFile{}
 
 	for _, v := range args {
 		switch vv := v.(type) {
@@ -439,6 +436,8 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 					r.SetHeader(k, vv)
 				}
 			}
+		case *http.Client:
+			r.Client = vv
 		case *http.Cookie:
 			r.Request.AddCookie(vv)
 		case FormParam:
@@ -446,23 +445,69 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		case QueryParam:
 			queryParam.Adds(vv)
 		case url.Values:
-			if assert.IsContains([]string{"POST", "PUT"}, method) {
+			if assert.IsContains([]string{"POST", "PUT", "PATCH"}, method) {
 				formParam.Update(param{vv})
 			} else {
 				queryParam.Update(param{vv})
 			}
 		case string:
-			r.SetBody(vv)
+			formBody += vv
 		case []byte:
-			r.SetBody(string(vv))
+			formBody += string(vv)
 		case bytes.Buffer:
-			r.SetBody(vv.String())
+			formBody += vv.String()
+		case FormFile:
+			for k, v := range vv {
+				formFile[k] = v
+			}
 		}
 	}
 
-	if !formParam.IsEmpty() {
-		q := formParam.Encode()
-		r.SetBody(q)
+	r.Request.Body = nil
+	r.Request.ContentLength = 0
+
+	if assert.IsContains([]string{"POST", "PUT", "PATCH"}, method) {
+		if len(formFile) > 0 {
+			pr, pw := io.Pipe()
+			bw := multipart.NewWriter(pw)
+			go func() {
+				for k, v := range formFile {
+					fw, err := bw.CreateFormFile(k, v)
+					if err != nil {
+						continue
+					}
+					fd, err := os.Open(v)
+					if err != nil {
+						continue
+					}
+					_, err = io.Copy(fw, fd)
+					fd.Close()
+					if err != nil {
+						continue
+					}
+				}
+				for k, v := range formParam.Values {
+					for _, vv := range v {
+						bw.WriteField(k, vv)
+					}
+				}
+				bw.Close()
+				pw.Close()
+			}()
+			r.SetHeader("Content-Type", bw.FormDataContentType())
+			r.Request.Body = ioutil.NopCloser(pr)
+		} else {
+			if !formParam.IsEmpty() {
+				formBody += formParam.Encode()
+			}
+			if formBody != "" {
+				r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(formBody)))
+				r.Request.ContentLength = int64(len(formBody))
+				if r.Request.Header.Get("Content-Type") == "" {
+					r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+				}
+			}
+		}
 	}
 
 	if !queryParam.IsEmpty() {
@@ -478,7 +523,6 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	if err != nil {
 		return nil, fmt.Errorf("xhttp: parse url failed: %s", err.Error())
 	}
-
 	r.Request.URL = u
 
 	s = &Response{
@@ -497,12 +541,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	}()
 
 	s.Tracing.RequestId = UniqueId(s.Tracing.Timestamp, s.Tracing.Nonce, s.Method, s.URL.String(), r.SignKey)
-	r.Request.Header.Set("X-XHTTP-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
+	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
 	s.Response, err = r.Client.Do(r.Request)
-
-	r.SetBody("")
 
 	return
 }
