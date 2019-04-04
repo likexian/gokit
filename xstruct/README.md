@@ -18,33 +18,62 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xstruct)
 
 ## Example
 
+### Define a struct first
+
 ```go
-// Staff struct
+// Define Staff struct
 type Staff struct {
     Id int64 `json:"id"`
     Name string  `json:"name"`
     Enabled bool  `json:"enabled"`
 }
 
-// New a object
-s, err := xstruct.New(Staff{1, "likexian", true})
+// Init staff struct
+staff := Staff{1, "likexian", true}
+```
+
+### Use as global functions
+
+```go
+// ["Id", "Name", "Enabled"]
+names := xstruct.Names(staff)
+
+// [1, "likexian", true]
+values := xstruct.Values(staff)
+
+// list all field as [*Field]
+fields := xstruct.Fields(staff)
+
+// get struct field value
+value := xstruct.Field(staff, "Name").Value()
+
+// set struct field value
+xstruct.Set(staff, "Name", "kexian.li")
+```
+
+### Use as Interactive mode
+
+```go
+// create a xstruct object
+s, err := xstruct.New(staff)
 if err != nil {
     panic(err)
 }
 
 // ["Id", "Name", "Enabled"]
-fmt.Println(s.Names())
-// [1, "likexian", true]
-fmt.Println(s.Values())
-// [*Field] list
-fmt.Println(s.Fields())
+names := s.Names()
 
-// set struct value
+// [1, "likexian", true]
+values := s.Values()
+
+// list all field as [*Field]
+fields := s.Fields()
+
+// get struct field value
+value := s.Field("Name").Value()
+
+// set struct field value
 s.Set("Name", "kexian.li")
-// get a field object
-f, _ := s.Field("Name")
-// set a field, same as s.Set(k, v)
-f.Set("likexian")
 ```
 
 ## LICENSE

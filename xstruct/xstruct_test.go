@@ -48,6 +48,27 @@ func TestVersion(t *testing.T) {
 	assert.Contains(t, License(), "Apache License")
 }
 
+func TestIsStruct(t *testing.T) {
+	var i interface{}
+	tests := []struct {
+		in  interface{}
+		out bool
+	}{
+		{nil, false},
+		{"", false},
+		{1, false},
+		{i, false},
+		{student, true},
+		{&student, true},
+		{student.Techer, true},
+		{student.Techer.Name, false},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, IsStruct(v.in), v.out)
+	}
+}
+
 func TestNew(t *testing.T) {
 	assert.Panic(t, func() { New(nil) })
 	assert.Panic(t, func() { New("") })
@@ -62,6 +83,9 @@ func TestName(t *testing.T) {
 	assert.NotNil(t, s)
 
 	name := s.Name()
+	assert.Equal(t, name, "Student")
+
+	name = Name(student)
 	assert.Equal(t, name, "Student")
 }
 
@@ -90,6 +114,10 @@ func TestStruct(t *testing.T) {
 
 	b := f.IsAnonymous()
 	assert.False(t, b)
+
+	ss = Struct(student, "Techer")
+	assert.NotNil(t, ss)
+	assert.Equal(t, ss.Name(), "Techer")
 }
 
 func TestMap(t *testing.T) {
@@ -99,6 +127,10 @@ func TestMap(t *testing.T) {
 	v := s.Map()
 	assert.Len(t, v, 4)
 	assert.Equal(t, v["Name"], "kexian.li")
+
+	v = Map(student)
+	assert.Len(t, v, 4)
+	assert.Equal(t, v["Name"], "kexian.li")
 }
 
 func TestNames(t *testing.T) {
@@ -106,6 +138,9 @@ func TestNames(t *testing.T) {
 	assert.NotNil(t, s)
 
 	n := s.Names()
+	assert.Len(t, n, 5)
+
+	n = Names(student)
 	assert.Len(t, n, 5)
 }
 
@@ -117,6 +152,11 @@ func TestTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Len(t, m, 4)
 	assert.Equal(t, m["Name"], "name")
+
+	m, err = Tags(student, "json")
+	assert.Nil(t, err)
+	assert.Len(t, m, 4)
+	assert.Equal(t, m["Name"], "name")
 }
 
 func TestValues(t *testing.T) {
@@ -125,6 +165,9 @@ func TestValues(t *testing.T) {
 
 	v := s.Values()
 	assert.Len(t, v, 4)
+
+	v = Values(student)
+	assert.Len(t, v, 4)
 }
 
 func TestFields(t *testing.T) {
@@ -132,6 +175,9 @@ func TestFields(t *testing.T) {
 	assert.NotNil(t, s)
 
 	f := s.Fields()
+	assert.Len(t, f, 5)
+
+	f = Fields(student)
 	assert.Len(t, f, 5)
 }
 
@@ -156,6 +202,11 @@ func TestField(t *testing.T) {
 
 	b := f.IsAnonymous()
 	assert.False(t, b)
+
+	f, ok = Field(student, "Name")
+	assert.True(t, ok)
+	n = f.Name()
+	assert.Equal(t, n, "Name")
 }
 
 func TestMustField(t *testing.T) {
@@ -183,6 +234,24 @@ func TestMustField(t *testing.T) {
 
 	v = s.MustField("Enabled").Value()
 	assert.Equal(t, v, true)
+
+	f = MustField(student, "Name")
+	n = f.Name()
+	assert.Equal(t, n, "Name")
+}
+
+func TestHasField(t *testing.T) {
+	s := New(student)
+	assert.NotNil(t, s)
+
+	b := s.HasField("not-exists")
+	assert.False(t, b)
+
+	b = s.HasField("Id")
+	assert.True(t, b)
+
+	b = s.HasField("Techer")
+	assert.True(t, b)
 }
 
 func TestFieldTag(t *testing.T) {
@@ -274,6 +343,10 @@ func TestFieldSet(t *testing.T) {
 
 	err = f.Set("lkx")
 	assert.Equal(t, err, errNotSettable)
+
+	err = Set(&student, "Name", "likexian")
+	assert.Nil(t, err)
+	assert.Equal(t, student.Name, "likexian")
 }
 
 func TestFieldZero(t *testing.T) {
@@ -311,25 +384,25 @@ func TestFieldZero(t *testing.T) {
 	err = s.Zero("Name")
 	assert.Nil(t, err)
 	assert.Equal(t, student.Name, "")
+
+	err = Zero(&student, "Name")
+	assert.Nil(t, err)
+	assert.Equal(t, student.Name, "")
 }
 
-func TestIsStruct(t *testing.T) {
-	var i interface{}
-	tests := []struct {
-		in  interface{}
-		out bool
-	}{
-		{nil, false},
-		{"", false},
-		{1, false},
-		{i, false},
-		{student, true},
-		{&student, true},
-		{student.Techer, true},
-		{student.Techer.Name, false},
-	}
+func TestFieldIsStruct(t *testing.T) {
+	s := New(&student)
+	assert.NotNil(t, s)
 
-	for _, v := range tests {
-		assert.Equal(t, IsStruct(v.in), v.out)
-	}
+	b := s.IsStruct("not-exists")
+	assert.False(t, b)
+
+	b = s.IsStruct("Id")
+	assert.False(t, b)
+
+	b = s.IsStruct("Techer")
+	assert.True(t, b)
+
+	b = s.Struct("Techer").IsStruct("Id")
+	assert.False(t, b)
 }
