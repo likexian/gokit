@@ -26,6 +26,7 @@ import (
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xhash"
+	"github.com/likexian/gokit/xjson"
 	"github.com/likexian/gokit/xrand"
 	"github.com/likexian/gokit/xtime"
 	"io"
@@ -73,6 +74,9 @@ type QueryParam map[string]interface{}
 
 // FormParam is form param map pass to xhttp
 type FormParam map[string]interface{}
+
+// JsonParam is json param map pass to xhttp
+type JsonParam map[string]interface{}
 
 // FormFile is form file for upload, formfield: filename
 type FormFile map[string]string
@@ -157,7 +161,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.9.0"
+	return "0.10.0"
 }
 
 // Author returns package author
@@ -450,12 +454,18 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 			} else {
 				queryParam.Update(param{vv})
 			}
+		case JsonParam:
+			formBody, err = xjson.Encode(vv)
+			if err != nil {
+				return nil, fmt.Errorf("xhttp: encode json param failed: %s", err.Error())
+			}
+			r.Request.Header.Set("Content-Type", "application/json")
 		case string:
-			formBody += vv
+			formBody = vv
 		case []byte:
-			formBody += string(vv)
+			formBody = string(vv)
 		case bytes.Buffer:
-			formBody += vv.String()
+			formBody = vv.String()
 		case FormFile:
 			for k, v := range vv {
 				formFile[k] = v
@@ -631,6 +641,17 @@ func (r *Response) String() (s string, err error) {
 	}
 
 	return string(b), nil
+}
+
+// Json returns response body as *simplejson.Json
+// For more please refer to https://github.com/likexian/simplejson-go
+func (r *Response) Json() (*xjson.Jsonx, error) {
+	s, err := r.String()
+	if err != nil {
+		return &xjson.Jsonx{}, err
+	}
+
+	return xjson.Decode(s)
 }
 
 // UniqueId returns unique id of string list

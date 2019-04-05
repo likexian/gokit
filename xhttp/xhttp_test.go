@@ -272,7 +272,6 @@ func TestString(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
-
 	s, err := rsp.String()
 	assert.Nil(t, err)
 	assert.NotEqual(t, len(s), 0)
@@ -282,11 +281,29 @@ func TestString(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.Response.StatusCode, 200)
-
 	s, err = rsp.String()
 	assert.Nil(t, err)
 	assert.NotEqual(t, len(s), 0)
 	assert.Equal(t, s[0:1], "{")
+}
+
+func TestJson(t *testing.T) {
+	req := New()
+
+	rsp, err := req.Do("GET", BASEURL)
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+	s, err := rsp.Json()
+	assert.NotNil(t, err)
+
+	rsp, err = req.Do("GET", BASEURL+"get")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	assert.Equal(t, rsp.Response.StatusCode, 200)
+	s, err = rsp.Json()
+	assert.Nil(t, err)
+	assert.Equal(t, s.Get("url").MustString(""), BASEURL+"get")
 }
 
 func TestFile(t *testing.T) {
@@ -568,6 +585,16 @@ func TestFormParam(t *testing.T) {
 	text, err = rsp.String()
 	assert.Nil(t, err)
 	assert.Contains(t, text, `"form": {}`)
+
+	data := map[string]interface{}{"a": "1", "b": 2, "c": 3}
+	rsp, err = req.Do("POST", BASEURL+"post", FormParam(data))
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.Contains(t, text, `"a": "1"`)
+	assert.Contains(t, text, `"b": "2"`)
+	assert.Contains(t, text, `"c": "3"`)
 }
 
 func TestValuesParam(t *testing.T) {
@@ -619,13 +646,25 @@ func TestPostBody(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, text, `"k": "v"`)
 
-	// Post json
+	// Post json string
 	rsp, err = req.Do("POST", BASEURL+"post", `{"k": "v"}`, Header{"Content-Type": "application/json"})
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
 	text, err = rsp.String()
 	assert.Nil(t, err)
 	assert.Contains(t, text, `"data": "{\"k\": \"v\"}"`)
+
+	// Post map as json
+	data := map[string]interface{}{"a": "1", "b": 2, "c": 3}
+	rsp, err = req.Do("POST", BASEURL+"post", JsonParam(data))
+	assert.Nil(t, err)
+	assert.Equal(t, req.Request.URL.String(), BASEURL+"post")
+	j, err := rsp.Json()
+	assert.Nil(t, err)
+	assert.Equal(t, j.Get("url").MustString(""), BASEURL+"post")
+	assert.Equal(t, j.Get("json.a").MustString(""), "1")
+	assert.Equal(t, j.Get("json.b").MustInt(0), 2)
+	assert.Equal(t, j.Get("json.c").MustInt(0), 3)
 }
 
 func TestPostFile(t *testing.T) {
