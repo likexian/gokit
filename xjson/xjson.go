@@ -23,9 +23,14 @@ import (
 	"github.com/likexian/simplejson-go"
 )
 
+// Jsonx is the json object
+type Jsonx struct {
+	*simplejson.Json
+}
+
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -39,21 +44,23 @@ func License() string {
 }
 
 // Decode decode json string to Json object
-func Decode(s string) (*simplejson.Json, error) {
-	return simplejson.Loads(s)
+func Decode(s string) (*Jsonx, error) {
+	j, err := simplejson.Loads(s)
+	return &Jsonx{j}, err
 }
 
 // Encode encode value to json text
 func Encode(v interface{}) (string, error) {
-	return simplejson.New(v).Dumps()
+	return simplejson.Dumps(v)
 }
 
 // Load load json file to Json object
-func Load(f string) (*simplejson.Json, error) {
-	return simplejson.Load(f)
+func Load(f string) (*Jsonx, error) {
+	j, err := simplejson.Load(f)
+	return &Jsonx{j}, err
 }
 
 // Dump dump value to json file
 func Dump(f string, v interface{}) error {
-	return simplejson.New(v).Dump(f)
+	return simplejson.Dump(f, v)
 }

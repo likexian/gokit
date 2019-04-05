@@ -20,28 +20,39 @@ Visit simplejson docs on [GoDoc](https://godoc.org/github.com/likexian/simplejso
 
 ## Example
 
-### Dump struct data to json string
+### Dump the struct data to JSON string
 
-    type Status struct {
-        Code    int64  `json:"code"`
-        Message string `json:"message"`
-    }
+```go
+// Define Status struct
+type Status struct {
+    Code    int64  `json:"code"`
+    Message string `json:"message"`
+}
 
-    status := Status{1, "Success"}
-    text, err := xjson.Encode(status)
-    if err == nil {
-        fmt.Println(text)
-    }
+// Init status
+status := Status{1, "Success"}
 
-### Load string to json object
+// Encode as json string
+s, err := xjson.Encode(status)
+if err == nil {
+    fmt.Println("Json text is:", s)
+}
+```
 
-    text := `{"Code":1,"Message":"Success","Student":["Li Kexian"]}`
-    json, err := xjson.Decode(text)
-    if err == nil {
-        fmt.Println(json.Get("Code").MustInt())
-        fmt.Println(json.Get("Message").MustString())
-        fmt.Println(json.Get("Student.0").MustString())
-    }
+### Load the JSON string
+
+```go
+// Json strig
+text := `{"Code": 1, "Message": "Success", "Result": {"Student": [{"Name": "Li Kexian"}]}}`
+
+// Decode json string
+j, err := xjson.Decode(text)
+if err == nil {
+    fmt.Println("Code is:", j.Get("Code").MustInt(0))
+    fmt.Println("Message is:", j.Get("Message").MustString(""))
+    fmt.Println("First Student name is:", j.Get("Result.Student.0.Name").MustString("-"))
+}
+```
 
 ## LICENSE
 
