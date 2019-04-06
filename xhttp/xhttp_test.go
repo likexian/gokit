@@ -21,6 +21,7 @@ package xhttp
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
@@ -698,4 +699,15 @@ func TestPostFile(t *testing.T) {
 	assert.Contains(t, text, `"Content-Type": "multipart/form-data`)
 	assert.Contains(t, text, `"file": "module github.com/likexian/gokit`)
 	assert.Contains(t, text, `"k": "v"`)
+}
+
+func TestWithContext(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		time.AfterFunc(100*time.Millisecond, cancel)
+	}()
+
+	req := New()
+	_, err := req.Do("GET", BASEURL+"get", ctx)
+	assert.NotNil(t, err)
 }

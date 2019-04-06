@@ -21,6 +21,7 @@ package xhttp
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"github.com/likexian/gokit/assert"
@@ -161,7 +162,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.10.0"
+	return "0.11.0"
 }
 
 // Author returns package author
@@ -470,6 +471,8 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 			for k, v := range vv {
 				formFile[k] = v
 			}
+		case context.Context:
+			r.Request = r.Request.WithContext(vv)
 		}
 	}
 
