@@ -60,8 +60,8 @@ type Retries struct {
 	Sleep time.Duration
 }
 
-// Debug storing debug setting
-type Debug struct {
+// Dump storing http dump setting
+type Dump struct {
 	DumpHttp bool
 	DumpBody bool
 }
@@ -74,7 +74,7 @@ type Request struct {
 	Client   *http.Client
 	SignKey  string
 	Retries  Retries
-	Debug    Debug
+	Dump     Dump
 }
 
 // Host is http host
@@ -155,7 +155,7 @@ type Response struct {
 	URL      *url.URL
 	Response *http.Response
 	Tracing  Tracing
-	HttpDump string
+	HttpDump [][]byte
 }
 
 // SUPPORT_METHOD list all supported http method
@@ -220,7 +220,7 @@ func New() (r *Request) {
 		Client:   client,
 		SignKey:  "",
 		Retries:  Retries{},
-		Debug:    Debug{},
+		Dump:     Dump{},
 	}
 
 	return
@@ -437,10 +437,10 @@ func (r *Request) SetRetries(args ...interface{}) *Request {
 	return r
 }
 
-// SetDebug set debug param
-func (r *Request) SetDebug(dumpHttp, dumpBody bool) *Request {
-	r.Debug.DumpHttp = dumpHttp
-	r.Debug.DumpBody = dumpBody
+// SetDump set http dump
+func (r *Request) SetDump(dumpHttp, dumpBody bool) *Request {
+	r.Dump.DumpHttp = dumpHttp
+	r.Dump.DumpBody = dumpBody
 	return r
 }
 
@@ -599,13 +599,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
-	if r.Debug.DumpHttp {
-		d, err := httputil.DumpRequestOut(r.Request, r.Debug.DumpBody)
+	if r.Dump.DumpHttp {
+		d, err := httputil.DumpRequestOut(r.Request, r.Dump.DumpBody)
 		if err == nil {
-			s.HttpDump += string(d)
-			if r.Debug.DumpBody && assert.IsContains([]string{"POST", "PUT", "PATCH"}, r.Request.Method) {
-				s.HttpDump += "\r\n\r\n"
-			}
+			s.HttpDump = append(s.HttpDump, d)
 		}
 	}
 
@@ -620,10 +617,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		}
 	}
 
-	if r.Debug.DumpHttp {
-		d, err := httputil.DumpResponse(s.Response, r.Debug.DumpBody)
+	if r.Dump.DumpHttp {
+		d, err := httputil.DumpResponse(s.Response, r.Dump.DumpBody)
 		if err == nil {
-			s.HttpDump += string(d)
+			s.HttpDump = append(s.HttpDump, d)
 		}
 	}
 
@@ -726,7 +723,8 @@ func (r *Response) Json() (*xjson.Jsonx, error) {
 }
 
 // Dump returns http dump of request and response
-func (r *Response) Dump() string {
+// [bytes[request], bytes[response]]
+func (r *Response) Dump() [][]byte {
 	return r.HttpDump
 }
 
