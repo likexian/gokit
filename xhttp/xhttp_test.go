@@ -711,3 +711,37 @@ func TestWithContext(t *testing.T) {
 	_, err := req.Do("GET", BASEURL+"get", ctx)
 	assert.NotNil(t, err)
 }
+
+func TestSetRetries(t *testing.T) {
+	req := New()
+	assert.Panic(t, func() { req.SetRetries() })
+
+	// no retry (default)
+	rsp, err := req.Do("Get", "http://127.0.0.1:8080/")
+	assert.NotNil(t, err)
+	assert.Equal(t, rsp.Tracing.Retries, 0)
+
+	// retry 3 times
+	req.SetRetries(3)
+	rsp, err = req.Do("Get", "http://127.0.0.1:8080/")
+	assert.NotNil(t, err)
+	assert.Equal(t, rsp.Tracing.Retries, 3)
+
+	// start http server after 3 second, then request shall success
+	go func() {
+		time.AfterFunc(3*time.Second, func() {
+			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "Hello!") })
+			http.ListenAndServe("127.0.0.1:5555", nil)
+		})
+	}()
+
+	// retry until success, sleep 1 second per request
+	req.SetRetries(-1, time.Duration(1*time.Second))
+	rsp, err = req.Do("Get", "http://127.0.0.1:5555/")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.Equal(t, text, "Hello!")
+	assert.Equal(t, rsp.Tracing.Retries, 2)
+}

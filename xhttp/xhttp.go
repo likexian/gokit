@@ -53,6 +53,12 @@ type Timeout struct {
 	KeepAliveTimeout      int
 }
 
+// Retries storing retry setting
+type Retries struct {
+	Times int
+	Sleep time.Duration
+}
+
 // Request storing request data
 type Request struct {
 	ClientId string
@@ -60,7 +66,7 @@ type Request struct {
 	Timeout  Timeout
 	Client   *http.Client
 	SignKey  string
-	Retries  int
+	Retries  Retries
 	Debug    bool
 }
 
@@ -133,7 +139,7 @@ type Tracing struct {
 	Nonce     string
 	SendTime  int64
 	RecvTime  int64
-	Retries   int64
+	Retries   int
 }
 
 // Response storing response data
@@ -162,7 +168,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.11.0"
+	return "0.12.0"
 }
 
 // Author returns package author
@@ -205,7 +211,7 @@ func New() (r *Request) {
 		Timeout:  timeout,
 		Client:   client,
 		SignKey:  "",
-		Retries:  0,
+		Retries:  Retries{0, 0},
 		Debug:    false,
 	}
 
@@ -403,6 +409,26 @@ func (r *Request) SetEnableCookie(enable bool) *Request {
 	return r
 }
 
+// SetRetries set retry param
+// int arg is setting retry times, time.Duration is setting retry sleep duration
+// 0: no retry (default), -1: retry until success, > 1: retry x times
+func (r *Request) SetRetries(args ...interface{}) *Request {
+	if len(args) == 0 {
+		panic("xhttp: no args pass to SetRetries")
+	}
+
+	for i := 0; i < len(args); i++ {
+		switch args[i].(type) {
+		case int:
+			r.Retries.Times = args[i].(int)
+		case time.Duration:
+			r.Retries.Sleep = args[i].(time.Duration)
+		}
+	}
+
+	return r
+}
+
 // Do send http request and return response
 func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
@@ -545,6 +571,7 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 			Timestamp: fmt.Sprintf("%d", xtime.S()),
 			Nonce:     fmt.Sprintf("%d", xrand.IntRange(1000000, 9999999)),
 			ClientId:  r.ClientId,
+			Retries:   -1,
 		},
 	}
 
@@ -557,7 +584,16 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
-	s.Response, err = r.Client.Do(r.Request)
+	for i := 0; r.Retries.Times == -1 || i <= r.Retries.Times; i++ {
+		s.Response, err = r.Client.Do(r.Request)
+		if err == nil {
+			break
+		}
+		s.Tracing.Retries += 1
+		if r.Retries.Sleep > 0 {
+			time.Sleep(r.Retries.Sleep)
+		}
+	}
 
 	return
 }
