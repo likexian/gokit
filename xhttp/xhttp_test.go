@@ -745,3 +745,21 @@ func TestSetRetries(t *testing.T) {
 	assert.Equal(t, text, "Hello!")
 	assert.Equal(t, rsp.Tracing.Retries, 2)
 }
+
+func TestDump(t *testing.T) {
+	req := New()
+
+	req.SetDebug(true, false)
+	rsp, err := req.Do("POST", BASEURL+"post", "k=v")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	dump := rsp.Dump()
+	assert.NotContains(t, dump, "k=v")
+
+	req.SetDebug(true, true)
+	rsp, err = req.Do("POST", BASEURL+"post", "k=v")
+	assert.Nil(t, err)
+	defer rsp.Close()
+	dump = rsp.Dump()
+	assert.Contains(t, dump, "k=v\r\n")
+}

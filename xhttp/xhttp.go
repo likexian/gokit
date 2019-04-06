@@ -36,6 +36,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/cookiejar"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -59,6 +60,12 @@ type Retries struct {
 	Sleep time.Duration
 }
 
+// Debug storing debug setting
+type Debug struct {
+	DumpHttp bool
+	DumpBody bool
+}
+
 // Request storing request data
 type Request struct {
 	ClientId string
@@ -67,7 +74,7 @@ type Request struct {
 	Client   *http.Client
 	SignKey  string
 	Retries  Retries
-	Debug    bool
+	Debug    Debug
 }
 
 // Host is http host
@@ -148,6 +155,7 @@ type Response struct {
 	URL      *url.URL
 	Response *http.Response
 	Tracing  Tracing
+	HttpDump string
 }
 
 // SUPPORT_METHOD list all supported http method
@@ -168,7 +176,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.12.0"
+	return "0.13.0"
 }
 
 // Author returns package author
@@ -211,8 +219,8 @@ func New() (r *Request) {
 		Timeout:  timeout,
 		Client:   client,
 		SignKey:  "",
-		Retries:  Retries{0, 0},
-		Debug:    false,
+		Retries:  Retries{},
+		Debug:    Debug{},
 	}
 
 	return
@@ -429,6 +437,13 @@ func (r *Request) SetRetries(args ...interface{}) *Request {
 	return r
 }
 
+// SetDebug set debug param
+func (r *Request) SetDebug(dumpHttp, dumpBody bool) *Request {
+	r.Debug.DumpHttp = dumpHttp
+	r.Debug.DumpBody = dumpBody
+	return r
+}
+
 // Do send http request and return response
 func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
@@ -584,6 +599,16 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
+	if r.Debug.DumpHttp {
+		d, err := httputil.DumpRequestOut(r.Request, r.Debug.DumpBody)
+		if err == nil {
+			s.HttpDump += string(d)
+			if r.Debug.DumpBody && assert.IsContains([]string{"POST", "PUT", "PATCH"}, r.Request.Method) {
+				s.HttpDump += "\r\n\r\n"
+			}
+		}
+	}
+
 	for i := 0; r.Retries.Times == -1 || i <= r.Retries.Times; i++ {
 		s.Response, err = r.Client.Do(r.Request)
 		if err == nil {
@@ -592,6 +617,13 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		s.Tracing.Retries += 1
 		if r.Retries.Sleep > 0 {
 			time.Sleep(r.Retries.Sleep)
+		}
+	}
+
+	if r.Debug.DumpHttp {
+		d, err := httputil.DumpResponse(s.Response, r.Debug.DumpBody)
+		if err == nil {
+			s.HttpDump += string(d)
 		}
 	}
 
@@ -691,6 +723,11 @@ func (r *Response) Json() (*xjson.Jsonx, error) {
 	}
 
 	return xjson.Decode(s)
+}
+
+// Dump returns http dump of request and response
+func (r *Response) Dump() string {
+	return r.HttpDump
 }
 
 // UniqueId returns unique id of string list
