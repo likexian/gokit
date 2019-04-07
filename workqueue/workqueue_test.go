@@ -24,6 +24,7 @@ import (
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xhttp"
+	"net/http"
 	"os"
 	"testing"
 )
@@ -86,8 +87,23 @@ func TestFileLine(t *testing.T) {
 }
 
 func TestHttpStatus(t *testing.T) {
+	go func() {
+		http.HandleFunc("/status/", func(w http.ResponseWriter, r *http.Request) {
+			s := 200
+			l := r.URL.String()[8:]
+			if len(l) > 0 {
+				n, err := assert.ToInt64(l)
+				if err == nil && n > 0 {
+					s = int(n)
+				}
+			}
+			w.WriteHeader(s)
+		})
+		http.ListenAndServe("127.0.0.1:6666", nil)
+	}()
+
 	getStatus := func(t Task) Task {
-		rsp, err := xhttp.New().Do("GET", fmt.Sprintf("https://httpbin.org/status/%d", t.(int)))
+		rsp, err := xhttp.New().Get(fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
 		if err != nil {
 			return 0
 		}
@@ -112,7 +128,7 @@ func TestHttpStatus(t *testing.T) {
 	wq.SetWorker(getStatus, 100)
 	wq.SetMerger(sumStatus, map[int]int{})
 
-	tasks := map[int]int{200: 5, 206: 4, 401: 3, 403: 2, 405: 1}
+	tasks := map[int]int{200: 50, 206: 40, 401: 30, 403: 20, 405: 10}
 	for k, v := range tasks {
 		for i := 0; i < v; i++ {
 			wq.Add(k)
