@@ -176,7 +176,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.13.0"
+	return "0.13.1"
 }
 
 // Author returns package author
@@ -350,6 +350,11 @@ func (r *Request) SetKeepAlive(timeout int) *Request {
 	return r
 }
 
+// GetTimeout get http request timeout
+func (r *Request) GetTimeout() Timeout {
+	return r.Timeout
+}
+
 // SetTimeout set http request timeout
 func (r *Request) SetTimeout(timeout Timeout) *Request {
 	r.Timeout = timeout
@@ -369,28 +374,29 @@ func (r *Request) SetTimeout(timeout Timeout) *Request {
 	return r
 }
 
-// GetTimeout get http request timeout
-func (r *Request) GetTimeout() Timeout {
-	return r.Timeout
+// SetProxy set http request proxy
+func (r *Request) SetProxy(proxy func(*http.Request) (*url.URL, error)) *Request {
+	r.Client.Transport.(*http.Transport).Proxy = proxy
+	return r
 }
 
-// SetProxy set http request proxy
-func (r *Request) SetProxy(proxy string) *Request {
+// SetProxyUrl set http request proxy url
+func (r *Request) SetProxyUrl(proxy string) *Request {
 	if !strings.HasPrefix(proxy, "http://") &&
 		!strings.HasPrefix(proxy, "https://") &&
 		!strings.HasPrefix(proxy, "socks5://") {
 		proxy = "http://" + proxy
 	}
 
-	r.Client.Transport.(*http.Transport).Proxy = func(req *http.Request) (*url.URL, error) {
+	r.SetProxy(func(req *http.Request) (*url.URL, error) {
 		return url.ParseRequestURI(proxy)
-	}
+	})
 
 	return r
 }
 
-// SetFollowRedirect set http request follow redirect
-func (r *Request) SetFollowRedirect(follow bool) *Request {
+// FollowRedirect set http request follow redirect
+func (r *Request) FollowRedirect(follow bool) *Request {
 	if follow {
 		r.Client.CheckRedirect = nil
 	} else {
@@ -402,8 +408,8 @@ func (r *Request) SetFollowRedirect(follow bool) *Request {
 	return r
 }
 
-// SetEnableCookie set http request enable cookie
-func (r *Request) SetEnableCookie(enable bool) *Request {
+// EnableCookie set http request enable cookie
+func (r *Request) EnableCookie(enable bool) *Request {
 	if enable {
 		if r.Client.Jar == nil {
 			r.Client.Jar, _ = cookiejar.New(nil)

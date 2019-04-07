@@ -371,7 +371,7 @@ func TestFile(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestSetFollowRedirect(t *testing.T) {
+func TestFollowRedirect(t *testing.T) {
 	req := New()
 	rsp, err := req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
@@ -380,7 +380,7 @@ func TestSetFollowRedirect(t *testing.T) {
 	loc := rsp.GetHeader("Location")
 	assert.Equal(t, loc, "")
 
-	req.SetFollowRedirect(false)
+	req.FollowRedirect(false)
 	rsp, err = req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -388,7 +388,7 @@ func TestSetFollowRedirect(t *testing.T) {
 	loc = rsp.GetHeader("Location")
 	assert.Equal(t, loc, "/relative-redirect/2")
 
-	req.SetFollowRedirect(true)
+	req.FollowRedirect(true)
 	rsp, err = req.Do("GET", BASEURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -464,15 +464,23 @@ func TestSetTimeout(t *testing.T) {
 }
 
 func TestSetProxy(t *testing.T) {
-	req := New().SetProxy("127.0.0.1:8080")
+	req := New().SetProxy(func(req *http.Request) (*url.URL, error) {
+		return url.ParseRequestURI("http://127.0.0.1:8080")
+	})
 	_, err := req.Do("GET", BASEURL)
 	assert.NotNil(t, err)
 }
 
-func TestSetEnableCookie(t *testing.T) {
+func TestSetProxyUrl(t *testing.T) {
+	req := New().SetProxyUrl("127.0.0.1:8080")
+	_, err := req.Do("GET", BASEURL)
+	assert.NotNil(t, err)
+}
+
+func TestEnableCookie(t *testing.T) {
 	// not enable cookies
 	req := New()
-	req.SetFollowRedirect(false)
+	req.FollowRedirect(false)
 	rsp, err := req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -484,7 +492,7 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// enable cookies
-	req.SetEnableCookie(true)
+	req.EnableCookie(true)
 	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -507,7 +515,7 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// set cookie again
-	req.SetEnableCookie(true)
+	req.EnableCookie(true)
 	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -519,7 +527,7 @@ func TestSetEnableCookie(t *testing.T) {
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
 	// disable cookies
-	req.SetEnableCookie(false)
+	req.EnableCookie(false)
 	rsp, err = req.Do("GET", BASEURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -532,7 +540,7 @@ func TestSetEnableCookie(t *testing.T) {
 
 	// set cookies by args
 	cookie := &http.Cookie{Name: "k", Value: "likexian"}
-	req.SetEnableCookie(true)
+	req.EnableCookie(true)
 	rsp, err = req.Do("GET", BASEURL, cookie)
 	assert.Nil(t, err)
 	defer rsp.Close()
