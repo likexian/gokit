@@ -2,6 +2,15 @@
 
 HTTP kits for Golang development.
 
+## Features
+
+- Light weight and Easy to use
+- Cookies and Proxy are support
+- Easy use with friendly JSON api
+- Upload and Download file support
+- Debug and Trace info are open
+- Retry request is possible
+
 ## Installation
 
     go get -u github.com/likexian/gokit
@@ -18,34 +27,80 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhttp)
 
 ## Example
 
-### Do a http request
+### The Most easy way
 
-    req, err := xhttp.New("GET", "https://httpbin.org/get")
-    if err != nil {
-        panic(err)
-    }
-    rsp, err := req.Do()
-    if err != nil {
-        panic(err)
-    }
-    defer rsp.Close()
-    fmt.Println("response status code:", rsp.Response.StatusCode)
+```go
+rsp, err := xhttp.Get("https://www.likexian.com/")
+if err != nil {
+    panic(err)
+}
 
-### Show http response body
+defer rsp.Close()
+text, err := rsp.String()
+if err == nil {
+    fmt.Println("http status code:", rsp.StatusCode)
+    fmt.Println("http response body:", text)
+}
+```
 
-    text, err := rsp.String()
-    if err != nil {
-        panic(err)
-    }
-    fmt.Println("response body:", text)
+### Do a Post with form and files
 
-### Save response body to file (file download)
+```go
+// xhttp.FormParam is form, xhttp.FormFile is file
+rsp, err := xhttp.Post("https://www.likexian.com/",
+    xhttp.FormParam{"name": "likexian", "age": 18}, xhttp.FormFile{"file": "README.md"})
+if err != nil {
+    panic(err)
+}
 
-    size, err := rsp.File("get.json")
-    if err != nil {
-        panic(err)
-    }
-    fmt.Println("download size:", size)
+defer rsp.Close()
+json, err := rsp.Json()
+if err == nil {
+    // http response {"status": {"code": 1, "message": "ok"}}
+    code, _ := json.Get("status.code").Int()
+    fmt.Println("json status code:", code)
+}
+```
+
+### Use as Interactive mode
+
+```go
+req := xhttp.New()
+
+// set ua and referer
+req.SetUA("the new ua")
+req.SetReferer("http://the-referer-url.com")
+
+// set tcp connect timeout and client total timeout
+req.SetConnectTimeout(3)
+req.SetClientTimeout(30)
+
+// not follow 302 and use cookies
+req.FollowRedirect(false)
+req.EnableCookie(true)
+
+// will send get to https://www.likexian.com/?v=1.0.0
+rsp, err := req.Get("https://www.likexian.com/", xhttp.QueryParam{"v", "1.0.0"})
+if err != nil {
+    panic(err)
+}
+
+// save file as index.html
+defer rsp.Close()
+_, err := rsp.File("index.html")
+if err == nil {
+    fmt.Println("Url download as index.html")
+}
+
+// use the request param as above
+rsp, err := req.Get("https://www.likexian.com/page/")
+if err != nil {
+    panic(err)
+}
+
+defer rsp.Close()
+...
+```
 
 ## LICENSE
 
