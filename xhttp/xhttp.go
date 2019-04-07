@@ -177,7 +177,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.13.4"
+	return "0.14.0"
 }
 
 // Author returns package author
@@ -628,11 +628,11 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	}
 
 	for i := 0; r.Retries.Times == -1 || i <= r.Retries.Times; i++ {
+		s.Tracing.Retries += 1
 		s.Response, err = r.Client.Do(r.Request)
 		if err == nil {
 			break
 		}
-		s.Tracing.Retries += 1
 		if r.Retries.Sleep > 0 {
 			time.Sleep(r.Retries.Sleep)
 		}
