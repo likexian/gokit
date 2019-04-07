@@ -46,7 +46,7 @@ import (
 
 // Timeout storing timeout setting
 type Timeout struct {
-	ConnTimeout           int
+	ConnectTimeout        int
 	TLSHandshakeTimeout   int
 	ResponseHeaderTimeout int
 	ExpectContinueTimeout int
@@ -176,7 +176,7 @@ var DefaultRequest = New()
 
 // Version returns package version
 func Version() string {
-	return "0.13.1"
+	return "0.13.2"
 }
 
 // Author returns package author
@@ -192,11 +192,11 @@ func License() string {
 // New init a new xhttp client
 func New() (r *Request) {
 	timeout := Timeout{
-		ConnTimeout:           10,
+		ConnectTimeout:        15,
 		TLSHandshakeTimeout:   5,
 		ResponseHeaderTimeout: 30,
 		ExpectContinueTimeout: 5,
-		ClientTimeout:         60,
+		ClientTimeout:         120,
 		KeepAliveTimeout:      60,
 	}
 
@@ -343,16 +343,25 @@ func (r *Request) SetVerifyTls(verify bool) *Request {
 	return r
 }
 
-// SetKeepAlive set http keepalive timeout
-func (r *Request) SetKeepAlive(timeout int) *Request {
+// SetKeepAliveTimeout set http keepalive timeout
+func (r *Request) SetKeepAliveTimeout(timeout int) *Request {
 	r.Timeout.KeepAliveTimeout = timeout
 	r.SetTimeout(r.Timeout)
 	return r
 }
 
-// GetTimeout get http request timeout
-func (r *Request) GetTimeout() Timeout {
-	return r.Timeout
+// SetConnectTimeout set http connect timeout
+func (r *Request) SetConnectTimeout(timeout int) *Request {
+	r.Timeout.ConnectTimeout = timeout
+	r.SetTimeout(r.Timeout)
+	return r
+}
+
+// SetClientTimeout set http client timeout
+func (r *Request) SetClientTimeout(timeout int) *Request {
+	r.Timeout.ClientTimeout = timeout
+	r.SetTimeout(r.Timeout)
+	return r
 }
 
 // SetTimeout set http request timeout
@@ -364,7 +373,7 @@ func (r *Request) SetTimeout(timeout Timeout) *Request {
 		r.Client.Transport.(*http.Transport).DisableKeepAlives = false
 	}
 	r.Client.Transport.(*http.Transport).DialContext = (&net.Dialer{
-		Timeout:   time.Duration(r.Timeout.ConnTimeout) * time.Second,
+		Timeout:   time.Duration(r.Timeout.ConnectTimeout) * time.Second,
 		KeepAlive: time.Duration(r.Timeout.KeepAliveTimeout) * time.Second,
 	}).DialContext
 	r.Client.Transport.(*http.Transport).TLSHandshakeTimeout = time.Duration(r.Timeout.TLSHandshakeTimeout) * time.Second
@@ -372,6 +381,11 @@ func (r *Request) SetTimeout(timeout Timeout) *Request {
 	r.Client.Transport.(*http.Transport).ExpectContinueTimeout = time.Duration(r.Timeout.ExpectContinueTimeout) * time.Second
 	r.Client.Timeout = time.Duration(r.Timeout.ClientTimeout) * time.Second
 	return r
+}
+
+// GetTimeout get http request timeout
+func (r *Request) GetTimeout() Timeout {
+	return r.Timeout
 }
 
 // SetProxy set http request proxy

@@ -440,15 +440,29 @@ func TestSetVerifyTls(t *testing.T) {
 	assert.False(t, req.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 }
 
-func TestSetKeepAlive(t *testing.T) {
+func TestSetKeepAliveTimeout(t *testing.T) {
 	req := New()
 	assert.False(t, req.Client.Transport.(*http.Transport).DisableKeepAlives)
 
-	req.SetKeepAlive(0)
+	req.SetKeepAliveTimeout(0)
 	assert.True(t, req.Client.Transport.(*http.Transport).DisableKeepAlives)
 
-	req.SetKeepAlive(30)
+	req.SetKeepAliveTimeout(30)
 	assert.False(t, req.Client.Transport.(*http.Transport).DisableKeepAlives)
+}
+
+func TestSetConnectTimeout(t *testing.T) {
+	req := New()
+
+	req.SetConnectTimeout(3)
+	assert.Equal(t, req.GetTimeout().ConnectTimeout, 3)
+}
+
+func TestSetClientTimeout(t *testing.T) {
+	req := New()
+
+	req.SetClientTimeout(30)
+	assert.Equal(t, req.Client.Timeout, time.Duration(30)*time.Second)
 }
 
 func TestSetTimeout(t *testing.T) {
