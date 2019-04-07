@@ -90,11 +90,13 @@ type Tracing struct {
 
 // Response storing response data
 type Response struct {
-	Method   string
-	URL      *url.URL
-	Response *http.Response
-	Tracing  Tracing
-	Dumping  [][]byte
+	Method        string
+	URL           *url.URL
+	Response      *http.Response
+	StatusCode    int
+	ContentLength int64
+	Tracing       Tracing
+	Dumping       [][]byte
 }
 
 // Host is http host
@@ -175,7 +177,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.13.3"
+	return "0.13.4"
 }
 
 // Author returns package author
@@ -634,6 +636,11 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		if r.Retries.Sleep > 0 {
 			time.Sleep(r.Retries.Sleep)
 		}
+	}
+
+	if err == nil {
+		s.StatusCode = s.Response.StatusCode
+		s.ContentLength = s.Response.ContentLength
 	}
 
 	if r.Dumping.DumpHttp {
