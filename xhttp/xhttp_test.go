@@ -147,11 +147,11 @@ func TestMethod(t *testing.T) {
 	assert.Equal(t, rsp.Response.StatusCode, 200)
 }
 
-func TestSetSignKey(t *testing.T) {
+func TestSetClientKey(t *testing.T) {
 	req := New()
-	assert.Equal(t, req.SignKey, "")
-	req.SetSignKey(BASEURL)
-	assert.Equal(t, req.SignKey, BASEURL)
+	assert.Equal(t, req.ClientKey, "")
+	req.SetClientKey(BASEURL)
+	assert.Equal(t, req.ClientKey, BASEURL)
 }
 
 func TestSetHost(t *testing.T) {

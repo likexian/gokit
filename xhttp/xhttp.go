@@ -60,21 +60,41 @@ type Retries struct {
 	Sleep time.Duration
 }
 
-// Dump storing http dump setting
-type Dump struct {
+// Dumping storing http dump setting
+type Dumping struct {
 	DumpHttp bool
 	DumpBody bool
 }
 
 // Request storing request data
 type Request struct {
-	ClientId string
-	Request  *http.Request
-	Timeout  Timeout
-	Client   *http.Client
-	SignKey  string
-	Retries  Retries
-	Dump     Dump
+	ClientId  string
+	Request   *http.Request
+	Client    *http.Client
+	ClientKey string
+	Timeout   Timeout
+	Retries   Retries
+	Dumping   Dumping
+}
+
+// Tracing storing tracing data
+type Tracing struct {
+	ClientId  string
+	RequestId string
+	Timestamp string
+	Nonce     string
+	SendTime  int64
+	RecvTime  int64
+	Retries   int
+}
+
+// Response storing response data
+type Response struct {
+	Method   string
+	URL      *url.URL
+	Response *http.Response
+	Tracing  Tracing
+	Dumping  [][]byte
 }
 
 // Host is http host
@@ -138,28 +158,10 @@ func (p *param) IsEmpty() bool {
 	return p.Values == nil
 }
 
-// Tracing storing tracing data
-type Tracing struct {
-	ClientId  string
-	RequestId string
-	Timestamp string
-	Nonce     string
-	SendTime  int64
-	RecvTime  int64
-	Retries   int
-}
-
-// Response storing response data
-type Response struct {
-	Method   string
-	URL      *url.URL
-	Response *http.Response
-	Tracing  Tracing
-	HttpDump [][]byte
-}
-
-// SUPPORT_METHOD list all supported http method
 var (
+	// DefaultRequest is default request
+	DefaultRequest = New()
+	// SUPPORT_METHOD list all supported http method
 	SUPPORT_METHOD = []string{
 		"GET",
 		"HEAD",
@@ -171,12 +173,9 @@ var (
 	}
 )
 
-// DefaultRequest is default request
-var DefaultRequest = New()
-
 // Version returns package version
 func Version() string {
-	return "0.13.2"
+	return "0.13.3"
 }
 
 // Author returns package author
@@ -214,13 +213,13 @@ func New() (r *Request) {
 	}
 
 	r = &Request{
-		ClientId: UniqueId(fmt.Sprintf("%d", xtime.Ns())),
-		Request:  request,
-		Timeout:  timeout,
-		Client:   client,
-		SignKey:  "",
-		Retries:  Retries{},
-		Dump:     Dump{},
+		ClientId:  UniqueId(fmt.Sprintf("%d", xtime.Ns())),
+		Request:   request,
+		Client:    client,
+		ClientKey: "",
+		Timeout:   timeout,
+		Retries:   Retries{},
+		Dumping:   Dumping{},
 	}
 
 	return
@@ -301,9 +300,9 @@ func (r *Request) GetHeader(name string) string {
 	return r.Request.Header.Get(name)
 }
 
-// SetSignKey set key for signing requestid
-func (r *Request) SetSignKey(key string) *Request {
-	r.SignKey = key
+// SetClientKey set key for signing requestid
+func (r *Request) SetClientKey(key string) *Request {
+	r.ClientKey = key
 	return r
 }
 
@@ -459,8 +458,8 @@ func (r *Request) SetRetries(args ...interface{}) *Request {
 
 // SetDump set http dump
 func (r *Request) SetDump(dumpHttp, dumpBody bool) *Request {
-	r.Dump.DumpHttp = dumpHttp
-	r.Dump.DumpBody = dumpBody
+	r.Dumping.DumpHttp = dumpHttp
+	r.Dumping.DumpBody = dumpBody
 	return r
 }
 
@@ -615,14 +614,14 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		s.Tracing.SendTime = xtime.Ms() - startAt
 	}()
 
-	s.Tracing.RequestId = UniqueId(s.Tracing.Timestamp, s.Tracing.Nonce, s.Method, s.URL.String(), r.SignKey)
+	s.Tracing.RequestId = UniqueId(s.Tracing.Timestamp, s.Tracing.Nonce, s.Method, s.URL.String(), r.ClientKey)
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
-	if r.Dump.DumpHttp {
-		d, err := httputil.DumpRequestOut(r.Request, r.Dump.DumpBody)
+	if r.Dumping.DumpHttp {
+		d, err := httputil.DumpRequestOut(r.Request, r.Dumping.DumpBody)
 		if err == nil {
-			s.HttpDump = append(s.HttpDump, d)
+			s.Dumping = append(s.Dumping, d)
 		}
 	}
 
@@ -637,10 +636,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		}
 	}
 
-	if r.Dump.DumpHttp {
-		d, err := httputil.DumpResponse(s.Response, r.Dump.DumpBody)
+	if r.Dumping.DumpHttp {
+		d, err := httputil.DumpResponse(s.Response, r.Dumping.DumpBody)
 		if err == nil {
-			s.HttpDump = append(s.HttpDump, d)
+			s.Dumping = append(s.Dumping, d)
 		}
 	}
 
@@ -745,7 +744,7 @@ func (r *Response) Json() (*xjson.Jsonx, error) {
 // Dump returns http dump of request and response
 // [bytes[request], bytes[response]]
 func (r *Response) Dump() [][]byte {
-	return r.HttpDump
+	return r.Dumping
 }
 
 // UniqueId returns unique id of string list
