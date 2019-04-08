@@ -25,7 +25,7 @@ import (
 	"strings"
 )
 
-// Field type list
+// Field type of rule
 const (
 	Second = iota
 	Minute
@@ -35,8 +35,8 @@ const (
 	DayOfWeek
 )
 
-// Job is single cron job
-type Job struct {
+// Rule is parsed cron rule
+type Rule struct {
 	Second     []int
 	Minute     []int
 	Hour       []int
@@ -47,7 +47,7 @@ type Job struct {
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -60,12 +60,12 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// Parse parse standard cron rule
+// Parse parse single cron rule
 // Base on https://en.wikipedia.org/wiki/Cron
 // Fields: second minute hour dayOfMonth month dayOfWeek
 //         *      *      *    *          *     *
-func Parse(s string) (j Job, err error) {
-	j = Job{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}
+func Parse(s string) (r Rule, err error) {
+	r = Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}
 
 	if s == "" || s == "*" {
 		return
@@ -85,13 +85,13 @@ func Parse(s string) (j Job, err error) {
 	}
 
 	if len(fs) != 6 {
-		return j, fmt.Errorf("xcron: unrecognized rule: %s", s)
+		return r, fmt.Errorf("xcron: unrecognized rule: %s", s)
 	}
 
 	for i := 0; i < len(fs); i++ {
-		err := j.parseField(fs[i], i)
+		err := r.parseField(fs[i], i)
 		if err != nil {
-			return j, err
+			return r, err
 		}
 	}
 
@@ -99,43 +99,43 @@ func Parse(s string) (j Job, err error) {
 }
 
 // parseField parse every fields
-func (j *Job) parseField(s string, t int) (err error) {
+func (r *Rule) parseField(s string, t int) (err error) {
 	switch t {
 	case Second:
 		if strings.Contains(s, ",") {
-			j.Second, err = getField(s, 0, 59)
+			r.Second, err = getField(s, 0, 59)
 		} else {
-			j.Second, err = getRange(s, 0, 59)
+			r.Second, err = getRange(s, 0, 59)
 		}
 	case Minute:
 		if strings.Contains(s, ",") {
-			j.Minute, err = getField(s, 0, 59)
+			r.Minute, err = getField(s, 0, 59)
 		} else {
-			j.Minute, err = getRange(s, 0, 59)
+			r.Minute, err = getRange(s, 0, 59)
 		}
 	case Hour:
 		if strings.Contains(s, ",") {
-			j.Hour, err = getField(s, 0, 23)
+			r.Hour, err = getField(s, 0, 23)
 		} else {
-			j.Hour, err = getRange(s, 0, 23)
+			r.Hour, err = getRange(s, 0, 23)
 		}
 	case DayOfMonth:
 		if strings.Contains(s, ",") {
-			j.DayOfMonth, err = getField(s, 1, 31)
+			r.DayOfMonth, err = getField(s, 1, 31)
 		} else {
-			j.DayOfMonth, err = getRange(s, 1, 31)
+			r.DayOfMonth, err = getRange(s, 1, 31)
 		}
 	case Month:
 		if strings.Contains(s, ",") {
-			j.Month, err = getField(s, 1, 12)
+			r.Month, err = getField(s, 1, 12)
 		} else {
-			j.Month, err = getRange(s, 1, 12)
+			r.Month, err = getRange(s, 1, 12)
 		}
 	case DayOfWeek:
 		if strings.Contains(s, ",") {
-			j.DayOfWeek, err = getField(s, 0, 6)
+			r.DayOfWeek, err = getField(s, 0, 6)
 		} else {
-			j.DayOfWeek, err = getRange(s, 0, 6)
+			r.DayOfWeek, err = getRange(s, 0, 6)
 		}
 	}
 
