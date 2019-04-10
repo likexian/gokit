@@ -31,16 +31,6 @@ import (
 	"time"
 )
 
-// Field type of rule
-const (
-	Second = iota
-	Minute
-	Hour
-	DayOfMonth
-	Month
-	DayOfWeek
-)
-
 // Rule is parsed cron rule
 type Rule struct {
 	Second     []int
@@ -68,9 +58,45 @@ type Service struct {
 	sync.RWMutex
 }
 
+// Field type of rule
+const (
+	Second = iota
+	Minute
+	Hour
+	DayOfMonth
+	Month
+	DayOfWeek
+)
+
+var (
+	MonthsMap = map[string]int{
+		"jan": 1,
+		"feb": 2,
+		"mar": 3,
+		"apr": 4,
+		"may": 5,
+		"jun": 6,
+		"jul": 7,
+		"aug": 8,
+		"sep": 9,
+		"oct": 10,
+		"nov": 11,
+		"dec": 12,
+	}
+	DayOfWeekMap = map[string]int{
+		"sun": 0,
+		"mon": 1,
+		"tue": 2,
+		"wed": 3,
+		"thu": 4,
+		"fri": 5,
+		"sat": 6,
+	}
+)
+
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -94,7 +120,7 @@ func MustParse(s string) Rule {
 }
 
 // Parse parse single cron rule
-// Base on https://en.wikipedia.org/wiki/Cron
+// Base on https://en.wikipedia.org/wiki/Cron and extensed
 // Fields: second minute hour dayOfMonth month dayOfWeek
 //         *      *      *    *          *     *
 func Parse(s string) (r Rule, err error) {
@@ -107,11 +133,12 @@ func Parse(s string) (r Rule, err error) {
 		[]int{},
 	}
 
+	s = strings.TrimSpace(s)
 	if s == "" || s == "*" {
 		return
 	}
 
-	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
 	if s[0] == '@' {
 		s, err = parseMacros(s)
 		if err != nil {
@@ -281,39 +308,39 @@ func (r *Rule) parseField(s string, t int) (err error) {
 	switch t {
 	case Second:
 		if strings.Contains(s, ",") {
-			r.Second, err = getField(s, 0, 59)
+			r.Second, err = getField(s, t, 0, 59)
 		} else {
-			r.Second, err = getRange(s, 0, 59)
+			r.Second, err = getRange(s, t, 0, 59)
 		}
 	case Minute:
 		if strings.Contains(s, ",") {
-			r.Minute, err = getField(s, 0, 59)
+			r.Minute, err = getField(s, t, 0, 59)
 		} else {
-			r.Minute, err = getRange(s, 0, 59)
+			r.Minute, err = getRange(s, t, 0, 59)
 		}
 	case Hour:
 		if strings.Contains(s, ",") {
-			r.Hour, err = getField(s, 0, 23)
+			r.Hour, err = getField(s, t, 0, 23)
 		} else {
-			r.Hour, err = getRange(s, 0, 23)
+			r.Hour, err = getRange(s, t, 0, 23)
 		}
 	case DayOfMonth:
 		if strings.Contains(s, ",") {
-			r.DayOfMonth, err = getField(s, 1, 31)
+			r.DayOfMonth, err = getField(s, t, 1, 31)
 		} else {
-			r.DayOfMonth, err = getRange(s, 1, 31)
+			r.DayOfMonth, err = getRange(s, t, 1, 31)
 		}
 	case Month:
 		if strings.Contains(s, ",") {
-			r.Month, err = getField(s, 1, 12)
+			r.Month, err = getField(s, t, 1, 12)
 		} else {
-			r.Month, err = getRange(s, 1, 12)
+			r.Month, err = getRange(s, t, 1, 12)
 		}
 	case DayOfWeek:
 		if strings.Contains(s, ",") {
-			r.DayOfWeek, err = getField(s, 0, 6)
+			r.DayOfWeek, err = getField(s, t, 0, 6)
 		} else {
-			r.DayOfWeek, err = getRange(s, 0, 6)
+			r.DayOfWeek, err = getRange(s, t, 0, 6)
 		}
 	}
 
@@ -321,7 +348,7 @@ func (r *Rule) parseField(s string, t int) (err error) {
 }
 
 // getRange get int array from string range, for example 3, 0-23, */3
-func getRange(s string, min, max int) ([]int, error) {
+func getRange(s string, t, min, max int) ([]int, error) {
 	r := []int{}
 
 	if s == "*" {
@@ -330,11 +357,11 @@ func getRange(s string, min, max int) ([]int, error) {
 
 	if strings.Contains(s, "-") {
 		ss := strings.Split(s, "-")
-		sl, err := strconv.Atoi(ss[0])
+		sl, err := fieldToi(ss[0], t)
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", ss[0])
 		}
-		sr, err := strconv.Atoi(ss[1])
+		sr, err := fieldToi(ss[1], t)
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", ss[1])
 		}
@@ -351,7 +378,7 @@ func getRange(s string, min, max int) ([]int, error) {
 		}
 	} else if strings.Contains(s, "/") {
 		ss := strings.Split(s, "/")
-		sr, err := strconv.Atoi(ss[1])
+		sr, err := fieldToi(ss[1], t)
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", ss[1])
 		}
@@ -364,7 +391,7 @@ func getRange(s string, min, max int) ([]int, error) {
 			}
 		}
 	} else {
-		sr, err := strconv.Atoi(s)
+		sr, err := fieldToi(s, t)
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", s)
 		}
@@ -378,13 +405,13 @@ func getRange(s string, min, max int) ([]int, error) {
 }
 
 // getField get int array from string fields, for example 0,1,2
-func getField(s string, min, max int) ([]int, error) {
+func getField(s string, t, min, max int) ([]int, error) {
 	r := []int{}
 
 	for _, v := range strings.Split(s, ",") {
 		v = strings.TrimSpace(v)
 		if v != "" {
-			vv, err := strconv.Atoi(v)
+			vv, err := fieldToi(v, t)
 			if err != nil {
 				return r, fmt.Errorf("xcron: unrecognized charset: %s", v)
 			}
@@ -398,10 +425,32 @@ func getField(s string, min, max int) ([]int, error) {
 	return r, nil
 }
 
+// fieldToi get field value as int
+func fieldToi(s string, t int) (int, error) {
+	vv, err := strconv.Atoi(s)
+	if err == nil {
+		return vv, nil
+	}
+
+	if t == Month {
+		if v, ok := MonthsMap[s]; ok {
+			return v, nil
+		}
+	}
+
+	if t == DayOfWeek {
+		if v, ok := DayOfWeekMap[s]; ok {
+			return v, nil
+		}
+	}
+
+	return 0, fmt.Errorf("xcron: unrecognized charset: %s", s)
+}
+
 // parseMacros parse nonstandard predefined scheduling definitions
 // returns as standard scheduling definitions
 func parseMacros(s string) (string, error) {
-	switch strings.ToLower(s) {
+	switch s {
 	case "@yearly", "@annually":
 		return "0 0 1 1 *", nil
 	case "@monthly":

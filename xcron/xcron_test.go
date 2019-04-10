@@ -104,6 +104,12 @@ func TestParse(t *testing.T) {
 		{"*", Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}, nil},
 		{"* * * * *", Rule{[]int{0}, []int{}, []int{}, []int{}, []int{}, []int{}}, nil},
 		{"* * * * * *", Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}, nil},
+		{"* * * * jan *", Rule{[]int{}, []int{}, []int{}, []int{}, []int{1}, []int{}}, nil},
+		{"* * * * jan-mar *", Rule{[]int{}, []int{}, []int{}, []int{}, []int{1, 2, 3}, []int{}}, nil},
+		{"* * * * jan,feb,mar *", Rule{[]int{}, []int{}, []int{}, []int{}, []int{1, 2, 3}, []int{}}, nil},
+		{"* * * * * sun", Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{0}}, nil},
+		{"* * * * * sun-tue", Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{0, 1, 2}}, nil},
+		{"* * * * * sun,mon,tue", Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{0, 1, 2}}, nil},
 
 		{"1 * * * * *", Rule{[]int{1}, []int{}, []int{}, []int{}, []int{}, []int{}}, nil},
 		{"* 1 * * * *", Rule{[]int{}, []int{1}, []int{}, []int{}, []int{}, []int{}}, nil},
@@ -178,6 +184,12 @@ func TestParse(t *testing.T) {
 		"1,x,3 * * * *",
 		"@every x",
 		"@every x second",
+		"* * * * janx *",
+		"* * * * janx-mar *",
+		"* * * * janx,feb,mar *",
+		"* * * * * sunx",
+		"* * * * * sunx-tue",
+		"* * * * * sunx,mon,tue",
 	}
 
 	for _, v := range fails {
