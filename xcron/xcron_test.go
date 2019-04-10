@@ -186,6 +186,11 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestMustParse(t *testing.T) {
+	assert.Panic(t, func() { MustParse("@every night") })
+	assert.NotPanic(t, func() { MustParse("@every second") })
+}
+
 func TestIsDue(t *testing.T) {
 	tests := []struct {
 		now  time.Time

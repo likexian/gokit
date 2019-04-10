@@ -70,7 +70,7 @@ type Service struct {
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -81,6 +81,16 @@ func Author() string {
 // License returns package license
 func License() string {
 	return "Licensed under the Apache License 2.0"
+}
+
+// MustParse do parse and returns rule, panic if error
+func MustParse(s string) Rule {
+	r, err := Parse(s)
+	if err != nil {
+		panic(err)
+	}
+
+	return r
 }
 
 // Parse parse single cron rule
