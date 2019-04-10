@@ -21,13 +21,77 @@ package xcron
 
 import (
 	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xtime"
 	"testing"
+	"time"
 )
 
 func TestVersion(t *testing.T) {
 	assert.Contains(t, Version(), ".")
 	assert.Contains(t, Author(), "likexian")
 	assert.Contains(t, License(), "Apache License")
+}
+
+func TestAddSet(t *testing.T) {
+	c := New()
+
+	_, err := c.Add("@error", func() {})
+	assert.NotNil(t, err)
+
+	id, err := c.Add("@every second", func() { t.Log("add a echo") })
+	assert.Nil(t, err)
+	assert.NotEqual(t, id, "")
+	assert.Equal(t, c.Len(), 1)
+
+	time.Sleep(1 * time.Second)
+	err = c.Set(id, "@every second", func() { t.Log("set a echo") })
+	assert.Nil(t, err)
+	assert.NotEqual(t, id, "")
+	assert.Equal(t, c.Len(), 1)
+
+	time.AfterFunc(3*time.Second, func() { c.Del(id) })
+	c.Wait()
+	assert.Equal(t, c.Len(), 0)
+}
+
+func TestEmpty(t *testing.T) {
+	c := New()
+
+	for i := 0; i < 3; i++ {
+		id, err := c.Add("@every second", func() { t.Log("add 3 echo") })
+		assert.Nil(t, err)
+		assert.NotEqual(t, id, "")
+	}
+
+	assert.Equal(t, c.Len(), 3)
+	time.AfterFunc(3*time.Second, func() { c.Empty() })
+	c.Wait()
+	assert.Equal(t, c.Len(), 0)
+}
+
+func TestAddEchoChannel(t *testing.T) {
+	r := make(chan interface{}, 10)
+	echo := func(i int) int {
+		return i
+	}
+
+	c := New()
+
+	id, err := c.Add("@every 3 second", func() { r <- echo(int(xtime.S())) }, func() { close(r) })
+	assert.Nil(t, err)
+	assert.NotEqual(t, id, "")
+
+	time.AfterFunc(3*time.Second, func() { c.Del(id) })
+
+	d := []interface{}{}
+	for {
+		i, ok := <-r
+		if !ok {
+			break
+		}
+		d = append(d, i)
+	}
+	assert.Len(t, d, 1)
 }
 
 func TestParse(t *testing.T) {
@@ -119,5 +183,23 @@ func TestParse(t *testing.T) {
 	for _, v := range fails {
 		_, err := Parse(v)
 		assert.NotNil(t, err, v)
+	}
+}
+
+func TestIsDue(t *testing.T) {
+	tests := []struct {
+		now  time.Time
+		rule Rule
+		out  bool
+	}{
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{0}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{0, 1}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{1}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{1, 2}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, isDue(v.now, v.rule), v.out)
 	}
 }

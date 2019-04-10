@@ -20,9 +20,15 @@
 package xcron
 
 import (
+	"context"
 	"fmt"
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xhash"
+	"github.com/likexian/gokit/xtime"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 // Field type of rule
@@ -45,9 +51,26 @@ type Rule struct {
 	DayOfWeek  []int
 }
 
+// Job is a cron job
+type Job struct {
+	rule string
+	loop func()
+	tidy func()
+	stop chan bool
+}
+
+// Service is cron service
+type Service struct {
+	jobs   map[string]Job
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     *sync.WaitGroup
+	sync.RWMutex
+}
+
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -65,7 +88,14 @@ func License() string {
 // Fields: second minute hour dayOfMonth month dayOfWeek
 //         *      *      *    *          *     *
 func Parse(s string) (r Rule, err error) {
-	r = Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}
+	r = Rule{
+		[]int{},
+		[]int{},
+		[]int{},
+		[]int{},
+		[]int{},
+		[]int{},
+	}
 
 	if s == "" || s == "*" {
 		return
@@ -96,6 +126,144 @@ func Parse(s string) (r Rule, err error) {
 	}
 
 	return
+}
+
+// New returns new cron service
+func New() *Service {
+	ctx, cancel := context.WithCancel(context.Background())
+	return &Service{
+		jobs:   map[string]Job{},
+		ctx:    ctx,
+		cancel: cancel,
+		wg:     &sync.WaitGroup{},
+	}
+}
+
+// Add add new cron job to service
+func (s *Service) Add(rule string, loop func(), tidy ...func()) (string, error) {
+	id := xhash.Sha1(fmt.Sprintf("xcron-%s-%d", rule, xtime.Ns())).Hex()
+	return id, s.Set(id, rule, loop, tidy...)
+}
+
+// Set update service cron job
+func (s *Service) Set(id, rule string, loop func(), tidy ...func()) error {
+	rules, err := Parse(rule)
+	if err != nil {
+		return err
+	}
+
+	if s.Has(id) {
+		s.Del(id)
+	}
+
+	done := func() {}
+	if len(tidy) > 0 {
+		done = tidy[0]
+	}
+
+	j := Job{
+		rule: rule,
+		loop: loop,
+		tidy: done,
+		stop: make(chan bool, 1),
+	}
+
+	s.Lock()
+	s.jobs[id] = j
+	s.Unlock()
+	s.wg.Add(1)
+
+	go func() {
+		t := time.NewTicker(time.Second)
+		for {
+			select {
+			case <-j.stop:
+				t.Stop()
+				j.tidy()
+				s.wg.Done()
+				return
+			case <-s.ctx.Done():
+				s.Del(id)
+			case v := <-t.C:
+				if isDue(v, rules) {
+					j.loop()
+				}
+			}
+		}
+	}()
+
+	return nil
+}
+
+// Del del cron job from service by id
+func (s *Service) Del(id string) {
+	s.Lock()
+	defer s.Unlock()
+	if j, ok := s.jobs[id]; ok {
+		delete(s.jobs, id)
+		close(j.stop)
+	}
+}
+
+// Has returns if cron job is running
+func (s *Service) Has(id string) bool {
+	s.RLock()
+	defer s.RUnlock()
+	_, ok := s.jobs[id]
+	return ok
+}
+
+// Len returns running cron job number
+func (s *Service) Len() int {
+	s.RLock()
+	defer s.RUnlock()
+	return len(s.jobs)
+}
+
+// Empty empty the cron job service
+func (s *Service) Empty() {
+	s.cancel()
+}
+
+// Wait wait for all cron job exit
+func (s *Service) Wait() {
+	s.wg.Wait()
+}
+
+// isDue check if is due with rule
+func isDue(now time.Time, rule Rule) bool {
+	rules := [][]int{
+		rule.Second,
+		rule.Minute,
+		rule.Hour,
+		rule.DayOfMonth,
+		rule.Month,
+		rule.DayOfWeek,
+	}
+
+	toCheck := []int{}
+	for k, v := range rules {
+		if len(v) > 0 {
+			toCheck = append(toCheck, k)
+		}
+	}
+
+	if len(toCheck) == 0 {
+		return true
+	}
+
+	_, m, d := now.Date()
+	h, i, s := now.Clock()
+	w := now.Weekday()
+
+	nows := []int{s, i, h, d, int(m), int(w)}
+	for _, k := range toCheck {
+		if !assert.IsContains(rules[k], nows[k]) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // parseField parse every fields
@@ -266,15 +434,15 @@ func parseMacros(s string) (string, error) {
 					return fmt.Sprintf("0 0 %s * *", ev), nil
 				}
 			case "hour":
-				if vv <= 24 {
+				if vv < 24 {
 					return fmt.Sprintf("0 %s * * *", ev), nil
 				}
 			case "minute":
-				if vv <= 60 {
+				if vv < 60 {
 					return fmt.Sprintf("%s * * * *", ev), nil
 				}
 			case "second":
-				if vv <= 60 {
+				if vv < 60 {
 					return fmt.Sprintf("%s * * * * *", ev), nil
 				}
 			case "week":

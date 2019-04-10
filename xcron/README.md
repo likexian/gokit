@@ -2,6 +2,15 @@
 
 Cron kits for Golang development.
 
+## Features
+
+- Thread safe and Easy to use
+- Fractional precision to Seconds
+- Compatible with Standard cron expression
+- Support Nonstandard macros definitions
+- Extense Support @every N duration
+- Dynamic add、update、remove、empty cron job
+
 ## Installation
 
     go get -u github.com/likexian/gokit
@@ -42,6 +51,28 @@ Entry                  | Description                                | Equivalent
 ```
 
 ## Example
+
+### Cron service
+
+```go
+// start a cron service
+service := xcron.New()
+
+// add a job to service, specify the rule and loop func
+id, err := service.Add("@every second", func(){fmt.Println("add a echo")})
+
+// update exists job by job id
+err = service.Set(id, "@every second", func(){fmt.Println("set a echo")})
+
+// delete exists job from service, job will stop
+service.Del(id)
+
+// clear all jobs, jobs will stop
+service.Empty()
+
+// wait for all job exit
+service.Wait()
+```
 
 ### Parse cron rule
 
