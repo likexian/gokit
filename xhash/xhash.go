@@ -40,7 +40,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -81,31 +81,31 @@ func Sha512(s ...interface{}) (h Hashx) {
 	return
 }
 
-// HmacMd5 returns hmac md5 hash of string and key
-func HmacMd5(s, k string) (h Hashx) {
-	h.Hash = hmac.New(md5.New, []byte(k))
-	h.Hash.Write([]byte(s))
+// HmacMd5 returns hmac md5 hash of string with key
+func HmacMd5(key string, s ...interface{}) (h Hashx) {
+	h.Hash = hmac.New(md5.New, []byte(key))
+	h.writeString(s...)
 	return
 }
 
-// HmacSha1 returns hmac sha1 hash of string and key
-func HmacSha1(s, k string) (h Hashx) {
-	h.Hash = hmac.New(sha1.New, []byte(k))
-	h.Hash.Write([]byte(s))
+// HmacSha1 returns hmac sha1 hash of string with key
+func HmacSha1(key string, s ...interface{}) (h Hashx) {
+	h.Hash = hmac.New(sha1.New, []byte(key))
+	h.writeString(s...)
 	return
 }
 
-// HmacSha256 returns hmac sha256 hash of string and key
-func HmacSha256(s, k string) (h Hashx) {
-	h.Hash = hmac.New(sha256.New, []byte(k))
-	h.Hash.Write([]byte(s))
+// HmacSha256 returns hmac sha256 hash of string with key
+func HmacSha256(key string, s ...interface{}) (h Hashx) {
+	h.Hash = hmac.New(sha256.New, []byte(key))
+	h.writeString(s...)
 	return
 }
 
-// HmacSha512 returns hmac sha512 hash of string and key
-func HmacSha512(s, k string) (h Hashx) {
-	h.Hash = hmac.New(sha512.New, []byte(k))
-	h.Hash.Write([]byte(s))
+// HmacSha512 returns hmac sha512 hash of string with key
+func HmacSha512(key string, s ...interface{}) (h Hashx) {
+	h.Hash = hmac.New(sha512.New, []byte(key))
+	h.writeString(s...)
 	return
 }
 

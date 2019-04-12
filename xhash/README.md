@@ -26,13 +26,13 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhash)
 
 ## Get Hmac Md5 of string
 
-    h := xhash.HmacMd5("12345678", "key")
+    h := xhash.HmacMd5("key", "12345678")
     fmt.Println(h.Hex())
     fmt.Println(h.B64())
 
 ### Get md5 of file
 
-    h, err := xhash.FileMd5("12345678")
+    h, err := xhash.FileMd5("xhash.go")
     if err != nil {
         panic(err)
     }
