@@ -178,7 +178,7 @@ func New() *Service {
 
 // Add add new cron job to service
 func (s *Service) Add(rule string, loop func(), tidy ...func()) (string, error) {
-	id := xhash.Sha1(fmt.Sprintf("xcron-%s-%d", rule, xtime.Ns())).Hex()
+	id := xhash.Sha1("xcron", rule, xtime.Ns()).Hex()
 	return id, s.Set(id, rule, loop, tidy...)
 }
 

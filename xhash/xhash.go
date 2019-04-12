@@ -27,6 +27,7 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
+	"github.com/likexian/gokit/xstring"
 	"hash"
 	"io"
 	"os"
@@ -39,7 +40,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -53,30 +54,30 @@ func License() string {
 }
 
 // Md5 returns md5 hash of string
-func Md5(s string) (h Hashx) {
+func Md5(s ...interface{}) (h Hashx) {
 	h.Hash = md5.New()
-	h.Hash.Write([]byte(s))
+	h.writeString(s...)
 	return
 }
 
 // Sha1 returns sha1 hash of string
-func Sha1(s string) (h Hashx) {
+func Sha1(s ...interface{}) (h Hashx) {
 	h.Hash = sha1.New()
-	h.Hash.Write([]byte(s))
+	h.writeString(s...)
 	return
 }
 
 // Sha256 returns sha256 hash of string
-func Sha256(s string) (h Hashx) {
+func Sha256(s ...interface{}) (h Hashx) {
 	h.Hash = sha256.New()
-	h.Hash.Write([]byte(s))
+	h.writeString(s...)
 	return
 }
 
 // Sha512 returns sha512 hash of string
-func Sha512(s string) (h Hashx) {
+func Sha512(s ...interface{}) (h Hashx) {
 	h.Hash = sha512.New()
-	h.Hash.Write([]byte(s))
+	h.writeString(s...)
 	return
 }
 
@@ -111,28 +112,28 @@ func HmacSha512(s, k string) (h Hashx) {
 // FileMd5 returns md5 hash of file
 func FileMd5(p string) (h Hashx, err error) {
 	h.Hash = md5.New()
-	err = h.readFile(p)
+	err = h.writeFile(p)
 	return
 }
 
 // FileSha1 returns sha1 hash of file
 func FileSha1(p string) (h Hashx, err error) {
 	h.Hash = sha1.New()
-	err = h.readFile(p)
+	err = h.writeFile(p)
 	return
 }
 
 // FileSha256 returns sha256 hash of file
 func FileSha256(p string) (h Hashx, err error) {
 	h.Hash = sha256.New()
-	err = h.readFile(p)
+	err = h.writeFile(p)
 	return
 }
 
 // FileSha512 returns sha512 hash of file
 func FileSha512(p string) (h Hashx, err error) {
 	h.Hash = sha512.New()
-	err = h.readFile(p)
+	err = h.writeFile(p)
 	return
 }
 
@@ -146,8 +147,22 @@ func (h Hashx) B64() string {
 	return base64.StdEncoding.EncodeToString(h.Hash.Sum(nil))
 }
 
-// readFile write file content to hash
-func (h Hashx) readFile(p string) (err error) {
+// writeString write string content to hash
+func (h Hashx) writeString(s ...interface{}) {
+	for _, v := range s {
+		switch v.(type) {
+		case []byte:
+			h.Hash.Write(v.([]byte))
+		default:
+			h.Hash.Write([]byte(xstring.ToString(v)))
+		}
+	}
+
+	return
+}
+
+// writeFile write file content to hash
+func (h Hashx) writeFile(p string) (err error) {
 	fd, err := os.Open(p)
 	if err != nil {
 		return

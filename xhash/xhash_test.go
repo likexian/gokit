@@ -31,27 +31,163 @@ func TestVersion(t *testing.T) {
 }
 
 func TestMd5(t *testing.T) {
-	h := Md5("12345678")
-	assert.Equal(t, h.Hex(), "25d55ad283aa400af464c76d713c07ad")
-	assert.Equal(t, h.B64(), "JdVa0oOqQAr0ZMdtcTwHrQ==")
+	tests := []struct {
+		in  []interface{}
+		hex string
+		b64 string
+	}{
+		{
+			[]interface{}{[]byte("12345678")},
+			"25d55ad283aa400af464c76d713c07ad",
+			"JdVa0oOqQAr0ZMdtcTwHrQ==",
+		},
+		{
+			[]interface{}{"12345678"},
+			"25d55ad283aa400af464c76d713c07ad",
+			"JdVa0oOqQAr0ZMdtcTwHrQ==",
+		},
+		{
+			[]interface{}{"1234", "5678"},
+			"25d55ad283aa400af464c76d713c07ad",
+			"JdVa0oOqQAr0ZMdtcTwHrQ==",
+		},
+		{
+			[]interface{}{1234, 5678},
+			"25d55ad283aa400af464c76d713c07ad",
+			"JdVa0oOqQAr0ZMdtcTwHrQ==",
+		},
+		{
+			[]interface{}{123, 456, 78},
+			"25d55ad283aa400af464c76d713c07ad",
+			"JdVa0oOqQAr0ZMdtcTwHrQ==",
+		},
+	}
+
+	for _, v := range tests {
+		h := Md5(v.in...)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
 }
 
 func TestSha1(t *testing.T) {
-	h := Sha1("12345678")
-	assert.Equal(t, h.Hex(), "7c222fb2927d828af22f592134e8932480637c0d")
-	assert.Equal(t, h.B64(), "fCIvspJ9goryL1khNOiTJIBjfA0=")
+	tests := []struct {
+		in  []interface{}
+		hex string
+		b64 string
+	}{
+		{
+			[]interface{}{[]byte("12345678")},
+			"7c222fb2927d828af22f592134e8932480637c0d",
+			"fCIvspJ9goryL1khNOiTJIBjfA0=",
+		},
+		{
+			[]interface{}{"12345678"},
+			"7c222fb2927d828af22f592134e8932480637c0d",
+			"fCIvspJ9goryL1khNOiTJIBjfA0=",
+		},
+		{
+			[]interface{}{"1234", "5678"},
+			"7c222fb2927d828af22f592134e8932480637c0d",
+			"fCIvspJ9goryL1khNOiTJIBjfA0=",
+		},
+		{
+			[]interface{}{1234, 5678},
+			"7c222fb2927d828af22f592134e8932480637c0d",
+			"fCIvspJ9goryL1khNOiTJIBjfA0=",
+		},
+		{
+			[]interface{}{123, 456, 78},
+			"7c222fb2927d828af22f592134e8932480637c0d",
+			"fCIvspJ9goryL1khNOiTJIBjfA0=",
+		},
+	}
+
+	for _, v := range tests {
+		h := Sha1(v.in...)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
 }
 
 func TestSha256(t *testing.T) {
-	h := Sha256("12345678")
-	assert.Equal(t, h.Hex(), "ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f")
-	assert.Equal(t, h.B64(), "73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=")
+	tests := []struct {
+		in  []interface{}
+		hex string
+		b64 string
+	}{
+		{
+			[]interface{}{[]byte("12345678")},
+			"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+			"73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=",
+		},
+		{
+			[]interface{}{"12345678"},
+			"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+			"73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=",
+		},
+		{
+			[]interface{}{"1234", "5678"},
+			"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+			"73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=",
+		},
+		{
+			[]interface{}{1234, 5678},
+			"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+			"73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=",
+		},
+		{
+			[]interface{}{123, 456, 78},
+			"ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f",
+			"73l8gRjwLftklgfdXT+MdiMEjJwGPVMsyVxe16iYpk8=",
+		},
+	}
+
+	for _, v := range tests {
+		h := Sha256(v.in...)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
 }
 
 func TestSha512(t *testing.T) {
-	h := Sha512("12345678")
-	assert.Equal(t, h.Hex(), "fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe")
-	assert.Equal(t, h.B64(), "+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==")
+	tests := []struct {
+		in  []interface{}
+		hex string
+		b64 string
+	}{
+		{
+			[]interface{}{[]byte("12345678")},
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
+		},
+		{
+			[]interface{}{"12345678"},
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
+		},
+		{
+			[]interface{}{"1234", "5678"},
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
+		},
+		{
+			[]interface{}{1234, 5678},
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
+		},
+		{
+			[]interface{}{123, 456, 78},
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
+		},
+	}
+
+	for _, v := range tests {
+		h := Sha512(v.in...)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
 }
 
 func TestHmacMd5(t *testing.T) {

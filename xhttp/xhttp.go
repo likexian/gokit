@@ -215,7 +215,7 @@ func New() (r *Request) {
 	}
 
 	r = &Request{
-		ClientId:  UniqueId(fmt.Sprintf("%d", xtime.Ns())),
+		ClientId:  xhash.Sha1("xhttp", xtime.Ns()).Hex(),
 		Request:   request,
 		Client:    client,
 		ClientKey: "",
@@ -616,7 +616,8 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		s.Tracing.SendTime = xtime.Ms() - startAt
 	}()
 
-	s.Tracing.RequestId = UniqueId(s.Tracing.Timestamp, s.Tracing.Nonce, s.Method, s.URL.String(), r.ClientKey)
+	s.Tracing.RequestId = xhash.Sha1("xhttp", s.Tracing.Timestamp,
+		s.Tracing.Nonce, s.Method, s.URL.String(), r.ClientKey).Hex()
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
@@ -752,10 +753,4 @@ func (r *Response) Json() (*xjson.Jsonx, error) {
 // [bytes[request], bytes[response]]
 func (r *Response) Dump() [][]byte {
 	return r.Dumping
-}
-
-// UniqueId returns unique id of string list
-func UniqueId(args ...string) string {
-	s := "xhttp-" + strings.Join(args, "-")
-	return xhash.Sha1(s).Hex()
 }
