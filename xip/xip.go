@@ -23,12 +23,17 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net"
+	"strconv"
 	"strings"
 )
 
 // ErrInvalidIP ip value is invalid
 var ErrInvalidIP = errors.New("xip: not valid ip string")
+
+// ErrInvalidMask ip mask value is invalid
+var ErrInvalidMask = errors.New("xip: not valid ip mask")
 
 // ErrInvalidHex hex string is invalid
 var ErrInvalidHex = errors.New("xip: not valid hex string")
@@ -44,7 +49,7 @@ var PrivateIPs = []string{
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -230,4 +235,43 @@ func IsPrivate(ip string) bool {
 	}
 
 	return false
+}
+
+// FixSubnet fix ip with a subnet mask, for example: 1.2.3.4/24, 2001:700:300::/48
+func FixSubnet(ip string) (string, error) {
+	ips := strings.Split(ip, "/")
+	if len(ips) == 1 {
+		ips = append(ips, "-1")
+	}
+
+	ips[1] = strings.TrimSpace(ips[1])
+	if ips[1] == "" {
+		ips[1] = "-1"
+	}
+
+	mask, err := strconv.Atoi(ips[1])
+	if err != nil {
+		return "", ErrInvalidMask
+	}
+
+	ip = strings.TrimSpace(ips[0])
+	if IsIPv4(ip) {
+		if mask > 32 {
+			return "", ErrInvalidMask
+		}
+		if mask < 0 {
+			mask = 24
+		}
+	} else if IsIPv6(ip) {
+		if mask > 128 {
+			return "", ErrInvalidMask
+		}
+		if mask < 0 {
+			mask = 56
+		}
+	} else {
+		return "", ErrInvalidIP
+	}
+
+	return fmt.Sprintf("%s/%d", ip, mask), nil
 }

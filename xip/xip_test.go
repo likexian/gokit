@@ -277,3 +277,33 @@ func TestIsPrivate(t *testing.T) {
 		assert.Equal(t, IsPrivate(v.ip), v.out, v)
 	}
 }
+
+func TestFixSubnet(t *testing.T) {
+	tests := []struct {
+		ip  string
+		out string
+		err error
+	}{
+		{"", "", ErrInvalidIP},
+		{"1.1.1", "", ErrInvalidIP},
+		{"1.1.1.1", "1.1.1.1/24", nil},
+		{"1.1.1.1/", "1.1.1.1/24", nil},
+		{"1.1.1.1/25", "1.1.1.1/25", nil},
+		{"1.1.1.1/-1", "1.1.1.1/24", nil},
+		{"1.1.1.1/33", "", ErrInvalidMask},
+		{"1.1.1.1/x", "", ErrInvalidMask},
+		{"fc00", "", ErrInvalidIP},
+		{"fc00::1", "fc00::1/56", nil},
+		{"fc00::1/", "fc00::1/56", nil},
+		{"fc00::1/57", "fc00::1/57", nil},
+		{"fc00::1/-1", "fc00::1/56", nil},
+		{"fc00::1/129", "", ErrInvalidMask},
+		{"fc00::1/x", "", ErrInvalidMask},
+	}
+
+	for _, v := range tests {
+		vv, err := FixSubnet(v.ip)
+		assert.Equal(t, err, v.err)
+		assert.Equal(t, vv, v.out)
+	}
+}
