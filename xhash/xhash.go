@@ -40,7 +40,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -110,30 +110,30 @@ func HmacSha512(key string, s ...interface{}) (h Hashx) {
 }
 
 // FileMd5 returns md5 hash of file
-func FileMd5(p string) (h Hashx, err error) {
+func FileMd5(f interface{}) (h Hashx, err error) {
 	h.Hash = md5.New()
-	err = h.writeFile(p)
+	err = h.writeFile(f)
 	return
 }
 
 // FileSha1 returns sha1 hash of file
-func FileSha1(p string) (h Hashx, err error) {
+func FileSha1(f interface{}) (h Hashx, err error) {
 	h.Hash = sha1.New()
-	err = h.writeFile(p)
+	err = h.writeFile(f)
 	return
 }
 
 // FileSha256 returns sha256 hash of file
-func FileSha256(p string) (h Hashx, err error) {
+func FileSha256(f interface{}) (h Hashx, err error) {
 	h.Hash = sha256.New()
-	err = h.writeFile(p)
+	err = h.writeFile(f)
 	return
 }
 
 // FileSha512 returns sha512 hash of file
-func FileSha512(p string) (h Hashx, err error) {
+func FileSha512(f interface{}) (h Hashx, err error) {
 	h.Hash = sha512.New()
-	err = h.writeFile(p)
+	err = h.writeFile(f)
 	return
 }
 
@@ -162,14 +162,20 @@ func (h Hashx) writeString(s ...interface{}) {
 }
 
 // writeFile write file content to hash
-func (h Hashx) writeFile(p string) (err error) {
-	fd, err := os.Open(p)
-	if err != nil {
-		return
+func (h Hashx) writeFile(f interface{}) error {
+	switch f.(type) {
+	case string:
+		fd, err := os.Open(f.(string))
+		if err != nil {
+			return err
+		}
+		defer fd.Close()
+		_, err = io.Copy(h.Hash, fd)
+		return err
+	case *os.File:
+		_, err := io.Copy(h.Hash, f.(*os.File))
+		return err
+	default:
+		panic("xhash: not supported args type")
 	}
-
-	defer fd.Close()
-	_, err = io.Copy(h.Hash, fd)
-
-	return
 }

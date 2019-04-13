@@ -21,6 +21,7 @@ package xhash
 
 import (
 	"github.com/likexian/gokit/assert"
+	"os"
 	"testing"
 )
 
@@ -355,45 +356,109 @@ func TestHmacSha512(t *testing.T) {
 }
 
 func TestFileMd5(t *testing.T) {
-	_, err := FileMd5("/i-am-not-exists")
+	fd, err := os.Open("/dev/null")
+	assert.Nil(t, err)
+	defer fd.Close()
+
+	tests := []struct {
+		in  interface{}
+		hex string
+		b64 string
+	}{
+		{"/dev/null", "d41d8cd98f00b204e9800998ecf8427e", "1B2M2Y8AsgTpgAmY7PhCfg=="},
+		{fd, "d41d8cd98f00b204e9800998ecf8427e", "1B2M2Y8AsgTpgAmY7PhCfg=="},
+	}
+
+	for _, v := range tests {
+		h, err := FileMd5(v.in)
+		assert.Nil(t, err)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
+
+	_, err = FileMd5("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	h, err := FileMd5("/dev/null")
-	assert.Nil(t, err)
-
-	assert.Equal(t, h.Hex(), "d41d8cd98f00b204e9800998ecf8427e")
-	assert.Equal(t, h.B64(), "1B2M2Y8AsgTpgAmY7PhCfg==")
+	assert.Panic(t, func() { FileMd5(true) })
 }
 
 func TestFileSha1(t *testing.T) {
-	_, err := FileSha1("/i-am-not-exists")
+	fd, err := os.Open("/dev/null")
+	assert.Nil(t, err)
+	defer fd.Close()
+
+	tests := []struct {
+		in  interface{}
+		hex string
+		b64 string
+	}{
+		{"/dev/null", "da39a3ee5e6b4b0d3255bfef95601890afd80709", "2jmj7l5rSw0yVb/vlWAYkK/YBwk="},
+		{fd, "da39a3ee5e6b4b0d3255bfef95601890afd80709", "2jmj7l5rSw0yVb/vlWAYkK/YBwk="},
+	}
+
+	for _, v := range tests {
+		h, err := FileSha1(v.in)
+		assert.Nil(t, err)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
+
+	_, err = FileSha1("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	h, err := FileSha1("/dev/null")
-	assert.Nil(t, err)
-
-	assert.Equal(t, h.Hex(), "da39a3ee5e6b4b0d3255bfef95601890afd80709")
-	assert.Equal(t, h.B64(), "2jmj7l5rSw0yVb/vlWAYkK/YBwk=")
+	assert.Panic(t, func() { FileSha1(true) })
 }
 
 func TestFileSha256(t *testing.T) {
-	_, err := FileSha256("/i-am-not-exists")
+	fd, err := os.Open("/dev/null")
+	assert.Nil(t, err)
+	defer fd.Close()
+
+	tests := []struct {
+		in  interface{}
+		hex string
+		b64 string
+	}{
+		{"/dev/null", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="},
+		{fd, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="},
+	}
+
+	for _, v := range tests {
+		h, err := FileSha256(v.in)
+		assert.Nil(t, err)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
+
+	_, err = FileSha256("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	h, err := FileSha256("/dev/null")
-	assert.Nil(t, err)
-
-	assert.Equal(t, h.Hex(), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
-	assert.Equal(t, h.B64(), "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=")
+	assert.Panic(t, func() { FileSha256(true) })
 }
 
 func TestFileSha512(t *testing.T) {
-	_, err := FileSha512("/i-am-not-exists")
+	fd, err := os.Open("/dev/null")
+	assert.Nil(t, err)
+	defer fd.Close()
+
+	tests := []struct {
+		in  interface{}
+		hex string
+		b64 string
+	}{
+		{"/dev/null", "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="},
+		{fd, "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="},
+	}
+
+	for _, v := range tests {
+		h, err := FileSha512(v.in)
+		assert.Nil(t, err)
+		assert.Equal(t, h.Hex(), v.hex)
+		assert.Equal(t, h.B64(), v.b64)
+	}
+
+	_, err = FileSha512("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	h, err := FileSha512("/dev/null")
-	assert.Nil(t, err)
-
-	assert.Equal(t, h.Hex(), "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e")
-	assert.Equal(t, h.B64(), "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==")
+	assert.Panic(t, func() { FileSha512(true) })
 }
