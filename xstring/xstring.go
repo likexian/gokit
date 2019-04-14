@@ -121,9 +121,8 @@ func Join(v interface{}, sep string) string {
 	if vv.Kind() == reflect.Ptr || vv.Kind() == reflect.Interface {
 		if vv.IsNil() {
 			return ""
-		} else {
-			vv = vv.Elem()
 		}
+		vv = vv.Elem()
 	}
 
 	switch vv.Kind() {

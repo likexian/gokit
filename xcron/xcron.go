@@ -69,6 +69,7 @@ const (
 )
 
 var (
+	// MonthsMap is month string to int map
 	MonthsMap = map[string]int{
 		"jan": 1,
 		"feb": 2,
@@ -83,6 +84,7 @@ var (
 		"nov": 11,
 		"dec": 12,
 	}
+	// DayOfWeekMap is day of week string to int map
 	DayOfWeekMap = map[string]int{
 		"sun": 0,
 		"mon": 1,

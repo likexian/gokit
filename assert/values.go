@@ -79,9 +79,8 @@ func IsContains(array interface{}, value interface{}) bool {
 	if vv.Kind() == reflect.Ptr || vv.Kind() == reflect.Interface {
 		if vv.IsNil() {
 			return false
-		} else {
-			vv = vv.Elem()
 		}
+		vv = vv.Elem()
 	}
 
 	switch vv.Kind() {
@@ -136,9 +135,8 @@ func Length(v interface{}) int {
 	if vv.Kind() == reflect.Ptr || vv.Kind() == reflect.Interface {
 		if vv.IsNil() {
 			return 0
-		} else {
-			vv = vv.Elem()
 		}
+		vv = vv.Elem()
 	}
 
 	switch vv.Kind() {
@@ -187,9 +185,8 @@ func Compare(x, y interface{}, op string) error {
 	if vv.Kind() == reflect.Ptr || vv.Kind() == reflect.Interface {
 		if vv.IsNil() {
 			return ErrInvalid
-		} else {
-			vv = vv.Elem()
 		}
+		vv = vv.Elem()
 	}
 
 	var c float64
@@ -282,7 +279,7 @@ func ToInt64(v interface{}) (int64, error) {
 	}
 }
 
-// ToUToUint64int returns uint value for int or uint or float
+// ToUint64 returns uint value for int or uint or float
 func ToUint64(v interface{}) (uint64, error) {
 	vv := reflect.ValueOf(v)
 	switch vv.Kind() {

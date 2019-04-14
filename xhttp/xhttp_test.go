@@ -73,6 +73,7 @@ func TestNew(t *testing.T) {
 	clientId := req.ClientId
 	req = New()
 	_, err = req.Do("GET", LOCALURL)
+	assert.Nil(t, err)
 	assert.NotEqual(t, req.ClientId, clientId)
 }
 
@@ -353,14 +354,14 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
-	ss, err = rsp.File("get.html")
+	_, err = rsp.File("get.html")
 	assert.NotNil(t, err)
 
 	rsp, err = req.Do("GET", LOCALURL+"status/404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 404)
-	ss, err = rsp.File("404.html")
+	_, err = rsp.File("404.html")
 	assert.NotNil(t, err)
 }
 
@@ -781,18 +782,18 @@ func TestDump(t *testing.T) {
 }
 
 func ServerForTesting(listen string) string {
-	default_listen_ip := "127.0.0.1"
-	default_listen_port := "8080"
+	defaultListenIP := "127.0.0.1"
+	defaultListenPort := "8080"
 
 	listen = strings.TrimSpace(strings.Replace(listen, " ", "", -1))
 	listen = strings.Trim(listen, ":")
 	if !strings.Contains(listen, ":") {
 		if len(listen) == 0 {
-			listen = fmt.Sprintf("%s:%s", default_listen_ip, default_listen_port)
+			listen = fmt.Sprintf("%s:%s", defaultListenIP, defaultListenPort)
 		} else if len(listen) < 5 {
-			listen = fmt.Sprintf("%s:%s", default_listen_ip, listen)
+			listen = fmt.Sprintf("%s:%s", defaultListenIP, listen)
 		} else {
-			listen = fmt.Sprintf("%s:%s", listen, default_listen_port)
+			listen = fmt.Sprintf("%s:%s", listen, defaultListenPort)
 		}
 	}
 
@@ -901,7 +902,7 @@ func ServerForTesting(listen string) string {
 		})
 		http.HandleFunc("/cookies/delete", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			for k, _ := range r.URL.Query() {
+			for k := range r.URL.Query() {
 				cookie := http.Cookie{Name: k, Value: "", Path: "/", MaxAge: -1}
 				http.SetCookie(w, &cookie)
 			}

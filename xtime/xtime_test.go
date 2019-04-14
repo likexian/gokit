@@ -80,7 +80,7 @@ func TestStrToTime(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, n, int64(1552314204))
 
-	n, err = StrToTime("2019-03-11T22:23:24")
+	_, err = StrToTime("2019-03-11T22:23:24")
 	assert.NotNil(t, err)
 }
 

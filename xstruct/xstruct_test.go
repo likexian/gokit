@@ -32,11 +32,11 @@ type Techer struct {
 }
 
 type Student struct {
-	Id      int64          `json:"id"`
-	Name    string         `json:"name"`
-	Enabled bool           `json:"enabled"`
-	Techer  Techer         `json:"techer"`
-	score   map[string]int `json:"score"`
+	Id      int64  `json:"id"`
+	Name    string `json:"name"`
+	Enabled bool   `json:"enabled"`
+	Techer  Techer `json:"techer"`
+	score   map[string]int
 }
 
 var techer = Techer{100, "techer.li", true}

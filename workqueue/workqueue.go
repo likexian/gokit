@@ -78,7 +78,7 @@ func New(bufferSize int) *Queue {
 	}
 }
 
-// SetWork start worker to do work
+// SetWorker start worker to do work
 func (q *Queue) SetWorker(work Work, number int) *Queue {
 	if number <= 0 {
 		number = runtime.NumCPU()

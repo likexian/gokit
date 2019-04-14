@@ -77,6 +77,7 @@ func FormatByteSize(n int64, precision int) string {
 	return r
 }
 
+// ParseByteSize returns int size of string size
 func ParseByteSize(s string) (int64, error) {
 	s = strings.TrimSpace(strings.ToUpper(s))
 	i := strings.IndexFunc(s, unicode.IsLetter)
