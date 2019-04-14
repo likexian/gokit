@@ -43,7 +43,10 @@ func TestExec(t *testing.T) {
 }
 
 func TestTimeoutExec(t *testing.T) {
-	_, _, err := TimeoutExec(1, "sleep", "3")
+	_, _, err := TimeoutExec(1, "xxx")
+	assert.NotNil(t, err)
+
+	_, _, err = TimeoutExec(1, "sleep", "3")
 	assert.NotNil(t, err)
 
 	stdout, stderr, err := TimeoutExec(3, "sleep", "1")
@@ -75,15 +78,23 @@ func TestSetid(t *testing.T) {
 	err = SetGid(0)
 	assert.Nil(t, err)
 
-	err = SetUser("nobody")
+	err = SetUser("root")
 	assert.Nil(t, err)
 
-	err = SetUid(0)
+	err = SetUser("xxx")
 	assert.NotNil(t, err)
 
-	err = SetGid(0)
-	assert.NotNil(t, err)
+	/*
+		err = SetUser("nobody")
+		assert.Nil(t, err)
 
-	err = SetUser("root")
-	assert.NotNil(t, err)
+		err = SetUid(0)
+		assert.NotNil(t, err)
+
+		err = SetGid(0)
+		assert.NotNil(t, err)
+
+		err = SetUser("root")
+		assert.NotNil(t, err)
+	*/
 }
