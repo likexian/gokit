@@ -35,7 +35,7 @@ var ErrTimeouted = errors.New("xtime: timeouted")
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.3.1"
 }
 
 // Author returns package author
@@ -88,14 +88,14 @@ func Usleep(n int64) {
 	time.Sleep(time.Duration(n) * time.Microsecond)
 }
 
-// StrToTime returns unix timestamp in Second of string
+// StrToTime returns unix timestamp of time string
 func StrToTime(s string, layout ...string) (int64, error) {
 	format := "2006-01-02 15:04:05"
-	if len(layout) > 0 {
+	if len(layout) > 0 && layout[0] != "" {
 		format = layout[0]
 	} else {
 		if len(s) == 10 {
-			format = "2006-01-02"
+			format = format[:10]
 		}
 	}
 
@@ -107,10 +107,10 @@ func StrToTime(s string, layout ...string) (int64, error) {
 	return t.Unix(), nil
 }
 
-// TimeToStr returns time string of unix timestamp in Second
+// TimeToStr returns time string of unix timestamp, format in time.Local
 func TimeToStr(n int64, layout ...string) string {
 	format := "2006-01-02 15:04:05"
-	if len(layout) > 0 {
+	if len(layout) > 0 && layout[0] != "" {
 		format = layout[0]
 	}
 

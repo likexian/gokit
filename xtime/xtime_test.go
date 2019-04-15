@@ -66,39 +66,53 @@ func TestUsleep(t *testing.T) {
 func TestStrToTime(t *testing.T) {
 	n, err := StrToTime("2019-03-11")
 	assert.Nil(t, err)
-	assert.Equal(t, n, int64(1552233600))
+	en, _ := time.ParseInLocation("2006-01-02", "2019-03-11", time.Local)
+	assert.Equal(t, n, en.Unix())
 
 	n, err = StrToTime("2019-03-11 22:23:24")
 	assert.Nil(t, err)
-	assert.Equal(t, n, int64(1552314204))
+	en, _ = time.ParseInLocation("2006-01-02 15:04:05", "2019-03-11 22:23:24", time.Local)
+	assert.Equal(t, n, en.Unix())
 
-	n, err = StrToTime("2019-03-11T22:23:24", "2006-01-02T15:04:05")
+	n, err = StrToTime("2019-03-11T22:23:24Z", "2006-01-02T15:04:05Z")
 	assert.Nil(t, err)
-	assert.Equal(t, n, int64(1552314204))
+	en, _ = time.ParseInLocation("2006-01-02T15:04:05Z", "2019-03-11T22:23:24Z", time.Local)
+	assert.Equal(t, n, en.Unix())
 
 	n, err = StrToTime("Mon, 11 Mar 2019 22:23:24", "Mon, 02 Jan 2006 15:04:05")
 	assert.Nil(t, err)
-	assert.Equal(t, n, int64(1552314204))
+	en, _ = time.ParseInLocation("Mon, 02 Jan 2006 15:04:05", "Mon, 11 Mar 2019 22:23:24", time.Local)
+	assert.Equal(t, n, en.Unix())
 
-	_, err = StrToTime("2019-03-11T22:23:24")
+	n, err = StrToTime("2019-03-11T22:23:24Z", time.RFC3339)
+	assert.Nil(t, err)
+	en, _ = time.Parse(time.RFC3339, "2019-03-11T22:23:24Z")
+	assert.Equal(t, n, en.Unix())
+
+	n, err = StrToTime("2019-03-11T22:23:24+08:00", time.RFC3339)
+	assert.Nil(t, err)
+	en, _ = time.Parse(time.RFC3339, "2019-03-11T22:23:24+08:00")
+	assert.Equal(t, n, en.Unix())
+
+	_, err = StrToTime("2019-03-11T22:23:24Z")
 	assert.NotNil(t, err)
 }
 
 func TestTimeToStr(t *testing.T) {
 	s := TimeToStr(0)
-	assert.Equal(t, s, "1970-01-01 08:00:00")
+	assert.Equal(t, s, time.Unix(0, 0).Format("2006-01-02 15:04:05"))
 
 	s = TimeToStr(1552233600)
-	assert.Equal(t, s, "2019-03-11 00:00:00")
+	assert.Equal(t, s, time.Unix(1552233600, 0).Format("2006-01-02 15:04:05"))
 
-	s = TimeToStr(1552314204)
-	assert.Equal(t, s, "2019-03-11 22:23:24")
+	s = TimeToStr(time.Now().Unix())
+	assert.Equal(t, s, time.Now().Format("2006-01-02 15:04:05"))
 
-	s = TimeToStr(1552314204, "2006-01-02T15:04:05")
-	assert.Equal(t, s, "2019-03-11T22:23:24")
+	s = TimeToStr(1552314204, "2006-01-02T15:04:05Z")
+	assert.Equal(t, s, time.Unix(1552314204, 0).Format("2006-01-02T15:04:05Z"))
 
 	s = TimeToStr(1552314204, "Mon, 02 Jan 2006 15:04:05")
-	assert.Equal(t, s, "Mon, 11 Mar 2019 22:23:24")
+	assert.Equal(t, s, time.Unix(1552314204, 0).Format("Mon, 02 Jan 2006 15:04:05"))
 }
 
 func TestWithTimeout(t *testing.T) {

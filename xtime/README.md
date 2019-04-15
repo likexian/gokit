@@ -20,30 +20,36 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xtime)
 
 ### Get current timestamp
 
-    // in second: 1552314204
-    fmt.Println(xtime.S())
+```go
+// print as int64 unix timestamp, example: 1552314204
+fmt.Println(xtime.S())
 
-    // in millisecond: 1552314204000
-    fmt.Println(xtime.Ms())
+// print as int64 unix timestamp of millisecond, example: 1552314204000
+fmt.Println(xtime.Ms())
 
-    // in string: 2019-03-11T22:23:24
-    fmt.Println(xtime.String())
+// print as YYYY-MM-DD HH:II:SS
+fmt.Println(xtime.String())
+```
 
 ### Time string to timestamp
 
-    // print 1552314204
-    n, err := StrToTime("2019-03-11 22:23:24")
-    if err != nil {
-        fmt.Println(n)
-    }
+```go
+// print as int64 unix timestamp
+n, err := xtime.StrToTime("2019-03-11 22:23:24")
+if err != nil {
+    fmt.Println(n)
+}
+```
 
 ### Timestamp to time string
 
-    // print 2019-03-11 22:23:24
-    s := TimeToStr(1552314204)
-    if err != nil {
-        fmt.Println(n)
-    }
+```go
+// print as YYYY-MM-DD HH:II:SS
+s := xtime.TimeToStr(1552314204)
+if err != nil {
+    fmt.Println(n)
+}
+```
 
 ## LICENSE
 
