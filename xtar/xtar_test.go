@@ -96,14 +96,19 @@ func TestExtract(t *testing.T) {
 func TestComdec(t *testing.T) {
 	tar := "xtar.tar"
 	tgz := "xtar.tar.gz"
+	slk := "xtar.go.link"
 
-	err = Create(tar, "xtar.go")
+	err = os.Symlink("xtar.go", slk)
+	assert.Nil(t, err)
+
+	err = Create(tar, "xtar.go", slk)
 	assert.Nil(t, err)
 
 	err = Extract(tar, "tmp")
 	assert.Nil(t, err)
 
 	os.Remove(tar)
+	os.Remove(slk)
 	os.RemoveAll("tmp")
 
 	err = Create(tgz, "xtar.go")

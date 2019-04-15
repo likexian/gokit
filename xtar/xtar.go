@@ -216,18 +216,9 @@ func Extract(tarFile, dstFolder string) (err error) {
 		default:
 			return fmt.Errorf("unsupport file type: %v", h.Typeflag)
 		}
-		err = os.Chtimes(dstFile, h.AccessTime, h.ModTime)
-		if err != nil {
-			return err
-		}
-		err = os.Chmod(dstFile, os.FileMode(h.Mode))
-		if err != nil {
-			return err
-		}
-		err = os.Chown(dstFile, h.Uid, h.Gid)
-		if err != nil {
-			return err
-		}
+		os.Chtimes(dstFile, h.AccessTime, h.ModTime)
+		os.Chmod(dstFile, os.FileMode(h.Mode))
+		os.Chown(dstFile, h.Uid, h.Gid)
 	}
 
 	return
