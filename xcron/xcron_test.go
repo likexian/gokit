@@ -181,6 +181,7 @@ func TestParse(t *testing.T) {
 		"x/100 * * * *",
 		"x * * * *",
 		"1000 * * * *",
+		"1,1000 * * * *",
 		"1,x,3 * * * *",
 		"@every x",
 		"@every x second",

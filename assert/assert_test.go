@@ -88,8 +88,8 @@ func TestZero(t *testing.T) {
 }
 
 func TestContains(t *testing.T) {
-	Contains(t, []int{1, 2, 3}, 2, "testing expect to be zero")
-	Contains(t, []string{"a", "b", "c"}, "b", "testing expect to be not zero")
+	Contains(t, []int{1, 2, 3}, 2, "testing expect to be contains")
+	NotContains(t, []string{"a", "b", "c"}, "d", "testing expect to be not contains")
 }
 
 func TestMatch(t *testing.T) {

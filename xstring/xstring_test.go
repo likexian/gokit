@@ -148,10 +148,12 @@ func TestToString(t *testing.T) {
 }
 
 func TestJoin(t *testing.T) {
+	var i interface{}
 	tests := []struct {
 		in  interface{}
 		out string
 	}{
+		{i, "<nil>"},
 		{nil, "<nil>"},
 		{"abc", "abc"},
 		{int(1), "1"},
@@ -164,6 +166,9 @@ func TestJoin(t *testing.T) {
 	for _, v := range tests {
 		assert.Equal(t, Join(v.in, ", "), v.out, v)
 	}
+
+	x := Join(&i, ",")
+	assert.Contains(t, x, "0x")
 }
 
 func TestExpand(t *testing.T) {

@@ -4,6 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/likexian/gokit?status.svg)](https://godoc.org/github.com/likexian/gokit)
 [![Build Status](https://travis-ci.org/likexian/gokit.svg?branch=master)](https://travis-ci.org/likexian/gokit)
 [![Go Report Card](https://goreportcard.com/badge/github.com/likexian/gokit)](https://goreportcard.com/report/github.com/likexian/gokit)
+[![Code Cover](https://codecov.io/gh/likexian/gokit/graph/badge.svg)](https://codecov.io/gh/likexian/gokit)
 
 A toolkit for Golang development.
 

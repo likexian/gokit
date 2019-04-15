@@ -207,6 +207,8 @@ func TestSetReferer(t *testing.T) {
 	assert.Equal(t, referer, "")
 	req.SetHeader("referer", LOCALURL)
 	assert.Equal(t, req.GetHeader("referer"), LOCALURL)
+	req.SetReferer(LOCALURL + "test")
+	assert.Equal(t, req.GetHeader("referer"), LOCALURL+"test")
 }
 
 func TestGetHeader(t *testing.T) {
@@ -708,7 +710,7 @@ func TestPostFile(t *testing.T) {
 	assert.Contains(t, json.Get("file").Get("file_1").MustString(""), "github.com/likexian/gokit")
 
 	// Test post file and form
-	rsp, err = req.Do("POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod"})
+	rsp, err = req.Do("POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod", "404": "404.md"})
 	assert.Nil(t, err)
 	defer rsp.Close()
 	json, err = rsp.Json()

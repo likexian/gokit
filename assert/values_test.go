@@ -56,6 +56,7 @@ func TestIsZero(t *testing.T) {
 	i = "a"
 	tests = []interface{}{
 		i,
+		&i,
 		"a",
 		true,
 		[]byte{0},
@@ -75,6 +76,7 @@ func TestIsZero(t *testing.T) {
 		uint64(1),
 		float32(0.1),
 		float64(0.1),
+		struct{ x int }{1},
 	}
 
 	for _, v := range tests {
@@ -86,6 +88,7 @@ func TestIsContains(t *testing.T) {
 	var i interface{}
 	tests := [][]interface{}{
 		[]interface{}{i, i, false},
+		[]interface{}{&i, &i, true},
 
 		[]interface{}{[]int{0, 1, 2}, 1, true},
 		[]interface{}{[]int{0, 1, 2}, 3, false},
@@ -172,6 +175,7 @@ func TestLength(t *testing.T) {
 	var i interface{}
 	tests := [][]interface{}{
 		[]interface{}{i, 0},
+		[]interface{}{&i, 0},
 		[]interface{}{"", 0},
 		[]interface{}{"1", 1},
 		[]interface{}{true, 4},
@@ -227,7 +231,9 @@ func TestCompare(t *testing.T) {
 		op  string
 		err error
 	}{
+		{i, i, "X", ErrInvalid},
 		{i, i, CMP.LT, ErrInvalid},
+		{&i, i, CMP.LT, ErrInvalid},
 
 		{"a", "b", CMP.LT, nil},
 		{"b", "a", CMP.LT, ErrGreater},
