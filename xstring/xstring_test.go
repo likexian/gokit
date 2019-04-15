@@ -148,12 +148,14 @@ func TestToString(t *testing.T) {
 }
 
 func TestJoin(t *testing.T) {
-	var i interface{}
+	var s *string = nil
+	var i interface{} = s
+
 	tests := []struct {
 		in  interface{}
 		out string
 	}{
-		{i, "<nil>"},
+		{s, ""},
 		{nil, "<nil>"},
 		{"abc", "abc"},
 		{int(1), "1"},

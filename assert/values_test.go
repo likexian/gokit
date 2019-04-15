@@ -85,9 +85,11 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestIsContains(t *testing.T) {
-	var i interface{}
+	var s *string = nil
+	var i interface{} = s
 	tests := [][]interface{}{
-		[]interface{}{i, i, false},
+		[]interface{}{nil, nil, false},
+		[]interface{}{s, s, false},
 		[]interface{}{&i, &i, true},
 
 		[]interface{}{[]int{0, 1, 2}, 1, true},
@@ -172,9 +174,11 @@ func TestIsMatch(t *testing.T) {
 }
 
 func TestLength(t *testing.T) {
-	var i interface{}
+	var s *string = nil
+	var i interface{} = s
 	tests := [][]interface{}{
-		[]interface{}{i, 0},
+		[]interface{}{nil, 0},
+		[]interface{}{s, 0},
 		[]interface{}{&i, 0},
 		[]interface{}{"", 0},
 		[]interface{}{"1", 1},
@@ -224,16 +228,18 @@ func TestLength(t *testing.T) {
 }
 
 func TestCompare(t *testing.T) {
-	var i interface{}
+	var s *string = nil
+	var i interface{} = s
 	tests := []struct {
 		x   interface{}
 		y   interface{}
 		op  string
 		err error
 	}{
-		{i, i, "X", ErrInvalid},
-		{i, i, CMP.LT, ErrInvalid},
-		{&i, i, CMP.LT, ErrInvalid},
+		{nil, nil, "", ErrInvalid},
+		{nil, nil, CMP.LT, ErrInvalid},
+		{s, s, CMP.LT, ErrInvalid},
+		{&i, &i, CMP.LT, ErrInvalid},
 
 		{"a", "b", CMP.LT, nil},
 		{"b", "a", CMP.LT, ErrGreater},
