@@ -85,7 +85,7 @@ func TestIsZero(t *testing.T) {
 }
 
 func TestIsContains(t *testing.T) {
-	var s *string = nil
+	var s *string
 	var i interface{} = s
 	tests := [][]interface{}{
 		[]interface{}{nil, nil, false},
@@ -174,7 +174,7 @@ func TestIsMatch(t *testing.T) {
 }
 
 func TestLength(t *testing.T) {
-	var s *string = nil
+	var s *string
 	var i interface{} = s
 	tests := [][]interface{}{
 		[]interface{}{nil, 0},
@@ -228,7 +228,7 @@ func TestLength(t *testing.T) {
 }
 
 func TestCompare(t *testing.T) {
-	var s *string = nil
+	var s *string
 	var i interface{} = s
 	tests := []struct {
 		x   interface{}

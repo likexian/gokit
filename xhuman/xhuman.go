@@ -158,7 +158,7 @@ func Comma(n float64, precision int) string {
 			if start < 0 {
 				start = 0
 			}
-			ss = append([]string{si[start:len(si)]}, ss...)
+			ss = append([]string{si[start:]}, ss...)
 			si = si[:start]
 		}
 	}

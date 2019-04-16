@@ -148,7 +148,7 @@ func TestToString(t *testing.T) {
 }
 
 func TestJoin(t *testing.T) {
-	var s *string = nil
+	var s *string
 	var i interface{} = s
 
 	tests := []struct {
