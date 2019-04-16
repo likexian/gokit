@@ -209,7 +209,7 @@ func (o *Objects) Flush() error {
 	return nil
 }
 
-// GC set gc interval and max once
+// SetGC set gc interval and max once
 func (o *Objects) SetGC(gcInterval, gcMaxOnce int) {
 	o.Lock()
 	o.gcInterval = gcInterval

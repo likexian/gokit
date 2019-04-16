@@ -87,75 +87,79 @@ func TestIsZero(t *testing.T) {
 func TestIsContains(t *testing.T) {
 	var s *string
 	var i interface{} = s
-	tests := [][]interface{}{
-		[]interface{}{nil, nil, false},
-		[]interface{}{s, s, false},
-		[]interface{}{&i, &i, true},
+	tests := []struct {
+		x interface{}
+		y interface{}
+		z bool
+	}{
+		{nil, nil, false},
+		{s, s, false},
+		{&i, &i, true},
 
-		[]interface{}{[]int{0, 1, 2}, 1, true},
-		[]interface{}{[]int{0, 1, 2}, 3, false},
-		[]interface{}{[]int{0, 1, 2}, int64(1), false},
-		[]interface{}{[]int{0, 1, 2}, "1", false},
-		[]interface{}{[]int{0, 1, 2}, true, false},
+		{[]int{0, 1, 2}, 1, true},
+		{[]int{0, 1, 2}, 3, false},
+		{[]int{0, 1, 2}, int64(1), false},
+		{[]int{0, 1, 2}, "1", false},
+		{[]int{0, 1, 2}, true, false},
 
-		[]interface{}{[]int64{0, 1, 2}, int64(1), true},
-		[]interface{}{[]int64{0, 1, 2}, int64(3), false},
-		[]interface{}{[]int64{0, 1, 2}, 1, false},
-		[]interface{}{[]int64{0, 1, 2}, "1", false},
-		[]interface{}{[]int64{0, 1, 2}, true, false},
+		{[]int64{0, 1, 2}, int64(1), true},
+		{[]int64{0, 1, 2}, int64(3), false},
+		{[]int64{0, 1, 2}, 1, false},
+		{[]int64{0, 1, 2}, "1", false},
+		{[]int64{0, 1, 2}, true, false},
 
-		[]interface{}{[]float64{0.0, 1.0, 2.0}, 1.0, true},
-		[]interface{}{[]float64{0.0, 1.0, 2.0}, float64(1), true},
-		[]interface{}{[]float64{0.0, 1.0, 2.0}, 3.0, false},
-		[]interface{}{[]float64{0.0, 1.0, 2.0}, 1, false},
+		{[]float64{0.0, 1.0, 2.0}, 1.0, true},
+		{[]float64{0.0, 1.0, 2.0}, float64(1), true},
+		{[]float64{0.0, 1.0, 2.0}, 3.0, false},
+		{[]float64{0.0, 1.0, 2.0}, 1, false},
 
-		[]interface{}{[]string{"a", "b", "c"}, "a", true},
-		[]interface{}{[]string{"a", "b", "c"}, "d", false},
-		[]interface{}{[]string{"a", "b", "c"}, 1, false},
-		[]interface{}{[]string{"a", "b", "c"}, true, false},
+		{[]string{"a", "b", "c"}, "a", true},
+		{[]string{"a", "b", "c"}, "d", false},
+		{[]string{"a", "b", "c"}, 1, false},
+		{[]string{"a", "b", "c"}, true, false},
 
-		[]interface{}{[]interface{}{0, "1", 2}, "1", true},
-		[]interface{}{[]interface{}{0, "1", 2}, 1, false},
-		[]interface{}{[]interface{}{0, 1, 2}, true, false},
-		[]interface{}{[]interface{}{0, true, 2}, true, true},
-		[]interface{}{[]interface{}{0, false, 2}, true, false},
+		{[]interface{}{0, "1", 2}, "1", true},
+		{[]interface{}{0, "1", 2}, 1, false},
+		{[]interface{}{0, 1, 2}, true, false},
+		{[]interface{}{0, true, 2}, true, true},
+		{[]interface{}{0, false, 2}, true, false},
 
-		[]interface{}{[]interface{}{[]int{0, 1}, []int{1, 2}}, []int{1, 2}, true},
-		[]interface{}{[]interface{}{[]int{0, 1}, []int{1, 2, 3}}, []int{1, 2}, false},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []int{1, 2}, true},
+		{[]interface{}{[]int{0, 1}, []int{1, 2, 3}}, []int{1, 2}, false},
 
-		[]interface{}{[]A{A{0, 1}, A{1, 2}, A{1, 3}}, A{1, 2}, true},
-		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, B{1, 2}, true},
-		[]interface{}{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, A{1, 2}, false},
+		{[]A{{0, 1}, {1, 2}, {1, 3}}, A{1, 2}, true},
+		{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, B{1, 2}, true},
+		{[]interface{}{A{0, 1}, B{1, 2}, A{1, 3}}, A{1, 2}, false},
 
-		[]interface{}{map[string]int{"a": 1}, "a", true},
-		[]interface{}{map[string]int{"a": 1}, "d", false},
-		[]interface{}{map[string]int{"a": 1}, 1, false},
-		[]interface{}{map[string]int{"a": 1}, true, false},
+		{map[string]int{"a": 1}, "a", true},
+		{map[string]int{"a": 1}, "d", false},
+		{map[string]int{"a": 1}, 1, false},
+		{map[string]int{"a": 1}, true, false},
 
-		[]interface{}{"abc", "a", true},
-		[]interface{}{"abc", "d", false},
-		[]interface{}{"abc", 1, false},
-		[]interface{}{"abc", true, false},
+		{"abc", "a", true},
+		{"abc", "d", false},
+		{"abc", 1, false},
+		{"abc", true, false},
 
-		[]interface{}{"a", "a", true},
-		[]interface{}{1, 1, true},
-		[]interface{}{-1, -1, true},
-		[]interface{}{1.0, 1.0, true},
-		[]interface{}{true, true, true},
-		[]interface{}{false, false, true},
+		{"a", "a", true},
+		{1, 1, true},
+		{-1, -1, true},
+		{1.0, 1.0, true},
+		{true, true, true},
+		{false, false, true},
 	}
 
 	for _, v := range tests {
-		Equal(t, IsContains(v[0], v[1]), v[2])
+		Equal(t, IsContains(v.x, v.y), v.z)
 	}
 }
 
 func TestIsMatch(t *testing.T) {
 	var i interface{}
 	tests := []struct {
-		r   interface{}
-		v   interface{}
-		out bool
+		x interface{}
+		y interface{}
+		z bool
 	}{
 		{regexp.MustCompile("v\\d+"), "v100", true},
 		{"v\\d+", "v100", true},
@@ -168,62 +172,65 @@ func TestIsMatch(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		vv := IsMatch(v.r, v.v)
-		Equal(t, vv, v.out, v)
+		vv := IsMatch(v.x, v.y)
+		Equal(t, vv, v.z, v)
 	}
 }
 
 func TestLength(t *testing.T) {
 	var s *string
 	var i interface{} = s
-	tests := [][]interface{}{
-		[]interface{}{nil, 0},
-		[]interface{}{s, 0},
-		[]interface{}{&i, 0},
-		[]interface{}{"", 0},
-		[]interface{}{"1", 1},
-		[]interface{}{true, 4},
-		[]interface{}{false, 5},
-		[]interface{}{[]byte{}, 0},
-		[]interface{}{[]byte{0}, 1},
-		[]interface{}{[]int{}, 0},
-		[]interface{}{[]int{0}, 1},
-		[]interface{}{[]string{}, 0},
-		[]interface{}{[]string{"a"}, 1},
-		[]interface{}{map[string]int{}, 0},
-		[]interface{}{map[string]int{"a": 1}, 1},
-		[]interface{}{map[string]string{}, 0},
-		[]interface{}{map[string]string{"a": "b"}, 1},
-		[]interface{}{map[string]interface{}{}, 0},
-		[]interface{}{map[string]interface{}{"a": i}, 1},
-		[]interface{}{0, 1},
-		[]interface{}{1, 1},
-		[]interface{}{int(0), 1},
-		[]interface{}{int(1), 1},
-		[]interface{}{int8(0), 1},
-		[]interface{}{int8(1), 1},
-		[]interface{}{int32(0), 1},
-		[]interface{}{int32(1), 1},
-		[]interface{}{int64(0), 1},
-		[]interface{}{int64(1), 1},
-		[]interface{}{uint(0), 3},
-		[]interface{}{uint(1), 3},
-		[]interface{}{uint8(0), 3},
-		[]interface{}{uint8(1), 3},
-		[]interface{}{uint32(0), 3},
-		[]interface{}{uint32(1), 3},
-		[]interface{}{uint64(0), 3},
-		[]interface{}{uint64(1), 3},
-		[]interface{}{float32(0), 1},
-		[]interface{}{float32(1), 1},
-		[]interface{}{float32(0.1), 3},
-		[]interface{}{float64(0), 1},
-		[]interface{}{float64(1), 1},
-		[]interface{}{float64(0.1), 3},
+	tests := []struct {
+		in  interface{}
+		out int
+	}{
+		{nil, 0},
+		{s, 0},
+		{&i, 0},
+		{"", 0},
+		{"1", 1},
+		{true, 4},
+		{false, 5},
+		{[]byte{}, 0},
+		{[]byte{0}, 1},
+		{[]int{}, 0},
+		{[]int{0}, 1},
+		{[]string{}, 0},
+		{[]string{"a"}, 1},
+		{map[string]int{}, 0},
+		{map[string]int{"a": 1}, 1},
+		{map[string]string{}, 0},
+		{map[string]string{"a": "b"}, 1},
+		{map[string]interface{}{}, 0},
+		{map[string]interface{}{"a": i}, 1},
+		{0, 1},
+		{1, 1},
+		{int(0), 1},
+		{int(1), 1},
+		{int8(0), 1},
+		{int8(1), 1},
+		{int32(0), 1},
+		{int32(1), 1},
+		{int64(0), 1},
+		{int64(1), 1},
+		{uint(0), 3},
+		{uint(1), 3},
+		{uint8(0), 3},
+		{uint8(1), 3},
+		{uint32(0), 3},
+		{uint32(1), 3},
+		{uint64(0), 3},
+		{uint64(1), 3},
+		{float32(0), 1},
+		{float32(1), 1},
+		{float32(0.1), 3},
+		{float64(0), 1},
+		{float64(1), 1},
+		{float64(0.1), 3},
 	}
 
 	for _, v := range tests {
-		Equal(t, Length(v[0]), v[1])
+		Equal(t, Length(v.in), v.out)
 	}
 }
 

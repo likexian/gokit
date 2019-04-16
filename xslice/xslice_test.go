@@ -39,22 +39,25 @@ func TestVersion(t *testing.T) {
 }
 
 func TestUnique(t *testing.T) {
-	tests := [][]interface{}{
-		[]interface{}{[]int{0, 0, 1, 1, 1, 2, 2, 3}, []int{0, 1, 2, 3}},
-		[]interface{}{[]int64{0, 0, 1, 1, 1, 2, 2, 3}, []int64{0, 1, 2, 3}},
-		[]interface{}{[]uint64{0, 0, 1, 1, 1, 2, 2, 3}, []uint64{0, 1, 2, 3}},
-		[]interface{}{[]float64{0, 0, 1, 1, 1, 2, 2, 3}, []float64{0, 1, 2, 3}},
-		[]interface{}{[]string{"a", "a", "b", "b", "b", "c"}, []string{"a", "b", "c"}},
-		[]interface{}{[]bool{true, true, true, false}, []bool{true, false}},
-		[]interface{}{[]interface{}{0, 1, 1, "1", 2}, []interface{}{0, 1, "1", 2}},
-		[]interface{}{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
-		[]interface{}{[]interface{}{A{0, 1}, A{1, 2}, A{0, 1}, B{0, 1}}, []interface{}{A{0, 1}, A{1, 2}, B{0, 1}}},
-		[]interface{}{1, 1},
-		[]interface{}{1.0, 1.0},
-		[]interface{}{true, true},
+	tests := []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{[]int{0, 0, 1, 1, 1, 2, 2, 3}, []int{0, 1, 2, 3}},
+		{[]int64{0, 0, 1, 1, 1, 2, 2, 3}, []int64{0, 1, 2, 3}},
+		{[]uint64{0, 0, 1, 1, 1, 2, 2, 3}, []uint64{0, 1, 2, 3}},
+		{[]float64{0, 0, 1, 1, 1, 2, 2, 3}, []float64{0, 1, 2, 3}},
+		{[]string{"a", "a", "b", "b", "b", "c"}, []string{"a", "b", "c"}},
+		{[]bool{true, true, true, false}, []bool{true, false}},
+		{[]interface{}{0, 1, 1, "1", 2}, []interface{}{0, 1, "1", 2}},
+		{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
+		{[]interface{}{A{0, 1}, A{1, 2}, A{0, 1}, B{0, 1}}, []interface{}{A{0, 1}, A{1, 2}, B{0, 1}}},
+		{1, 1},
+		{1.0, 1.0},
+		{true, true},
 	}
 
 	for _, v := range tests {
-		assert.Equal(t, Unique(v[0]), v[1])
+		assert.Equal(t, Unique(v.in), v.out)
 	}
 }
