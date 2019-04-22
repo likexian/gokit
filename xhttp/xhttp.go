@@ -25,6 +25,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xcache"
 	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xhash"
 	"github.com/likexian/gokit/xjson"
@@ -66,6 +67,11 @@ type Dumping struct {
 	DumpBody bool
 }
 
+// Caching storing cache method and ttl
+type Caching struct {
+	Method map[string]int64
+}
+
 // Request storing request data
 type Request struct {
 	ClientId  string
@@ -73,6 +79,7 @@ type Request struct {
 	Client    *http.Client
 	ClientKey string
 	Timeout   Timeout
+	Caching   Caching
 	Retries   Retries
 	Dumping   Dumping
 }
@@ -95,6 +102,7 @@ type Response struct {
 	Response      *http.Response
 	StatusCode    int
 	ContentLength int64
+	CacheKey      string
 	Tracing       Tracing
 	Dumping       [][]byte
 }
@@ -163,8 +171,11 @@ func (p *param) IsEmpty() bool {
 var (
 	// DefaultRequest is default request
 	DefaultRequest = New()
-	// SUPPORT_METHOD list all supported http method
-	SUPPORT_METHOD = []string{
+)
+
+var (
+	// supportMethod list all supported http method
+	supportMethod = []string{
 		"GET",
 		"HEAD",
 		"POST",
@@ -173,11 +184,13 @@ var (
 		"DELETE",
 		"OPTIONS",
 	}
+	// Caching is http request cache
+	caching = xcache.New(xcache.MemoryCache)
 )
 
 // Version returns package version
 func Version() string {
-	return "0.14.0"
+	return "0.15.0"
 }
 
 // Author returns package author
@@ -214,12 +227,17 @@ func New() (r *Request) {
 		},
 	}
 
+	cache := Caching{
+		Method: map[string]int64{},
+	}
+
 	r = &Request{
 		ClientId:  xhash.Sha1("xhttp", xtime.Ns()).Hex(),
 		Request:   request,
 		Client:    client,
 		ClientKey: "",
 		Timeout:   timeout,
+		Caching:   cache,
 		Retries:   Retries{},
 		Dumping:   Dumping{},
 	}
@@ -438,6 +456,16 @@ func (r *Request) EnableCookie(enable bool) *Request {
 	return r
 }
 
+// EnableCache enable http client cache
+func (r *Request) EnableCache(method string, ttl int64) *Request {
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if assert.IsContains(supportMethod, method) {
+		r.Caching.Method[method] = ttl
+	}
+
+	return r
+}
+
 // SetRetries set retry param
 // int arg is setting retry times, time.Duration is setting retry sleep duration
 // 0: no retry (default), -1: retry until success, > 1: retry x times
@@ -472,7 +500,7 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	r.Request.Header.Del("Content-Type")
 
 	method = strings.ToUpper(strings.TrimSpace(method))
-	if !assert.IsContains(SUPPORT_METHOD, method) {
+	if !assert.IsContains(supportMethod, method) {
 		return nil, fmt.Errorf("xhttp: not supported method: %s", method)
 	}
 
@@ -621,10 +649,31 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
-	if r.Dumping.DumpHttp {
-		d, err := httputil.DumpRequestOut(r.Request, r.Dumping.DumpBody)
+	cacheTTL, cacheEnabled := r.Caching.Method[s.Method]
+	if cacheEnabled || r.Dumping.DumpHttp {
+		dumpBody := r.Dumping.DumpBody
+		if cacheEnabled {
+			dumpBody = true
+		}
+		d, err := httputil.DumpRequestOut(r.Request, dumpBody)
 		if err == nil {
 			s.Dumping = append(s.Dumping, d)
+		}
+	}
+
+	if cacheEnabled {
+		body := ""
+		if len(s.Dumping) > 0 {
+			d := strings.Split(string(s.Dumping[0]), "\r\n\r\n")
+			if len(d) > 1 {
+				body = d[1]
+			}
+			s.CacheKey = xhash.Sha1(s.Method, s.URL.String(), body).Hex()
+			cacheVal := caching.Get(s.CacheKey)
+			if cacheVal != nil {
+				s = cacheVal.(*Response)
+				return
+			}
 		}
 	}
 
@@ -649,6 +698,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 		if err == nil {
 			s.Dumping = append(s.Dumping, d)
 		}
+	}
+
+	if s.CacheKey != "" {
+		caching.Set(s.CacheKey, s, cacheTTL)
 	}
 
 	return
@@ -722,8 +775,12 @@ func (r *Response) Bytes() (b []byte, err error) {
 		r.Tracing.RecvTime = xtime.Ms() - startAt
 	}()
 
-	defer r.Response.Body.Close()
 	b, err = ioutil.ReadAll(r.Response.Body)
+	r.Response.Body.Close()
+
+	if r.CacheKey != "" {
+		r.Response.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+	}
 
 	return
 }

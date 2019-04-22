@@ -10,6 +10,7 @@ HTTP kits for Golang development.
 - Upload and Download file support
 - Debug and Trace info are open
 - Retry request is possible
+- Cache request by method
 
 ## Installation
 

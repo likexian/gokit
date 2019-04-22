@@ -783,6 +783,85 @@ func TestDump(t *testing.T) {
 	assert.Contains(t, string(dump[0]), "k=v")
 }
 
+func TestEnableCache(t *testing.T) {
+	req := New()
+
+	rsp, err := req.Do("GET", LOCALURL+"time")
+	assert.Nil(t, err)
+	defer rsp.Close()
+
+	text, err := rsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, text, "")
+
+	newRsp, err := req.Do("GET", LOCALURL+"time")
+	assert.Nil(t, err)
+	defer newRsp.Close()
+
+	newText, err := newRsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, newText, text)
+	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+
+	// enable get cache
+	req.EnableCache("GET", 300)
+
+	rsp, err = req.Do("GET", LOCALURL+"time")
+	assert.Nil(t, err)
+	defer rsp.Close()
+
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, text, "")
+
+	newRsp, err = req.Do("GET", LOCALURL+"time")
+	assert.Nil(t, err)
+	defer newRsp.Close()
+
+	newText, err = newRsp.String()
+	assert.Nil(t, err)
+	assert.Equal(t, newText, text)
+	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+
+	newRsp, err = req.Do("GET", LOCALURL+"time", QueryParam{"q": "a"})
+	assert.Nil(t, err)
+	defer newRsp.Close()
+
+	newText, err = newRsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, newText, text)
+	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+
+	// enable post cache
+	req.EnableCache("post", 300)
+
+	rsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
+	assert.Nil(t, err)
+	defer rsp.Close()
+
+	text, err = rsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, text, "")
+
+	newRsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
+	assert.Nil(t, err)
+	defer newRsp.Close()
+
+	newText, err = newRsp.String()
+	assert.Nil(t, err)
+	assert.Equal(t, newText, text)
+	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+
+	newRsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian", "q": "a"})
+	assert.Nil(t, err)
+	defer newRsp.Close()
+
+	newText, err = newRsp.String()
+	assert.Nil(t, err)
+	assert.NotEqual(t, newText, text)
+	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+}
+
 func ServerForTesting(listen string) string {
 	defaultListenIP := "127.0.0.1"
 	defaultListenPort := "8080"
@@ -933,6 +1012,9 @@ func ServerForTesting(listen string) string {
 				}
 			}
 			w.WriteHeader(s)
+		})
+		http.HandleFunc("/time", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, fmt.Sprintf("%d", time.Now().UnixNano()))
 		})
 		http.HandleFunc("/sleep", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
