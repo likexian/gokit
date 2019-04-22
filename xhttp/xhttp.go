@@ -190,7 +190,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.15.0"
+	return "0.16.0"
 }
 
 // Author returns package author
@@ -645,7 +645,7 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	}()
 
 	s.Tracing.RequestId = xhash.Sha1("xhttp", s.Tracing.Timestamp,
-		s.Tracing.Nonce, s.Method, s.URL.String(), r.ClientKey).Hex()
+		s.Tracing.Nonce, s.Method, s.URL.Path, s.URL.RawQuery, r.ClientKey).Hex()
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Tracing.RequestId))
 
@@ -810,4 +810,40 @@ func (r *Response) Json() (*xjson.Jsonx, error) {
 // [bytes[request], bytes[response]]
 func (r *Response) Dump() [][]byte {
 	return r.Dumping
+}
+
+// CheckClient returns is a valid client request
+// used by http server, it will check the requestId
+func CheckClient(r *http.Request, ClientKey string) error {
+	id := r.Header.Get("X-Http-Gokit-Requestid")
+	if id == "" {
+		return fmt.Errorf("xhttp: missing request id")
+	}
+
+	ids := strings.Split(id, "-")
+	if len(ids) != 3 {
+		return fmt.Errorf("xhttp: request id invalid")
+	}
+
+	tm, err := assert.ToInt64(ids[0])
+	if err != nil {
+		return fmt.Errorf("xhttp: time stamp invalid")
+	}
+
+	now := xtime.S()
+	if tm-now > 300 || tm-now < -300 {
+		return fmt.Errorf("xhttp: time stamp expired")
+	}
+
+	nonce, err := assert.ToInt64(ids[1])
+	if err != nil {
+		return fmt.Errorf("xhttp: request nonce invalid")
+	}
+
+	sum := xhash.Sha1("xhttp", tm, nonce, r.Method, r.URL.Path, r.URL.RawQuery, ClientKey).Hex()
+	if sum != ids[2] {
+		return fmt.Errorf("xhttp: hash value not matched")
+	}
+
+	return nil
 }

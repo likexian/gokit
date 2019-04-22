@@ -26,6 +26,7 @@ import (
 	"github.com/likexian/gokit/assert"
 	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xjson"
+	"github.com/likexian/gokit/xtime"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -860,6 +861,45 @@ func TestEnableCache(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, newText, text)
 	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+}
+
+func TestCheckClient(t *testing.T) {
+	u, _ := url.Parse(LOCALURL)
+	r := &http.Request{
+		Header: http.Header{},
+		Method: "POST",
+		URL:    u,
+	}
+
+	err := CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	r.Header.Set("X-Http-Gokit-Requestid", "test")
+	err = CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	r.Header.Set("X-Http-Gokit-Requestid", "test-test-test")
+	err = CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	r.Header.Set("X-Http-Gokit-Requestid", "1234-test-test")
+	err = CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	r.Header.Set("X-Http-Gokit-Requestid", fmt.Sprintf("%d-test-test", xtime.S()))
+	err = CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	r.Header.Set("X-Http-Gokit-Requestid", fmt.Sprintf("%d-1234-test", xtime.S()))
+	err = CheckClient(r, "")
+	assert.NotNil(t, err)
+
+	req := New()
+	rsp, err := req.Do("GET", LOCALURL)
+	assert.Nil(t, err)
+	defer rsp.Close()
+	err = CheckClient(req.Request, "")
+	assert.Nil(t, err)
 }
 
 func ServerForTesting(listen string) string {
