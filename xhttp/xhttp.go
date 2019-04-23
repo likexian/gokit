@@ -190,7 +190,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.16.0"
+	return "0.16.1"
 }
 
 // Author returns package author
@@ -846,4 +846,25 @@ func CheckClient(r *http.Request, ClientKey string) error {
 	}
 
 	return nil
+}
+
+// GetClientIPs returns all ips from http client
+func GetClientIPs(r *http.Request) []string {
+	ips := []string{}
+
+	for _, h := range []string{"X-Real-Ip", "X-Forwarded-For"} {
+		ip := r.Header.Get(h)
+		if ip != "" {
+			for _, v := range strings.Split(ip, ",") {
+				v = strings.TrimSpace(v)
+				if v != "" {
+					ips = append(ips, v)
+				}
+			}
+		}
+	}
+
+	ips = append(ips, strings.Split(r.RemoteAddr, ":")[0])
+
+	return ips
 }

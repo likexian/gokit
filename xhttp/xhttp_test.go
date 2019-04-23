@@ -902,6 +902,31 @@ func TestCheckClient(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestGetClientIPs(t *testing.T) {
+	u, _ := url.Parse(LOCALURL)
+	r := &http.Request{
+		RemoteAddr: "127.0.0.1:1234",
+		Header:     http.Header{},
+		Method:     "POST",
+		URL:        u,
+	}
+
+	ips := GetClientIPs(r)
+	assert.Equal(t, ips, []string{"127.0.0.1"})
+
+	r.Header.Set("X-Real-Ip", "1.1.1.1")
+	ips = GetClientIPs(r)
+	assert.Equal(t, ips, []string{"1.1.1.1", "127.0.0.1"})
+
+	r.Header.Set("X-Forwarded-For", "2.2.2.2")
+	ips = GetClientIPs(r)
+	assert.Equal(t, ips, []string{"1.1.1.1", "2.2.2.2", "127.0.0.1"})
+
+	r.Header.Set("X-Forwarded-For", "2.2.2.2, 3.3.3.3")
+	ips = GetClientIPs(r)
+	assert.Equal(t, ips, []string{"1.1.1.1", "2.2.2.2", "3.3.3.3", "127.0.0.1"})
+}
+
 func ServerForTesting(listen string) string {
 	defaultListenIP := "127.0.0.1"
 	defaultListenPort := "8080"
