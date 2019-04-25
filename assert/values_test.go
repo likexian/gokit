@@ -452,3 +452,13 @@ func TestToFloat64(t *testing.T) {
 		Equal(t, vv, v.out)
 	}
 }
+
+func TestIf(t *testing.T) {
+	n := 50
+	z := If(n >= 60, "pass", "fail")
+	Equal(t, z, "fail")
+
+	n = 80
+	z = If(n >= 60, "pass", "fail")
+	Equal(t, z, "pass")
+}

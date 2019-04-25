@@ -320,3 +320,15 @@ func ToFloat64(v interface{}) (float64, error) {
 		return 0, ErrInvalid
 	}
 }
+
+// If returns x if c is true, else y
+//   z = If(c, x, y)
+// equal to:
+//   z = c ? x : y
+func If(c bool, x, y interface{}) interface{} {
+	if c {
+		return x
+	} else {
+		return y
+	}
+}
