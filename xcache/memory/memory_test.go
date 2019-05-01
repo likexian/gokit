@@ -34,6 +34,7 @@ func TestVersion(t *testing.T) {
 
 func TestBase(t *testing.T) {
 	c := New()
+	defer c.Close()
 
 	// has
 	nx := c.Has("x")
@@ -90,6 +91,8 @@ func TestBase(t *testing.T) {
 
 func TestGC(t *testing.T) {
 	c := New()
+	defer c.Close()
+
 	c.SetGC(1, 1)
 
 	err := c.Set("x", 1, 1)
@@ -106,6 +109,8 @@ func TestGC(t *testing.T) {
 
 func TestIncr(t *testing.T) {
 	c := New()
+	defer c.Close()
+
 	tests := []struct {
 		in  interface{}
 		out interface{}
@@ -136,6 +141,8 @@ func TestIncr(t *testing.T) {
 
 func TestDecr(t *testing.T) {
 	c := New()
+	defer c.Close()
+
 	tests := []struct {
 		in  interface{}
 		out interface{}

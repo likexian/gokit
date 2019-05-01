@@ -32,6 +32,7 @@ func TestVersion(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	c := New(MemoryCache)
+	defer c.Close()
 
 	b := c.Has("x")
 	assert.False(t, b)

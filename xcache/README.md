@@ -44,6 +44,9 @@ c.Del("key")
 
 // get multiple once
 c.MGet("k1", "k2", "k3")
+
+// do not forget stop the service
+c.Close()
 ```
 
 ## LICENSE

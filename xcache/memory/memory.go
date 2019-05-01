@@ -42,7 +42,7 @@ type Objects struct {
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.1.1"
 }
 
 // Author returns package author
@@ -206,6 +206,13 @@ func (o *Objects) Flush() error {
 	o.Lock()
 	defer o.Unlock()
 	o.values = map[string]*Object{}
+	return nil
+}
+
+// Close stop the cache service
+func (o *Objects) Close() error {
+	o.gcExit <- 1
+	o.Flush()
 	return nil
 }
 

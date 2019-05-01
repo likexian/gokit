@@ -34,6 +34,7 @@ type Cachex interface {
 	Decr(key string) error
 	SetGC(gcInterval, gcMaxOnce int)
 	Flush() error
+	Close() error
 }
 
 // Cacher list
@@ -43,7 +44,7 @@ const (
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.1.1"
 }
 
 // Author returns package author
