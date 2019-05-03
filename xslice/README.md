@@ -20,13 +20,17 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xslice)
 
 ### Get unique of string array
 
-    array := xslice.Unique([]string{"a", "a", "b", "b", "b", "c"})
-    fmt.Println("new array:", array)
+```go
+array := xslice.Unique([]string{"a", "a", "b", "b", "b", "c"})
+fmt.Println("new array:", array)
+```
 
 ### Get unique of int array
 
-    array := xslice.Unique([]int{0, 0, 1, 1, 1, 2, 2, 3})
-    fmt.Println("new array:", array)
+```go
+array := xslice.Unique([]int{0, 0, 1, 1, 1, 2, 2, 3})
+fmt.Println("new array:", array)
+```
 
 ## LICENSE
 

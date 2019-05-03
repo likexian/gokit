@@ -30,31 +30,33 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/workqueue)
 
 ### Plus 1 to every number and sum to total
 
-    // Worker: Plus 1 to every number
-    mathPlus := func(t workqueue.Task) workqueue.Task {
-        return t.(int) + 1
-    }
+```go
+// Worker: Plus 1 to every number
+mathPlus := func(t workqueue.Task) workqueue.Task {
+    return t.(int) + 1
+}
 
-    // Merger: Sum to total
-    mathSum := func(r workqueue.Task, t workqueue.Task) workqueue.Task {
-        return r.(int) + t.(int)
-    }
+// Merger: Sum to total
+mathSum := func(r workqueue.Task, t workqueue.Task) workqueue.Task {
+    return r.(int) + t.(int)
+}
 
-    // New a work queue
-    wq := workqueue.New(100)
-    // Set Worker func
-    wq.SetWorker(mathPlus, 10)
-    // Set Merger func
-    wq.SetMerger(mathSum, 0)
+// New a work queue
+wq := workqueue.New(100)
+// Set Worker func
+wq.SetWorker(mathPlus, 10)
+// Set Merger func
+wq.SetMerger(mathSum, 0)
 
-    // Add number to queue
-    for i := 0; i < 1000; i++ {
-        wq.Add(i)
-    }
+// Add number to queue
+for i := 0; i < 1000; i++ {
+    wq.Add(i)
+}
 
-    // Wait for result and print
-    result := wq.Wait()
-    fmt.Println("sum is:", result)
+// Wait for result and print
+result := wq.Wait()
+fmt.Println("sum is:", result)
+```
 
 ## LICENSE
 

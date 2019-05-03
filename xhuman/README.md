@@ -20,25 +20,31 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhuman)
 
 ### Get human string for bytes size
 
-    // print 1024 * 1024 as 1MB
-    stringSize := xhuman.FormatByteSize(1024 * 1024)
-    fmt.Println("formated bytes size is:", stringSize)
+```go
+// print 1024 * 1024 as 1MB
+stringSize := xhuman.FormatByteSize(1024 * 1024)
+fmt.Println("formated bytes size is:", stringSize)
+```
 
 ### Get bytes size from human string
 
-    // get 1024 * 1024 from 1MB
-    byteSize, err := xhuman.ParseByteSize("1MB")
-    if err != nil {
-        fmt.Println("original bytes size is:", byteSize)
-    }
+```go
+// get 1024 * 1024 from 1MB
+byteSize, err := xhuman.ParseByteSize("1MB")
+if err != nil {
+    fmt.Println("original bytes size is:", byteSize)
+}
+```
 
 ### Get comma split string for number
 
-    // print 123456789123456 as "123,456,789,123,456"
-    s := xhuman.Comma(float64(123456789123456), 0)
-    if err != nil {
-        fmt.Println("comma number:", s)
-    }
+```go
+// print 123456789123456 as "123,456,789,123,456"
+s := xhuman.Comma(float64(123456789123456), 0)
+if err != nil {
+    fmt.Println("comma number:", s)
+}
+```
 
 ## LICENSE
 

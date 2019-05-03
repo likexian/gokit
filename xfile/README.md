@@ -20,30 +20,36 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xfile)
 
 ### check file is exists
 
-    exists := xfile.Exists("/data/dev/gokit/LICENSE")
-    if exists {
-        fmt.Println("file is exists")
-    } else {
-        fmt.Println("file not exists")
-    }
+```go
+exists := xfile.Exists("/data/dev/gokit/LICENSE")
+if exists {
+    fmt.Println("file is exists")
+} else {
+    fmt.Println("file not exists")
+}
+```
 
 ### get file size
 
-    size, err := xfile.Size("/data/dev/gokit/LICENSE")
-    if err != nil {
-        panic(err)
-    } else {
-        fmt.Println("file size is", size)
-    }
+```go
+size, err := xfile.Size("/data/dev/gokit/LICENSE")
+if err != nil {
+    panic(err)
+} else {
+    fmt.Println("file size is", size)
+}
+```
 
 ### write text to file
 
-    err := xfile.WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2012-2019 Li Kexian\n")
-    if err != nil {
-        panic(err)
-    } else {
-        fmt.Println("write to file successful")
-    }
+```go
+err := xfile.WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2012-2019 Li Kexian\n")
+if err != nil {
+    panic(err)
+} else {
+    fmt.Println("write to file successful")
+}
+```
 
 ## LICENSE
 

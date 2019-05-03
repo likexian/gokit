@@ -20,20 +20,26 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xip)
 
 ### Check string is a valid ip
 
-    ok := xip.IsIP("1.1.1.1")
-    fmt.Println("1.1.1.1 is a ip:", ok)
+```go
+ok := xip.IsIP("1.1.1.1")
+fmt.Println("1.1.1.1 is a ip:", ok)
+```
 
 ### IPv4 ip2long
 
-    i, err := IPv4ToLong("1.1.1.1")
-    if err == nil {
-        fmt.Println("1.1.1.1 ip2long is:", i)
-    }
+```go
+i, err := IPv4ToLong("1.1.1.1")
+if err == nil {
+    fmt.Println("1.1.1.1 ip2long is:", i)
+}
+```
 
 ### IPv4 long2ip
 
-    ip := LongToIPv4(16843009)
-    fmt.Println("16843009 long2ip is:", ip)
+```go
+ip := LongToIPv4(16843009)
+fmt.Println("16843009 long2ip is:", ip)
+```
 
 ## LICENSE
 

@@ -20,17 +20,21 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xos)
 
 ### Get uid and gid of nobody
 
-    uid, gid, err := xos.LookupUser("nobody")
-    if err == nil {
-        fmt.Println("uid=", uid, "gid=", gid)
-    }
+```go
+uid, gid, err := xos.LookupUser("nobody")
+if err == nil {
+    fmt.Println("uid=", uid, "gid=", gid)
+}
+```
 
 ### Set process user to nobody
 
-    err := xos.SetUser("nobody")
-    if err != nil {
-        fmt.Println("set user failed", err)
-    }
+```go
+err := xos.SetUser("nobody")
+if err != nil {
+    fmt.Println("set user failed", err)
+}
+```
 
 ## LICENSE
 

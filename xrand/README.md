@@ -20,20 +20,26 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xrand)
 
 ### Rand int between 0 and 10000
 
-    n := xrand.Int(10000)
-    fmt.Println("rand int between 0 and 10000 is:", n)
+```go
+n := xrand.Int(10000)
+fmt.Println("rand int between 0 and 10000 is:", n)
+```
 
 ### Rand int between 1000 and 10000
 
-    n := xrand.IntRange(1000, 10000)
-    fmt.Println("rand int between 1000 and 10000 is:", n)
+```go
+n := xrand.IntRange(1000, 10000)
+fmt.Println("rand int between 1000 and 10000 is:", n)
+```
 
 ### Rand bytes with length of 10
 
-    b, err := xrand.Bytes(10)
-    if err != nil {
-        fmt.Println("rand bytes:", b)
-    }
+```go
+b, err := xrand.Bytes(10)
+if err != nil {
+    fmt.Println("rand bytes:", b)
+}
+```
 
 ## LICENSE
 

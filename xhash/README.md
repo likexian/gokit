@@ -20,24 +20,30 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhash)
 
 ### Get md5 of string
 
-    h := xhash.Md5("12345678")
-    fmt.Println(h.Hex())
-    fmt.Println(h.B64())
+```go
+h := xhash.Md5("12345678")
+fmt.Println(h.Hex())
+fmt.Println(h.B64())
+```
 
 ## Get Hmac Md5 of string
 
-    h := xhash.HmacMd5("key", "12345678")
-    fmt.Println(h.Hex())
-    fmt.Println(h.B64())
+```go
+h := xhash.HmacMd5("key", "12345678")
+fmt.Println(h.Hex())
+fmt.Println(h.B64())
+```
 
 ### Get md5 of file
 
-    h, err := xhash.FileMd5("xhash.go")
-    if err != nil {
-        panic(err)
-    }
-    fmt.Println(h.Hex())
-    fmt.Println(h.B64())
+```go
+h, err := xhash.FileMd5("xhash.go")
+if err != nil {
+    panic(err)
+}
+fmt.Println(h.Hex())
+fmt.Println(h.B64())
+```
 
 ## LICENSE
 

@@ -20,22 +20,28 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xstring)
 
 ### Check string is all letter
 
-    s := "abc123"
-    ok := xstring.IsLetter(s)
-    fmt.Println("IsLetter:", ok)
+```go
+s := "abc123"
+ok := xstring.IsLetter(s)
+fmt.Println("IsLetter:", ok)
+```
 
 ### Check string is a number
 
-    s := "12345.67"
-    ok := xstring.IsNumeric(s)
-    fmt.Println("IsNumeric:", ok)
+```go
+s := "12345.67"
+ok := xstring.IsNumeric(s)
+fmt.Println("IsNumeric:", ok)
+```
 
 ### Expand map value to template string
 
-    t := "i am {name}, i have ${money}."
-    m := map[string]interface{}{"name": "Li Kexian", "money": 100}
-    s := xstring.Expand(t, m)
-    fmt.Println(s)
+```go
+t := "i am {name}, i have ${money}."
+m := map[string]interface{}{"name": "Li Kexian", "money": 100}
+s := xstring.Expand(t, m)
+fmt.Println(s)
+```
 
 ## LICENSE
 
