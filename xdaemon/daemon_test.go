@@ -25,7 +25,4 @@ func TestDaemon(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-
-	for {
-	}
 }

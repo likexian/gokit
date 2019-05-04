@@ -10,12 +10,11 @@
 package daemon
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"strconv"
-	"strings"
 	"syscall"
 )
 
@@ -41,34 +40,17 @@ func SetUser(user string) (err error) {
 
 // LookupUser find the user's uid and gid
 func LookupUser(name string) (uid, gid int, err error) {
-	text, err := ioutil.ReadFile("/etc/passwd")
+	u, err := user.Lookup(name)
 	if err != nil {
 		return
 	}
 
-	sUid := ""
-	sGid := ""
-
-	lines := strings.Split(string(text), "\n")
-	for _, v := range lines {
-		ls := strings.Split(v, ":")
-		if ls[0] == name {
-			sUid = ls[2]
-			sGid = ls[3]
-		}
-	}
-
-	if sUid == "" || sGid == "" {
-		err = errors.New("User not exits")
-		return
-	}
-
-	gid, err = strconv.Atoi(sGid)
+	uid, err = strconv.Atoi(u.Uid)
 	if err != nil {
 		return
 	}
 
-	uid, err = strconv.Atoi(sUid)
+	gid, err = strconv.Atoi(u.Gid)
 	if err != nil {
 		return
 	}
