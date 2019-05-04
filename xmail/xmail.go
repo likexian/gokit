@@ -17,7 +17,7 @@
  * https://www.likexian.com/
  */
 
-package xmailer
+package xmail
 
 import (
 	"bytes"
@@ -58,7 +58,7 @@ type Message struct {
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -71,13 +71,13 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// New returns a new mailer
+// New returns a new xmail
 func New(server, username, password string, ishtml bool) (m *Message) {
 	m = &Message{
 		From:        username,
 		To:          []string{username},
 		Subject:     "Mailer Test",
-		Body:        "Hello World. This is mailer via github.com/likexian/gokit/xmailer.",
+		Body:        "Hello World. This is xmail via github.com/likexian/gokit/xmail.",
 		Attachments: make(map[string]*Attachment),
 	}
 
@@ -147,7 +147,7 @@ func (m *Message) innerBody() (body []byte) {
 	buf.WriteString("Subject: " + m.Subject + "\r\n")
 	buf.WriteString("X-Priority: 3\r\n")
 	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString("X-Mailer: github.com/likexian/gokit/xmailer\r\n")
+	buf.WriteString("X-Mailer: github.com/likexian/gokit/xmail\r\n")
 	buf.WriteString("Content-Type: multipart/mixed; boundary=" + boundary + "\r\n\r\n")
 
 	buf.WriteString("This is a multi-part message in MIME format.\r\n")

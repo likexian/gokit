@@ -1,6 +1,6 @@
-# GoKit - xmailer
+# GoKit - xmail
 
-Send Mail kits for Golang development.
+Mail kits for Golang development.
 
 ## Installation
 
@@ -9,12 +9,12 @@ Send Mail kits for Golang development.
 ## Importing
 
     import (
-        "github.com/likexian/gokit/xmailer"
+        "github.com/likexian/gokit/xmail"
     )
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xmailer)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xmail)
 
 ## Example
 
@@ -23,7 +23,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xmailer)
 ```go
 // Set the smtp info
 // New("smtp server:port", "smtp username", "smtp password", "is html mail")
-m := xmailer.New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", true)
+m := xmail.New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", true)
 
 // Set email from
 m.From = "i@likexian.com"
@@ -35,10 +35,10 @@ m.To = []string{"i@likexian.com"}
 m.Subject = "Mailer Test"
 
 // Set mail body
-m.Body = "Hello World. This is mailer via github.com/likexian/gokit/xmailer.<br /><img src=\"cid:mailer_test.jpg\" />"
+m.Body = "Hello World. This is xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />"
 
 // Add attachment
-err := m.Attach("mailer_test.jpg")
+err := m.Attach("xmail_test.jpg")
 if err != nil {
     panic(err)
 }

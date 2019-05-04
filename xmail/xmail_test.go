@@ -17,7 +17,7 @@
  * https://www.likexian.com/
  */
 
-package xmailer
+package xmail
 
 import (
 	"github.com/likexian/gokit/assert"
@@ -44,15 +44,15 @@ func TestMailer(t *testing.T) {
 	m.Subject = "Mailer Test"
 
 	// Set mail body
-	m.Body = "Hello World. This is mailer via github.com/likexian/mailer-go.<br /><img src=\"cid:mailer_test.jpg\" />"
+	m.Body = "Hello World. This is xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />"
 
 	// Add attachment
-	err := m.Attach("mailer_test.jpg")
+	err := m.Attach("xmail_test.jpg")
 	if err != nil {
 		t.Error(err)
 	}
 
-	if _, ok := m.Attachments["mailer_test.jpg"]; !ok {
+	if _, ok := m.Attachments["xmail_test.jpg"]; !ok {
 		t.Error("Fail to add attachment")
 	}
 
