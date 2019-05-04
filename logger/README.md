@@ -1,8 +1,11 @@
 # logger.go
 
-logger-go is a simple Go module for doing logging.
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![GoDoc](https://godoc.org/github.com/likexian/logger-go?status.svg)](https://godoc.org/github.com/likexian/logger-go)
+[![Build Status](https://travis-ci.org/likexian/logger-go.svg?branch=master)](https://travis-ci.org/likexian/logger-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/logger-go)](https://goreportcard.com/report/github.com/likexian/logger-go)
 
-[![Build Status](https://secure.travis-ci.org/likexian/logger-go.png)](https://secure.travis-ci.org/likexian/logger-go)
+logger-go is a simple Go module for doing logging.
 
 ## Overview
 

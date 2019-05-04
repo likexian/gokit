@@ -20,8 +20,11 @@ import (
 )
 
 
+// Level storing log level
 type Level int
 
+
+// Logger storing logger
 type Logger struct {
     Writer io.Writer
     Level Level
@@ -29,6 +32,7 @@ type Logger struct {
 }
 
 
+// Log level const
 const (
     DEBUG Level = iota
     INFO
@@ -39,6 +43,7 @@ const (
 )
 
 
+// log level mapper
 var levels = map[string]Level {
     "debug": DEBUG,
     "info": INFO,
@@ -49,27 +54,32 @@ var levels = map[string]Level {
 }
 
 
+// Version returns package version
 func Version() string {
-    return "0.2.0"
+    return "0.3.0"
 }
 
 
+// Author returns package author
 func Author() string {
     return "[Li Kexian](https://www.likexian.com/)"
 }
 
 
+// License returns package license
 func License() string {
     return "Apache License, Version 2.0"
 }
 
 
+// New returns a new logger
 func New(w io.Writer, level Level) *Logger {
     l := &Logger{Writer: w, Level: level}
     return l
 }
 
 
+// File returns a new file logger
 func File(fname string, level Level) (*Logger, error) {
     fd, err := os.OpenFile(fname, os.O_CREATE | os.O_WRONLY | os.O_APPEND, 0644)
     if err != nil {
@@ -79,6 +89,7 @@ func File(fname string, level Level) (*Logger, error) {
 }
 
 
+// SetLevel set the log level by int level
 func (l *Logger) SetLevel(level Level) {
     l.Lock()
     defer l.Unlock()
@@ -86,6 +97,7 @@ func (l *Logger) SetLevel(level Level) {
 }
 
 
+// SetLevelString set the log level by string level
 func (l *Logger) SetLevelString(level string) error {
     value := l.GetLevelByString(level)
     if value >= 0 {
@@ -95,6 +107,7 @@ func (l *Logger) SetLevelString(level string) error {
 }
 
 
+// GetLevelByString returns log level by string level
 func (l *Logger) GetLevelByString(level string) Level {
     level = strings.ToLower(level)
     if value, ok := levels[level]; ok {
@@ -104,6 +117,7 @@ func (l *Logger) GetLevelByString(level string) Level {
 }
 
 
+// Log do log a msg
 func (l *Logger) Log(level string, msg string, args ...interface{}) error {
     value := l.GetLevelByString(level)
     if l.Level > value {
@@ -121,31 +135,37 @@ func (l *Logger) Log(level string, msg string, args ...interface{}) error {
 }
 
 
+// Debug level msg logging
 func (l *Logger) Debug(msg string, args ...interface{}) error {
     return l.Log("DEBUG", msg, args...)
 }
 
 
+// Info level msg logging
 func (l *Logger) Info(msg string, args ...interface{}) error {
     return l.Log("INFO", msg, args...)
 }
 
 
+// Notice level msg logging
 func (l *Logger) Notice(msg string, args ...interface{}) error {
     return l.Log("NOTICE", msg, args...)
 }
 
 
+// Warning level msg logging
 func (l *Logger) Warning(msg string, args ...interface{}) error {
     return l.Log("WARNING", msg, args...)
 }
 
 
+// Error level msg logging
 func (l *Logger) Error(msg string, args ...interface{}) error {
     return l.Log("ERROR", msg, args...)
 }
 
 
+// Critical level msg logging
 func (l *Logger) Critical(msg string, args ...interface{}) error {
     return l.Log("CRITICAL", msg, args...)
 }
