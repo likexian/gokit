@@ -11,6 +11,7 @@ package logger
 
 import (
 	"os"
+	"sync"
 	"testing"
 	"time"
 )
@@ -67,7 +68,7 @@ func TestLogger(t *testing.T) {
 func TestConcurrency(t *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		go func(i int) {
 			log.Info("This is %d", i)
 		}(i)
@@ -88,4 +89,29 @@ func TestConcurrency(t *testing.T) {
 	time.Sleep(1 * time.Second)
 	log.Close()
 	flog.Close()
+}
+
+func TestLogRotate(t *testing.T) {
+	var wg sync.WaitGroup
+
+	// log to file
+	log, err := File("rotate.log", DEBUG)
+	if err != nil {
+		panic(err)
+	}
+
+	// set rotate by filesize
+	log.SetSizeRotate(10, 100000)
+	for i := 0; i < 200000; i++ {
+		wg.Add(1)
+		go func(i int) {
+			log.Info("This is a log line of log file by log thread: %d", i)
+			wg.Done()
+		}(i)
+	}
+
+	// wait for log end
+	time.Sleep(3 * time.Second)
+	wg.Wait()
+	log.Close()
 }

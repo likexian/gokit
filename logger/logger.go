@@ -10,9 +10,12 @@
 package logger
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -23,9 +26,15 @@ type LogLevel int
 
 // LogFile storing log file
 type LogFile struct {
-	Name   string
-	Fd     *os.File
-	Writer io.Writer
+	Name          string
+	Fd            *os.File
+	Writer        io.Writer
+	RotateType    string
+	RotateNum     int64
+	RotateSize    int64
+	RotateNowDate string
+	RotateNowSize int64
+	RotateNextNum int64
 }
 
 // Logger storing logger
@@ -57,7 +66,7 @@ var levels = map[string]LogLevel{
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -72,20 +81,25 @@ func License() string {
 
 // New returns a new logger
 func New(w io.Writer, level LogLevel) *Logger {
-	return newFile(LogFile{Writer: w}, level)
+	return newLog(LogFile{Writer: w}, level)
 }
 
 // File returns a new file logger
 func File(fname string, level LogLevel) (*Logger, error) {
-	fd, err := os.OpenFile(fname, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	fd, err := openFile(fname)
 	if err != nil {
 		return nil, err
 	}
-	return newFile(LogFile{fname, fd, fd}, level), nil
+	return newLog(LogFile{Name: fname, Writer: fd, Fd: fd}, level), nil
+}
+
+// openFile open file with flags
+func openFile(fname string) (*os.File, error) {
+	return os.OpenFile(fname, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 }
 
 // newLogger returns a new file logger
-func newFile(lf LogFile, level LogLevel) *Logger {
+func newLog(lf LogFile, level LogLevel) *Logger {
 	l := &Logger{
 		LogFile:  lf,
 		LogLevel: level,
@@ -125,18 +139,130 @@ func (l *Logger) GetLevelByString(level string) LogLevel {
 	return -1
 }
 
-// writeLog get log from queue and write
-func (l *Logger) writeLog() {
-	for {
-		t, ok := <-l.LogQueue
-		if !ok {
-			l.LogFile.Fd.Close()
-			return
-		}
-		_, err := fmt.Fprintf(l.LogFile.Writer, t)
-		if err != nil {
+// SetDailyLogRotate set daily log rotate
+func (l *Logger) SetDailyRotate(rotateNum int64) error {
+	return l.SetRotate("date", rotateNum, 0)
+}
+
+// SetSizeRotate set filesize log rotate
+func (l *Logger) SetSizeRotate(rotateNum int64, rotateSize int64) error {
+	return l.SetRotate("size", rotateNum, rotateSize)
+}
+
+// SetRotate set log rotate
+// rotateType: date: daily rotate, size: filesize rotate
+func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64) error {
+	if l.LogFile.Name == "" {
+		return errors.New("Only file log support rotate")
+	}
+
+	if rotateType != "date" && rotateType != "size" {
+		return errors.New("Not support rotateType")
+	}
+
+	l.LogFile.RotateType = rotateType
+	l.LogFile.RotateNum = rotateNum
+	l.LogFile.RotateSize = rotateSize
+	l.LogFile.RotateNowDate = time.Now().Format("2006-01-02")
+
+	size, err := getFileSize(l.LogFile.Name)
+	if err != nil {
+		l.LogFile.RotateNowSize = 0
+	} else {
+		l.LogFile.RotateNowSize = size
+	}
+
+	if l.LogFile.RotateNum < 2 {
+		return nil
+	}
+
+	list, err := getFileList(l.LogFile.Name)
+	if err != nil {
+		l.LogFile.RotateNextNum = 1
+	} else {
+		if int64(len(list)) < l.LogFile.RotateNum {
+			l.LogFile.RotateNextNum = int64(len(list))
+		} else {
+			maxf := list[0]
+			for _, v := range list {
+				if v[0].(string) != l.LogFile.Name {
+					if v[1].(int64) < maxf[1].(int64) {
+						maxf = v
+					}
+				}
+			}
+			fs := strings.Split(maxf[0].(string), ".")
+			num, _ := strconv.Atoi(fs[len(fs)-1])
+			l.LogFile.RotateNextNum = int64(num)
 		}
 	}
+
+	return nil
+}
+
+// writeLog get log from queue and write
+func (l *Logger) writeLog() {
+	t := time.NewTicker(1 * time.Second)
+	for {
+		select {
+		case <-t.C:
+			if l.LogFile.RotateType == "" {
+				continue
+			}
+			if l.LogFile.RotateNum < 2 {
+				continue
+			}
+			today := time.Now().Format("2006-01-02")
+			if l.LogFile.RotateType == "date" {
+				if today != l.LogFile.RotateNowDate {
+					l.LogFile.RotateNowDate = today
+					l.LogFile.RotateNowSize = 0
+					l.rotateFile()
+				}
+			}
+			if l.LogFile.RotateSize > 0 {
+				if l.LogFile.RotateNowSize >= l.LogFile.RotateSize {
+					l.LogFile.RotateNowDate = today
+					l.LogFile.RotateNowSize = 0
+					l.rotateFile()
+				}
+			}
+		case s, ok := <-l.LogQueue:
+			if !ok {
+				l.LogFile.Fd.Close()
+				return
+			}
+			_, err := fmt.Fprintf(l.LogFile.Writer, s)
+			if err == nil {
+				l.LogFile.RotateNowSize += int64(len(s))
+			}
+		}
+	}
+}
+
+// rotateFile do rotate log file
+func (l *Logger) rotateFile() (err error) {
+	l.LogFile.Fd.Close()
+
+	err = os.Rename(l.LogFile.Name, fmt.Sprintf("%s.%d", l.LogFile.Name, l.LogFile.RotateNextNum))
+	if err != nil {
+		return
+	}
+
+	l.LogFile.RotateNextNum += 1
+	if l.LogFile.RotateNextNum >= l.LogFile.RotateNum {
+		l.LogFile.RotateNextNum = 1
+	}
+
+	fd, err := openFile(l.LogFile.Name)
+	if err != nil {
+		return err
+	}
+
+	l.LogFile.Fd = fd
+	l.LogFile.Writer = fd
+
+	return
 }
 
 // Log do log a msg
@@ -180,4 +306,35 @@ func (l *Logger) Error(msg string, args ...interface{}) {
 func (l *Logger) Fatal(msg string, args ...interface{}) {
 	l.Log("FATAL", msg, args...)
 	os.Exit(1)
+}
+
+// getFileSize returns file size
+func getFileSize(fname string) (int64, error) {
+	f, err := os.Stat(fname)
+	if err != nil {
+		return 0, err
+	}
+
+	return f.Size(), nil
+}
+
+// getFileList returns file list
+func getFileList(fname string) (result [][]interface{}, err error) {
+	result = [][]interface{}{}
+
+	fs, err := filepath.Glob(fname + "*")
+	if err != nil {
+		return
+	}
+
+	for _, f := range fs {
+		fd, e := os.Stat(f)
+		if e != nil {
+			err = e
+			return
+		}
+		result = append(result, []interface{}{f, fd.ModTime().Unix()})
+	}
+
+	return
 }
