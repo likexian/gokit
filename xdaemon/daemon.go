@@ -27,6 +27,21 @@ type Config struct {
 }
 
 
+func Version() string {
+    return "0.1.0"
+}
+
+
+func Author() string {
+    return "[Li Kexian](https://www.likexian.com/)"
+}
+
+
+func License() string {
+    return "Apache License, Version 2.0"
+}
+
+
 func (c *Config) Daemon() (err error) {
     err = DoDaemon(c.Log, c.Chdir)
     if err != nil {
