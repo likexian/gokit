@@ -2,11 +2,10 @@
  * Go module for doing daemon
  * https://www.likexian.com/
  *
- * Copyright 2015-2016, Li Kexian
+ * Copyright 2015-2019, Li Kexian
  * Released under the Apache License, Version 2.0
  *
  */
-
 
 package daemon
 
