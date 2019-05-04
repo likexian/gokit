@@ -1,6 +1,6 @@
-# GoKit - workqueue
+# GoKit - xlump
 
-Work Queue kits for Golang development.
+Lump kits for Golang development.
 
 ## Installation
 
@@ -9,7 +9,7 @@ Work Queue kits for Golang development.
 ## Importing
 
     import (
-        "github.com/likexian/gokit/workqueue"
+        "github.com/likexian/gokit/xlump"
     )
 
 ## How it work
@@ -24,7 +24,7 @@ Work Queue kits for Golang development.
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/workqueue)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xlump)
 
 ## Example
 
@@ -32,17 +32,17 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/workqueue)
 
 ```go
 // Worker: Plus 1 to every number
-mathPlus := func(t workqueue.Task) workqueue.Task {
+mathPlus := func(t xlump.Task) xlump.Task {
     return t.(int) + 1
 }
 
 // Merger: Sum to total
-mathSum := func(r workqueue.Task, t workqueue.Task) workqueue.Task {
+mathSum := func(r xlump.Task, t xlump.Task) xlump.Task {
     return r.(int) + t.(int)
 }
 
 // New a work queue
-wq := workqueue.New(100)
+wq := xlump.New(100)
 // Set Worker func
 wq.SetWorker(mathPlus, 10)
 // Set Merger func

@@ -17,7 +17,7 @@
  * https://www.likexian.com/
  */
 
-package workqueue
+package xlump
 
 import (
 	"fmt"
@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestVersion(t *testing.T) {
@@ -102,6 +103,7 @@ func TestHttpStatus(t *testing.T) {
 		http.ListenAndServe("127.0.0.1:6666", nil)
 	}()
 
+	time.Sleep(1 * time.Second)
 	getStatus := func(t Task) Task {
 		rsp, err := xhttp.New().Get(fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
 		if err != nil {
