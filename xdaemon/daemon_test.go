@@ -9,24 +9,23 @@
 
 package daemon
 
-
 import (
-    "testing"
+	"testing"
 )
 
-
 func TestDaemon(t *testing.T) {
-    c := Config {
-        Pid:   "/tmp/test.pid",
-        Log:   "/tmp/test.log",
-        User:  "nobody",
-        Chdir: "/",
-    }
+	c := Config{
+		Pid:   "/tmp/test.pid",
+		Log:   "/tmp/test.log",
+		User:  "nobody",
+		Chdir: "/",
+	}
 
-    err := c.Daemon()
-    if err != nil {
-        panic(err)
-    }
+	err := c.Daemon()
+	if err != nil {
+		panic(err)
+	}
 
-    for {}
+	for {
+	}
 }
