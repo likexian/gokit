@@ -1,13 +1,23 @@
 /*
- * Go module for sending email
+ * Copyright 2012-2019 Li Kexian
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * A toolkit for Golang development
  * https://www.likexian.com/
- *
- * Copyright 2015-2019, Li Kexian
- * Released under the Apache License, Version 2.0
- *
  */
 
-package mailer
+package xmailer
 
 import (
 	"bytes"
@@ -48,7 +58,7 @@ type Message struct {
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -58,7 +68,7 @@ func Author() string {
 
 // License returns package license
 func License() string {
-	return "Apache License, Version 2.0"
+	return "Licensed under the Apache License 2.0"
 }
 
 // New returns a new mailer
@@ -67,7 +77,7 @@ func New(server, username, password string, ishtml bool) (m *Message) {
 		From:        username,
 		To:          []string{username},
 		Subject:     "Mailer Test",
-		Body:        "Hello World. This is mailer via github.com/likexian/mailer-go.",
+		Body:        "Hello World. This is mailer via github.com/likexian/gokit/xmailer.",
 		Attachments: make(map[string]*Attachment),
 	}
 
@@ -137,7 +147,7 @@ func (m *Message) innerBody() (body []byte) {
 	buf.WriteString("Subject: " + m.Subject + "\r\n")
 	buf.WriteString("X-Priority: 3\r\n")
 	buf.WriteString("MIME-Version: 1.0\r\n")
-	buf.WriteString("X-Mailer: github.com/likexian/mailer-go\r\n")
+	buf.WriteString("X-Mailer: github.com/likexian/gokit/xmailer\r\n")
 	buf.WriteString("Content-Type: multipart/mixed; boundary=" + boundary + "\r\n\r\n")
 
 	buf.WriteString("This is a multi-part message in MIME format.\r\n")
