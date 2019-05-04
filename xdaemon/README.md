@@ -1,8 +1,11 @@
 # daemon.go
 
-daemon-go is a Go module for doing daemon.
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![GoDoc](https://godoc.org/github.com/likexian/daemon-go?status.svg)](https://godoc.org/github.com/likexian/daemon-go)
+[![Build Status](https://travis-ci.org/likexian/daemon-go.svg?branch=master)](https://travis-ci.org/likexian/daemon-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/daemon-go)](https://goreportcard.com/report/github.com/likexian/daemon-go)
 
-[![Build Status](https://secure.travis-ci.org/likexian/daemon-go.png)](https://secure.travis-ci.org/likexian/daemon-go)
+daemon-go is a Go module for doing daemon.
 
 ## Overview
 

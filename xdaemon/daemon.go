@@ -11,13 +11,12 @@ package daemon
 
 
 import (
-    "fmt"
     "os"
     "syscall"
-    "io/ioutil"
 )
 
 
+// Config storing config for daemon
 type Config struct {
     Pid   string
     Log   string
@@ -26,36 +25,40 @@ type Config struct {
 }
 
 
+// Version returns package version
 func Version() string {
-    return "0.1.0"
+    return "0.3.0"
 }
 
 
+// Author returns package author
 func Author() string {
     return "[Li Kexian](https://www.likexian.com/)"
 }
 
 
+// License returns package license
 func License() string {
     return "Apache License, Version 2.0"
 }
 
 
+// Daemon start to daemon
 func (c *Config) Daemon() (err error) {
-    err = DoDaemon(c.Log, c.Chdir)
+    err = c.doDaemon()
     if err != nil {
         return
     }
 
     if c.Pid != "" {
-        err = WritePid(c.Pid)
+        err = writePid(c.Pid)
         if err != nil {
             return
         }
     }
 
     if c.User != "" {
-        err = SetUser(c.User)
+        err = setUser(c.User)
         if err != nil {
             return
         }
@@ -65,11 +68,12 @@ func (c *Config) Daemon() (err error) {
 }
 
 
-func DoDaemon(log, chdir string) (err error) {
+// Doing the daemon
+func (c *Config) doDaemon() (err error) {
     syscall.Umask(0)
 
-    if chdir != "" {
-        os.Chdir(chdir)
+    if c.Chdir != "" {
+        os.Chdir(c.Chdir)
     }
 
     if syscall.Getppid() == 1 {
@@ -77,8 +81,8 @@ func DoDaemon(log, chdir string) (err error) {
     }
 
     files := make([]*os.File, 3, 6)
-    if log != "" {
-        fp, err := os.OpenFile(log, os.O_WRONLY | os.O_CREATE | os.O_APPEND, 0644)
+    if c.Log != "" {
+        fp, err := os.OpenFile(c.Log, os.O_WRONLY | os.O_CREATE | os.O_APPEND, 0644)
         if err != nil {
             return err
         }
@@ -103,33 +107,6 @@ func DoDaemon(log, chdir string) (err error) {
 
     proc.Release()
     os.Exit(0)
-
-    return
-}
-
-
-func WritePid(pid string) (err error) {
-    id := fmt.Sprintf("%d\n", os.Getpid())
-    err = ioutil.WriteFile(pid, []byte(id), 0644)
-    return
-}
-
-
-func SetUser(user string) (err error) {
-    uid, gid, err := LookupUser(user)
-    if err != nil {
-        return
-    }
-
-    err = Setgid(gid)
-    if err != nil {
-        return
-    }
-
-    err = Setuid(uid)
-    if err != nil {
-        return
-    }
 
     return
 }

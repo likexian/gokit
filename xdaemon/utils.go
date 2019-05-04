@@ -11,43 +11,37 @@ package daemon
 
 
 import(
+    "fmt"
     "errors"
     "strings"
     "strconv"
     "syscall"
     "io/ioutil"
+    "os"
 )
 
 
-func LookupUser(name string) (uid, gid int, err error) {
-    text, err := ioutil.ReadFile("/etc/passwd")
-    if err != nil {
-        return
-    }
-    result := string(text)
+// Write the pid file
+func writePid(pid string) (err error) {
+    id := fmt.Sprintf("%d\n", os.Getpid())
+    err = ioutil.WriteFile(pid, []byte(id), 0644)
+    return
+}
 
-    s_uid := ""
-    s_gid := ""
-    lines := strings.Split(result, "\n")
-    for _, v := range lines {
-        ls := strings.Split(v, ":")
-        if ls[0] == name {
-            s_uid = ls[2]
-            s_gid = ls[3]
-        }
-    }
 
-    if s_uid == "" || s_gid == "" {
-        err = errors.New("User not exits")
-        return
-    }
-
-    gid, err = strconv.Atoi(s_gid)
+// Set process user
+func setUser(user string) (err error) {
+    uid, gid, err := lookupUser(user)
     if err != nil {
         return
     }
 
-    uid, err = strconv.Atoi(s_uid)
+    err = setGid(gid)
+    if err != nil {
+        return
+    }
+
+    err = setUid(uid)
     if err != nil {
         return
     }
@@ -56,7 +50,46 @@ func LookupUser(name string) (uid, gid int, err error) {
 }
 
 
-func Setuid(uid int) (err error) {
+// lookupUser find the user's uid and gid
+func lookupUser(name string) (uid, gid int, err error) {
+    text, err := ioutil.ReadFile("/etc/passwd")
+    if err != nil {
+        return
+    }
+
+    sUid := ""
+    sGid := ""
+
+    lines := strings.Split(string(text), "\n")
+    for _, v := range lines {
+        ls := strings.Split(v, ":")
+        if ls[0] == name {
+            sUid = ls[2]
+            sGid = ls[3]
+        }
+    }
+
+    if sUid == "" || sGid == "" {
+        err = errors.New("User not exits")
+        return
+    }
+
+    gid, err = strconv.Atoi(sGid)
+    if err != nil {
+        return
+    }
+
+    uid, err = strconv.Atoi(sUid)
+    if err != nil {
+        return
+    }
+
+    return
+}
+
+
+// setUid set the uid of process
+func setUid(uid int) (err error) {
     _, _, errno := syscall.RawSyscall(syscall.SYS_SETUID, uintptr(uid), 0, 0)
     if errno != 0 {
         err = errno
@@ -66,7 +99,8 @@ func Setuid(uid int) (err error) {
 }
 
 
-func Setgid(gid int) (err error) {
+// setGid set the gid of process
+func setGid(gid int) (err error) {
     _, _, errno := syscall.RawSyscall(syscall.SYS_SETGID, uintptr(gid), 0, 0)
     if errno != 0 {
         err = errno
