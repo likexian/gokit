@@ -328,7 +328,7 @@ func ToFloat64(v interface{}) (float64, error) {
 func If(c bool, x, y interface{}) interface{} {
 	if c {
 		return x
-	} else {
-		return y
 	}
+
+	return y
 }
