@@ -17,7 +17,7 @@
  * https://www.likexian.com/
  */
 
-package logger
+package xlog
 
 import (
 	"crypto/md5"

@@ -17,7 +17,7 @@
  * https://www.likexian.com/
  */
 
-package logger
+package xlog
 
 import (
 	"github.com/likexian/gokit/assert"
@@ -64,7 +64,7 @@ func TestLogger(t *testing.T) {
 	log.Error("This is %s", "Args")
 	log.Error("")
 	log.Close()
-	log.Error("Test logger closed")
+	log.Error("Test log closed")
 
 	// log to file
 	defer os.Remove("test.log")

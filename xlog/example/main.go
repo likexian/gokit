@@ -20,7 +20,7 @@
 package main
 
 import (
-	"github.com/likexian/logger-go"
+	"github.com/likexian/gokit/xlog"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func main() {
 
 // dailyLog do log rotate daily
 func dailyLog() {
-	log, err := logger.File("test.daily.log", logger.DEBUG)
+	log, err := xlog.File("test.daily.log", xlog.DEBUG)
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,7 @@ func dailyLog() {
 
 // sizeLog do log rotate by size
 func sizeLog() {
-	log, err := logger.File("test.size.log", logger.DEBUG)
+	log, err := xlog.File("test.size.log", xlog.DEBUG)
 	if err != nil {
 		panic(err)
 	}

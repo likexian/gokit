@@ -1,4 +1,4 @@
-# GoKit - logger
+# GoKit - xlog
 
 Log kits for Golang development.
 
@@ -9,28 +9,28 @@ Log kits for Golang development.
 ## Importing
 
     import (
-        "github.com/likexian/gokit/logger"
+        "github.com/likexian/gokit/xlog"
     )
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/logger)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xlog)
 
 ## Example
 
 ### Do logging to stderr
 
 ```go
-log := logger.New(os.Stderr, logger.INFO)
+log := xlog.New(os.Stderr, xlog.INFO)
 log.Info("This is Info")
-log.SetLevel(logger.DEBUG)
+log.SetLevel(xlog.DEBUG)
 log.Debug("This is Debug")
 ```
 
 ### Do logging to a file
 
 ```go
-flog, err := logger.File("test.log", logger.DEBUG)
+flog, err := xlog.File("test.log", xlog.DEBUG)
 if err != nil {
     panic(err)
 }
