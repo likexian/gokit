@@ -1,4 +1,4 @@
-Copyright 2015, Kexian Li
+Copyright 2015, Li Kexian
 
     https://www.likexian.com/
 
