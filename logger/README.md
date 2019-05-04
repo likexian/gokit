@@ -1,53 +1,48 @@
-# logger.go
+# GoKit - logger
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/likexian/logger-go?status.svg)](https://godoc.org/github.com/likexian/logger-go)
-[![Build Status](https://travis-ci.org/likexian/logger-go.svg?branch=master)](https://travis-ci.org/likexian/logger-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/logger-go)](https://goreportcard.com/report/github.com/likexian/logger-go)
-
-logger-go is a simple Go module for doing logging.
-
-## Overview
-
-It will do logging in the simple and easy way.
+Log kits for Golang development.
 
 ## Installation
 
-    go get github.com/likexian/logger-go
+    go get -u github.com/likexian/gokit
 
 ## Importing
 
     import (
-        "github.com/likexian/logger-go"
+        "github.com/likexian/gokit/logger"
     )
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/logger-go)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/logger)
 
 ## Example
 
 ### Do logging to stderr
 
-    log := logger.New(os.Stderr, logger.INFO)
-    log.Info("This is Info")
-    log.SetLevel(logger.DEBUG)
-    log.Debug("This is Debug")
+```go
+log := logger.New(os.Stderr, logger.INFO)
+log.Info("This is Info")
+log.SetLevel(logger.DEBUG)
+log.Debug("This is Debug")
+```
 
 ### Do logging to a file
 
-    flog, err := logger.File("test.log", logger.DEBUG)
-    if err != nil {
-        panic(err)
-    }
-    flog.Debug("This is Debug")
-    flog.Info("This is Info")
+```go
+flog, err := logger.File("test.log", logger.DEBUG)
+if err != nil {
+    panic(err)
+}
+flog.Debug("This is Debug")
+flog.Info("This is Info")
+```
 
 ## LICENSE
 
-Copyright 2015-2019, Li Kexian
+Copyright 2012-2019 Li Kexian
 
-Apache License, Version 2.0
+Licensed under the Apache License 2.0
 
 ## About
 
