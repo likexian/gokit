@@ -75,14 +75,14 @@ Do sending
 
 ## LICENSE
 
-Copyright 2015-2018, Li Kexian
+Copyright 2015-2019, Li Kexian
 
 Apache License, Version 2.0
-
-## DONATE
-
-- [Help me make perfect](https://www.likexian.com/donate/)
 
 ## About
 
 - [Li Kexian](https://www.likexian.com/)
+
+## DONATE
+
+- [Help me make perfect](https://www.likexian.com/donate/)
