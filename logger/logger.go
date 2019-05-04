@@ -10,6 +10,7 @@
 package logger
 
 import (
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"io"
@@ -43,7 +44,12 @@ type Logger struct {
 	LogLevel LogLevel
 	LogQueue chan string
 	Closed   bool
-	sync.Mutex
+}
+
+// OnceCache storing once cache
+type OnceCache struct {
+	Data map[string]int64
+	sync.RWMutex
 }
 
 // Log level const
@@ -64,9 +70,12 @@ var levels = map[string]LogLevel{
 	"fatal": FATAL,
 }
 
+// log once cache
+var onceCache = OnceCache{Data: map[string]int64{}}
+
 // Version returns package version
 func Version() string {
-	return "0.9.0"
+	return "1.0.0"
 }
 
 // Author returns package author
@@ -139,7 +148,7 @@ func (l *Logger) GetLevelByString(level string) LogLevel {
 	return -1
 }
 
-// SetDailyLogRotate set daily log rotate
+// SetDailyRotate set daily log rotate
 func (l *Logger) SetDailyRotate(rotateNum int64) error {
 	return l.SetRotate("date", rotateNum, 0)
 }
@@ -282,6 +291,25 @@ func (l *Logger) Log(level string, msg string, args ...interface{}) {
 	l.LogQueue <- fmt.Sprintf(str, args...)
 }
 
+// LogOnce do log a msg only one times
+func (l *Logger) LogOnce(level string, msg string, args ...interface{}) {
+	str := fmt.Sprintf("%s-%s", level, msg)
+	key := md5Sum(fmt.Sprintf(str, args...))
+
+	onceCache.RLock()
+	_, ok := onceCache.Data[key]
+	onceCache.RUnlock()
+	if ok {
+		return
+	}
+
+	onceCache.Lock()
+	onceCache.Data[key] = time.Now().Unix()
+	onceCache.Unlock()
+
+	l.Log(level, msg, args...)
+}
+
 // Debug level msg logging
 func (l *Logger) Debug(msg string, args ...interface{}) {
 	l.Log("DEBUG", msg, args...)
@@ -292,7 +320,7 @@ func (l *Logger) Info(msg string, args ...interface{}) {
 	l.Log("INFO", msg, args...)
 }
 
-// Warning level msg logging
+// Warn level msg logging
 func (l *Logger) Warn(msg string, args ...interface{}) {
 	l.Log("WARN", msg, args...)
 }
@@ -306,6 +334,31 @@ func (l *Logger) Error(msg string, args ...interface{}) {
 func (l *Logger) Fatal(msg string, args ...interface{}) {
 	l.Log("FATAL", msg, args...)
 	os.Exit(1)
+}
+
+// DebugOnce level msg logging
+func (l *Logger) DebugOnce(msg string, args ...interface{}) {
+	l.LogOnce("DEBUG", msg, args...)
+}
+
+// InfoOnce level msg logging
+func (l *Logger) InfoOnce(msg string, args ...interface{}) {
+	l.LogOnce("INFO", msg, args...)
+}
+
+// WarnOnce level msg logging
+func (l *Logger) WarnOnce(msg string, args ...interface{}) {
+	l.LogOnce("WARN", msg, args...)
+}
+
+// ErrorOnce level msg logging
+func (l *Logger) ErrorOnce(msg string, args ...interface{}) {
+	l.LogOnce("ERROR", msg, args...)
+}
+
+// FatalOnce level msg logging, followed by a call to os.Exit(1)
+func (l *Logger) FatalOnce(msg string, args ...interface{}) {
+	l.LogOnce("FATAL", msg, args...)
 }
 
 // getFileSize returns file size
@@ -337,4 +390,9 @@ func getFileList(fname string) (result [][]interface{}, err error) {
 	}
 
 	return
+}
+
+// md5Sum returns hex md5 of string
+func md5Sum(str string) string {
+	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
 }

@@ -65,6 +65,20 @@ func TestLogger(t *testing.T) {
 	time.Sleep(1 * time.Second)
 }
 
+func TestLogOnce(t *testing.T) {
+	// log to stderr
+	log := New(os.Stderr, DEBUG)
+
+	log.WarnOnce("This only log once")
+	log.WarnOnce("This only log once")
+	log.WarnOnce("This only log once, %d", 1)
+	log.WarnOnce("This only log once, %d", 1)
+	log.WarnOnce("This only log once, %d", 2)
+
+	// wait for queue empty
+	time.Sleep(1 * time.Second)
+}
+
 func TestConcurrency(t *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
