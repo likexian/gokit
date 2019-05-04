@@ -23,16 +23,21 @@ import (
 )
 
 
+// Attachment storing mail attachment
 type Attachment struct {
     Name        string
     Content     []byte
 }
 
+
+// Auth storing mail auth
 type Auth struct {
     Server      string
     Auth        smtp.Auth
 }
 
+
+// Message storing mail message
 type Message struct {
     From        string
     To          []string
@@ -46,21 +51,25 @@ type Message struct {
 }
 
 
+// Version returns package version
 func Version() string {
-    return "0.1.0"
+    return "0.3.0"
 }
 
 
+// Author returns package author
 func Author() string {
     return "[Li Kexian](https://www.likexian.com/)"
 }
 
 
+// License returns package license
 func License() string {
     return "Apache License, Version 2.0"
 }
 
 
+// New returns a new mailer
 func New(server, username, password string, ishtml bool) (m *Message) {
     m = &Message{
         From: username,
@@ -86,6 +95,7 @@ func New(server, username, password string, ishtml bool) (m *Message) {
 }
 
 
+// Attach add a attachment
 func (m *Message) Attach(fname string) (err error) {
     data, err := ioutil.ReadFile(fname)
     if err != nil {
@@ -102,11 +112,13 @@ func (m *Message) Attach(fname string) (err error) {
 }
 
 
+// Send do the sending
 func (m *Message) Send() (err error) {
     return smtp.SendMail(m.Auth.Server, m.Auth.Auth, m.From, m.innerTo(), m.innerBody())
 }
 
 
+// innerTo returns mail receipt
 func (m *Message) innerTo() (to []string) {
     to = m.To
     for _, v := range m.Cc {
@@ -121,6 +133,7 @@ func (m *Message) innerTo() (to []string) {
 }
 
 
+// innerBody returns mail body
 func (m *Message) innerBody() (body []byte) {
     now := time.Now()
     date := now.Format(time.RFC822)

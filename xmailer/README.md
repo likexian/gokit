@@ -1,8 +1,11 @@
 # mailer.go
 
-mailer-go is a simple Go module for sending email.
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![GoDoc](https://godoc.org/github.com/likexian/mailer-go?status.svg)](https://godoc.org/github.com/likexian/mailer-go)
+[![Build Status](https://travis-ci.org/likexian/mailer-go.svg?branch=master)](https://travis-ci.org/likexian/mailer-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/mailer-go)](https://goreportcard.com/report/github.com/likexian/mailer-go)
 
-[![Build Status](https://secure.travis-ci.org/likexian/mailer-go.png)](https://secure.travis-ci.org/likexian/mailer-go)
+mailer-go is a simple Go module for sending smtp email.
 
 ## Overview
 
@@ -20,17 +23,6 @@ Help you sending email in the simple and easy way. Sending attachment is support
 
 ## Documentation
 
-type Message
-
-    type Message struct {
-        From        string
-        To          []string
-        Cc          []string
-        Bcc         []string
-        Subject     string
-        Body        string
-    }
-
 Init a mailer
 
     func New(server, username, password string, ishtml bool) (m *Message)
@@ -47,7 +39,7 @@ Do sending
 
     // Set the smtp info
     // New("smtp server:port", "smtp username", "smtp password", "is html mail")
-    m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", true)
+    m := mailer.New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", true)
 
     // Set email from
     m.From = "i@likexian.com"
