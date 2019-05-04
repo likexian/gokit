@@ -23,17 +23,17 @@ type LogLevel int
 
 // LogFile storing log file
 type LogFile struct {
-	Name 		string
-	Fd          *os.File
-	Writer 		io.Writer
+	Name   string
+	Fd     *os.File
+	Writer io.Writer
 }
 
 // Logger storing logger
 type Logger struct {
-	LogFile 	LogFile
-	LogLevel  	LogLevel
-	Queue  		chan string
-	Closed 		bool
+	LogFile  LogFile
+	LogLevel LogLevel
+	LogQueue chan string
+	Closed   bool
 	sync.Mutex
 }
 
@@ -48,11 +48,11 @@ const (
 
 // log level mapper
 var levels = map[string]LogLevel{
-	"debug":    DEBUG,
-	"info":     INFO,
-	"warn":  	WARN,
-	"error":    ERROR,
-	"fatal": 	FATAL,
+	"debug": DEBUG,
+	"info":  INFO,
+	"warn":  WARN,
+	"error": ERROR,
+	"fatal": FATAL,
 }
 
 // Version returns package version
@@ -87,10 +87,10 @@ func File(fname string, level LogLevel) (*Logger, error) {
 // newLogger returns a new file logger
 func newFile(lf LogFile, level LogLevel) *Logger {
 	l := &Logger{
-		LogFile: 	lf,
-		LogLevel: 	level,
-		Queue: 		make(chan string, 10000),
-		Closed: 	false,
+		LogFile:  lf,
+		LogLevel: level,
+		LogQueue: make(chan string, 10000),
+		Closed:   false,
 	}
 	go l.writeLog()
 	return l
@@ -99,7 +99,7 @@ func newFile(lf LogFile, level LogLevel) *Logger {
 // Close close the logger
 func (l *Logger) Close() {
 	l.Closed = true
-	close(l.Queue)
+	close(l.LogQueue)
 }
 
 // SetLevel set the log level by int level
@@ -128,7 +128,7 @@ func (l *Logger) GetLevelByString(level string) LogLevel {
 // writeLog get log from queue and write
 func (l *Logger) writeLog() {
 	for {
-		t, ok := <- l.Queue
+		t, ok := <-l.LogQueue
 		if !ok {
 			l.LogFile.Fd.Close()
 			return
@@ -153,7 +153,7 @@ func (l *Logger) Log(level string, msg string, args ...interface{}) {
 	now := time.Now().Format("2006-01-02 15:04:05")
 	str := fmt.Sprintf("%s [%s] %s\n", now, strings.ToUpper(level), msg)
 
-	l.Queue <- fmt.Sprintf(str, args...)
+	l.LogQueue <- fmt.Sprintf(str, args...)
 }
 
 // Debug level msg logging

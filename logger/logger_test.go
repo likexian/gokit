@@ -11,8 +11,8 @@ package logger
 
 import (
 	"os"
-	"time"
 	"testing"
+	"time"
 )
 
 func TestLogger(t *testing.T) {
@@ -62,4 +62,30 @@ func TestLogger(t *testing.T) {
 
 	// wait for queue empty
 	time.Sleep(1 * time.Second)
+}
+
+func TestConcurrency(t *testing.T) {
+	// log to stderr
+	log := New(os.Stderr, DEBUG)
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			log.Info("This is %d", i)
+		}(i)
+	}
+
+	// log to file
+	flog, err := File("test.log", DEBUG)
+	if err != nil {
+		panic(err)
+	}
+	for i := 0; i < 10000; i++ {
+		go func(i int) {
+			flog.Info("This is %d", i)
+		}(i)
+	}
+
+	// wait for queue empty
+	time.Sleep(1 * time.Second)
+	log.Close()
+	flog.Close()
 }
