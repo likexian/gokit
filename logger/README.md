@@ -62,7 +62,7 @@ Do a CRITICAL logging
 
     log := logger.New(os.Stderr, logger.INFO)
     log.Info("This is Info")
-    log.SetLevel(DEBUG)
+    log.SetLevel(logger.DEBUG)
     log.Debug("This is Debug")
 
 ### Do logging to a file
@@ -76,9 +76,13 @@ Do a CRITICAL logging
 
 ## LICENSE
 
-Copyright 2015, Li Kexian
+Copyright 2015-2018, Li Kexian
 
 Apache License, Version 2.0
+
+## DONATE
+
+- [Help me make perfect](https://www.likexian.com/donate/)
 
 ## About
 
