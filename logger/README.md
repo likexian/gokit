@@ -23,41 +23,7 @@ It will do logging in the simple and easy way.
 
 ## Documentation
 
-Init a logger
-
-    func New(w io.Writer, level Level) *Logger
-
-Init a file logger
-
-    func File(fname string, level Level) (*Logger, error)
-
-Setting log level
-
-    func (l *Logger) SetLevelString(level string) error
-
-Do a DEBUG logging
-
-    func (l *Logger) Debug(msg string, args ...interface{}) error
-
-Do a INFO logging
-
-    func (l *Logger) Info(msg string, args ...interface{}) error
-
-Do a NOTICE logging
-
-    func (l *Logger) Notice(msg string, args ...interface{}) error
-
-Do a WARNING logging
-
-    func (l *Logger) Warning(msg string, args ...interface{}) error
-
-Do a ERROR logging
-
-    func (l *Logger) Error(msg string, args ...interface{}) error
-
-Do a CRITICAL logging
-
-    func (l *Logger) Critical(msg string, args ...interface{}) error
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/logger-go)
 
 ## Example
 

@@ -18,10 +18,8 @@ func TestLogger(t *testing.T) {
 	log := New(os.Stderr, DEBUG)
 	log.Debug("This is Debug")
 	log.Info("This is Info")
-	log.Notice("This is Notice")
-	log.Warning("This is Warning")
+	log.Warn("This is Warn")
 	log.Error("This is Error")
-	log.Critical("This is Critical")
 
 	log.Info("Now setting level to Info")
 	log.SetLevel(INFO)
@@ -30,8 +28,8 @@ func TestLogger(t *testing.T) {
 
 	log.SetLevel(INFO)
 	log.Info("Now setting level to Error")
-	log.SetLevelString("Error")
-	log.Warning("This is Warning")
+	log.SetLevelString("ERROR")
+	log.Warn("This is Warn")
 	log.Error("This is Error")
 
 	flog, err := File("test.log", DEBUG)
@@ -40,8 +38,6 @@ func TestLogger(t *testing.T) {
 	}
 	flog.Debug("This is Debug")
 	flog.Info("This is Info")
-	flog.Notice("This is Notice")
-	flog.Warning("This is Warning")
+	flog.Warn("This is Warn")
 	flog.Error("This is Error")
-	flog.Critical("This is Critical")
 }

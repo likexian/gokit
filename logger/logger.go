@@ -32,25 +32,23 @@ type Logger struct {
 const (
 	DEBUG Level = iota
 	INFO
-	NOTICE
-	WARNING
+	WARN
 	ERROR
-	CRITICAL
+	FATAL
 )
 
 // log level mapper
 var levels = map[string]Level{
 	"debug":    DEBUG,
 	"info":     INFO,
-	"notice":   NOTICE,
-	"warning":  WARNING,
+	"warn":  	WARN,
 	"error":    ERROR,
-	"critical": CRITICAL,
+	"fatal": 	FATAL,
 }
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -130,14 +128,9 @@ func (l *Logger) Info(msg string, args ...interface{}) error {
 	return l.Log("INFO", msg, args...)
 }
 
-// Notice level msg logging
-func (l *Logger) Notice(msg string, args ...interface{}) error {
-	return l.Log("NOTICE", msg, args...)
-}
-
 // Warning level msg logging
-func (l *Logger) Warning(msg string, args ...interface{}) error {
-	return l.Log("WARNING", msg, args...)
+func (l *Logger) Warn(msg string, args ...interface{}) error {
+	return l.Log("WARN", msg, args...)
 }
 
 // Error level msg logging
@@ -145,7 +138,11 @@ func (l *Logger) Error(msg string, args ...interface{}) error {
 	return l.Log("ERROR", msg, args...)
 }
 
-// Critical level msg logging
-func (l *Logger) Critical(msg string, args ...interface{}) error {
-	return l.Log("CRITICAL", msg, args...)
+// Fatal level msg logging, followed by a call to os.Exit(1)
+func (l *Logger) Fatal(msg string, args ...interface{}) {
+	err := l.Log("FATAL", msg, args...)
+	if err != nil {
+		panic(err)
+	}
+	os.Exit(1)
 }
