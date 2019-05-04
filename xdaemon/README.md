@@ -1,62 +1,44 @@
-# daemon.go
+# GoKit - xdaemon
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/likexian/daemon-go?status.svg)](https://godoc.org/github.com/likexian/daemon-go)
-[![Build Status](https://travis-ci.org/likexian/daemon-go.svg?branch=master)](https://travis-ci.org/likexian/daemon-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/daemon-go)](https://goreportcard.com/report/github.com/likexian/daemon-go)
-
-daemon-go is a Go module for doing daemon.
-
-## Overview
-
-A simple golang module for doing daemon.
-
-*Work for \*nix ONLY*
+Daemon kits for Golang development.
 
 ## Installation
 
-    go get github.com/likexian/daemon-go
+    go get -u github.com/likexian/gokit
 
 ## Importing
 
     import (
-        "github.com/likexian/daemon-go"
+        "github.com/likexian/gokit/xdaemon"
     )
 
 ## Documentation
 
-type Config
-
-    type Config struct {
-        Pid   string
-        Log   string
-        User  string
-        Chdir string
-    }
-
-Do daemon
-
-    func (c *Config) Daemon() (err error)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xdaemon)
 
 ## Example
 
-    c := daemon.Config {
-        Pid:   "/tmp/test.pid", // the pid file name
-        Log:   "/tmp/test.log", // the log file name
-        User:  "nobody",        // run daemon as user, if set, ROOT is required
-        Chdir: "/",             // change working dir
-    }
+### Do deamon
 
-    err := c.Daemon()
-    if err != nil {
-        panic(err)
-    }
+```go
+c := daemon.Config {
+    Pid:   "/tmp/test.pid", // the pid file name
+    Log:   "/tmp/test.log", // the log file name
+    User:  "nobody",        // run daemon as user, if set, ROOT is required
+    Chdir: "/",             // change working dir
+}
+
+err := c.Daemon()
+if err != nil {
+    panic(err)
+}
+```
 
 ## LICENSE
 
-Copyright 2015-2019, Li Kexian
+Copyright 2012-2019 Li Kexian
 
-Apache License, Version 2.0
+Licensed under the Apache License 2.0
 
 ## About
 
