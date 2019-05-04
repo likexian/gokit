@@ -21,7 +21,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xdaemon)
 ### Do deamon
 
 ```go
-c := daemon.Config {
+c := xdaemon.Config {
     Pid:   "/tmp/test.pid", // the pid file name
     Log:   "/tmp/test.log", // the log file name
     User:  "nobody",        // run daemon as user, if set, ROOT is required

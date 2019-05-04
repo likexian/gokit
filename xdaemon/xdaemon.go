@@ -20,6 +20,7 @@
 package xdaemon
 
 import (
+	"github.com/likexian/gokit/xos"
 	"os"
 	"syscall"
 )
@@ -34,7 +35,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.5.2"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -55,14 +56,14 @@ func (c *Config) Daemon() (err error) {
 	}
 
 	if c.Pid != "" {
-		err = writePid(c.Pid)
+		err = xos.WritePid(c.Pid)
 		if err != nil {
 			return
 		}
 	}
 
 	if c.User != "" {
-		err = SetUser(c.User)
+		err = xos.SetUser(c.User)
 		if err != nil {
 			return
 		}
