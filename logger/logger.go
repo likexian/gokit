@@ -43,6 +43,7 @@ type Logger struct {
 	LogFile  LogFile
 	LogLevel LogLevel
 	LogQueue chan string
+	LogExit  chan bool
 	Closed   bool
 }
 
@@ -75,7 +76,7 @@ var onceCache = OnceCache{Data: map[string]int64{}}
 
 // Version returns package version
 func Version() string {
-	return "1.0.0"
+	return "1.0.1"
 }
 
 // Author returns package author
@@ -113,6 +114,7 @@ func newLog(lf LogFile, level LogLevel) *Logger {
 		LogFile:  lf,
 		LogLevel: level,
 		LogQueue: make(chan string, 10000),
+		LogExit:  make(chan bool),
 		Closed:   false,
 	}
 	go l.writeLog()
@@ -238,6 +240,7 @@ func (l *Logger) writeLog() {
 			}
 		case s, ok := <-l.LogQueue:
 			if !ok {
+				l.LogExit <- true
 				l.LogFile.Fd.Close()
 				return
 			}
@@ -333,7 +336,8 @@ func (l *Logger) Error(msg string, args ...interface{}) {
 // Fatal level msg logging, followed by a call to os.Exit(1)
 func (l *Logger) Fatal(msg string, args ...interface{}) {
 	l.Log("FATAL", msg, args...)
-	os.Exit(1)
+	l.Close()
+	l.exit(1)
 }
 
 // DebugOnce level msg logging
@@ -359,6 +363,14 @@ func (l *Logger) ErrorOnce(msg string, args ...interface{}) {
 // FatalOnce level msg logging, followed by a call to os.Exit(1)
 func (l *Logger) FatalOnce(msg string, args ...interface{}) {
 	l.LogOnce("FATAL", msg, args...)
+}
+
+// exit wait for queue empty and call os.Exit()
+func (l *Logger) exit(code int) {
+	select {
+	case <-l.LogExit:
+		os.Exit(code)
+	}
 }
 
 // getFileSize returns file size

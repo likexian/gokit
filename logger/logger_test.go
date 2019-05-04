@@ -116,7 +116,7 @@ func TestLogRotate(t *testing.T) {
 
 	// set rotate by filesize
 	log.SetSizeRotate(10, 100000)
-	for i := 0; i < 200000; i++ {
+	for i := 0; i < 100000; i++ {
 		wg.Add(1)
 		go func(i int) {
 			log.Info("This is a log line of log file by log thread: %d", i)
