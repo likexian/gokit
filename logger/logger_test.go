@@ -2,7 +2,7 @@
  * Go module for doing logging
  * https://www.likexian.com/
  *
- * Copyright 2015-2018, Li Kexian
+ * Copyright 2015-2019, Li Kexian
  * Released under the Apache License, Version 2.0
  *
  */

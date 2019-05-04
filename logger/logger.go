@@ -2,7 +2,7 @@
  * Go module for doing logging
  * https://www.likexian.com/
  *
- * Copyright 2015-2018, Li Kexian
+ * Copyright 2015-2019, Li Kexian
  * Released under the Apache License, Version 2.0
  *
  */
@@ -50,7 +50,7 @@ var levels = map[string]Level {
 
 
 func Version() string {
-    return "0.1.0"
+    return "0.2.0"
 }
 
 
@@ -105,9 +105,6 @@ func (l *Logger) GetLevelByString(level string) Level {
 
 
 func (l *Logger) Log(level string, msg string, args ...interface{}) error {
-    l.Lock()
-    defer l.Unlock()
-
     value := l.GetLevelByString(level)
     if l.Level > value {
         return nil
@@ -115,7 +112,10 @@ func (l *Logger) Log(level string, msg string, args ...interface{}) error {
 
     now := time.Now().Format("2006-01-02 15:04:05")
     str := fmt.Sprintf("%s [%s] %s\n", now, strings.ToUpper(level), msg)
+
+    l.Lock()
     _, err := fmt.Fprintf(l.Writer, str, args...)
+    l.Unlock()
 
     return err
 }
