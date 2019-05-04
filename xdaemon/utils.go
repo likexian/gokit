@@ -19,16 +19,9 @@ import (
 	"syscall"
 )
 
-// Write the pid file
-func writePid(pid string) (err error) {
-	id := fmt.Sprintf("%d\n", os.Getpid())
-	err = ioutil.WriteFile(pid, []byte(id), 0644)
-	return
-}
-
-// Set process user
-func setUser(user string) (err error) {
-	uid, gid, err := lookupUser(user)
+// SetUser Set process user
+func SetUser(user string) (err error) {
+	uid, gid, err := LookupUser(user)
 	if err != nil {
 		return
 	}
@@ -46,8 +39,8 @@ func setUser(user string) (err error) {
 	return
 }
 
-// lookupUser find the user's uid and gid
-func lookupUser(name string) (uid, gid int, err error) {
+// LookupUser find the user's uid and gid
+func LookupUser(name string) (uid, gid int, err error) {
 	text, err := ioutil.ReadFile("/etc/passwd")
 	if err != nil {
 		return
@@ -100,5 +93,12 @@ func setGid(gid int) (err error) {
 		err = errno
 	}
 
+	return
+}
+
+// Write the pid file
+func writePid(pid string) (err error) {
+	id := fmt.Sprintf("%d\n", os.Getpid())
+	err = ioutil.WriteFile(pid, []byte(id), 0644)
 	return
 }

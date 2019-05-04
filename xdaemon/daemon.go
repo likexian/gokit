@@ -24,7 +24,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -52,7 +52,7 @@ func (c *Config) Daemon() (err error) {
 	}
 
 	if c.User != "" {
-		err = setUser(c.User)
+		err = SetUser(c.User)
 		if err != nil {
 			return
 		}
