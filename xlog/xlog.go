@@ -55,6 +55,7 @@ type Logger struct {
 	LogQueue chan string
 	LogExit  chan bool
 	Closed   bool
+	sync.RWMutex
 }
 
 // OnceCache storing once cache
@@ -86,7 +87,7 @@ var onceCache = OnceCache{Data: map[string]int64{}}
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.2.1"
 }
 
 // Author returns package author
@@ -133,13 +134,17 @@ func newLog(lf LogFile, level LogLevel) *Logger {
 
 // Close close the logger
 func (l *Logger) Close() {
+	l.Lock()
 	l.Closed = true
+	l.Unlock()
 	close(l.LogQueue)
 }
 
 // SetLevel set the log level by int level
 func (l *Logger) SetLevel(level LogLevel) {
+	l.Lock()
 	l.LogLevel = level
+	l.Unlock()
 }
 
 // SetLevelString set the log level by string level
@@ -173,6 +178,9 @@ func (l *Logger) SetSizeRotate(rotateNum int64, rotateSize int64) error {
 // SetRotate set log rotate
 // rotateType: date: daily rotate, size: filesize rotate
 func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64) error {
+	l.Lock()
+	defer l.Unlock()
+
 	if l.LogFile.Name == "" {
 		return errors.New("Only file log support rotate")
 	}
@@ -227,43 +235,56 @@ func (l *Logger) writeLog() {
 	for {
 		select {
 		case <-t.C:
-			if l.LogFile.RotateType == "" {
+			l.RLock()
+			lf := l.LogFile
+			l.RUnlock()
+			if lf.RotateType == "" {
 				continue
 			}
-			if l.LogFile.RotateNum < 2 {
+			if lf.RotateNum < 2 {
 				continue
 			}
 			today := time.Now().Format("2006-01-02")
-			if l.LogFile.RotateType == "date" {
-				if today != l.LogFile.RotateNowDate {
+			if lf.RotateType == "date" {
+				if today != lf.RotateNowDate {
+					l.Lock()
 					l.LogFile.RotateNowDate = today
 					l.LogFile.RotateNowSize = 0
+					l.Unlock()
 					l.rotateFile()
 				}
 			}
-			if l.LogFile.RotateSize > 0 {
-				if l.LogFile.RotateNowSize >= l.LogFile.RotateSize {
+			if lf.RotateSize > 0 {
+				if lf.RotateNowSize >= lf.RotateSize {
+					l.Lock()
 					l.LogFile.RotateNowDate = today
 					l.LogFile.RotateNowSize = 0
+					l.Unlock()
 					l.rotateFile()
 				}
 			}
 		case s, ok := <-l.LogQueue:
+			l.Lock()
 			if !ok {
 				l.LogExit <- true
 				l.LogFile.Fd.Close()
+				l.Unlock()
 				return
 			}
 			_, err := fmt.Fprintf(l.LogFile.Writer, s)
 			if err == nil {
 				l.LogFile.RotateNowSize += int64(len(s))
 			}
+			l.Unlock()
 		}
 	}
 }
 
 // rotateFile do rotate log file
 func (l *Logger) rotateFile() (err error) {
+	l.Lock()
+	defer l.Unlock()
+
 	l.LogFile.Fd.Close()
 
 	err = os.Rename(l.LogFile.Name, fmt.Sprintf("%s.%d", l.LogFile.Name, l.LogFile.RotateNextNum))
