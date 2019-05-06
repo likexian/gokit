@@ -158,6 +158,30 @@ func TestFile(t *testing.T) {
 	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
 }
 
+func TestReadFirstLine(t *testing.T) {
+	defer os.RemoveAll("tmp")
+
+	err := os.Mkdir("tmp", 0755)
+	assert.Nil(t, err)
+
+	_, err = ReadFirstLine("tmp/file")
+	assert.NotNil(t, err)
+
+	err = WriteText("tmp/file", "1\n2\n3\n4\n5")
+	assert.Nil(t, err)
+
+	line, err := ReadFirstLine("tmp/file")
+	assert.Nil(t, err)
+	assert.Equal(t, line, "1")
+
+	err = WriteText("tmp/file", "\n\n\n\n\n")
+	assert.Nil(t, err)
+
+	line, err = ReadFirstLine("tmp/file")
+	assert.Nil(t, err)
+	assert.Equal(t, line, "")
+}
+
 func TestListDir(t *testing.T) {
 	defer os.RemoveAll("tmp")
 
