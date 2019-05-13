@@ -30,6 +30,13 @@ import (
 	"strings"
 )
 
+// File type list
+const (
+	TypeAll int = iota
+	TypeDir
+	TypeFile
+)
+
 // ErrNotExists file is exists error
 var ErrNotExists = errors.New("xfile: file is not exists")
 
@@ -38,14 +45,14 @@ var ErrHasExists = errors.New("xfile: file is exists")
 
 // LsFile is list file info
 type LsFile struct {
-	Type string
+	Type int
 	Path string
 	Name string
 }
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -148,7 +155,7 @@ func Copy(src, dst string) error {
 		if err != nil {
 			return err
 		}
-		ls, err := ListDir(src, "", -1)
+		ls, err := ListDir(src, TypeAll, -1)
 		if err != nil {
 			return err
 		}
@@ -279,7 +286,7 @@ func ReadFirstLine(fpath string) (line string, err error) {
 }
 
 // ListDir list dir and children, filter by type, returns up to n
-func ListDir(fpath, ftype string, n int) (ls []LsFile, err error) {
+func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 	if fpath == "" {
 		fpath = "."
 	}
@@ -302,8 +309,8 @@ func ListDir(fpath, ftype string, n int) (ls []LsFile, err error) {
 	for _, f := range fs {
 		tpath := fpath + f.Name()
 		if f.IsDir() {
-			if ftype == "" || ftype == "dir" {
-				ls = append(ls, LsFile{"dir", tpath, f.Name()})
+			if ftype == TypeAll || ftype == TypeDir {
+				ls = append(ls, LsFile{TypeDir, tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}
@@ -317,8 +324,8 @@ func ListDir(fpath, ftype string, n int) (ls []LsFile, err error) {
 				return ls, nil
 			}
 		} else {
-			if ftype == "" || ftype == "file" {
-				ls = append(ls, LsFile{"file", tpath, f.Name()})
+			if ftype == TypeAll || ftype == TypeFile {
+				ls = append(ls, LsFile{TypeFile, tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}
@@ -329,14 +336,24 @@ func ListDir(fpath, ftype string, n int) (ls []LsFile, err error) {
 	return
 }
 
+// Chmod chmod to path without recursion
+func Chmod(fpath string, mode os.FileMode) error {
+	return os.Chmod(fpath, mode)
+}
+
 // ChmodAll chmod to path and children, returns the first error it encounters
 func ChmodAll(root string, mode os.FileMode) error {
 	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		return os.Chmod(fpath, mode)
+		return Chmod(fpath, mode)
 	})
+}
+
+// Chown chown to path without recursion
+func Chown(fpath string, uid, gid int) error {
+	return os.Chown(fpath, uid, gid)
 }
 
 // ChownAll chown to path and children, returns the first error it encounters
@@ -345,7 +362,7 @@ func ChownAll(root string, uid, gid int) error {
 		if err != nil {
 			return err
 		}
-		return os.Chown(fpath, uid, gid)
+		return Chown(fpath, uid, gid)
 	})
 }
 

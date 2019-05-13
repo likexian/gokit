@@ -139,7 +139,13 @@ func TestFile(t *testing.T) {
 	ok = IsDir("tmp/link")
 	assert.False(t, ok, "file expect to be not dir")
 
+	err = Chmod("tmp", 0777)
+	assert.Nil(t, err)
+
 	err = ChmodAll("tmp", 0777)
+	assert.Nil(t, err)
+
+	err = Chown("tmp", 0, 0)
 	assert.Nil(t, err)
 
 	err = ChownAll("tmp", 0, 0)
@@ -185,11 +191,11 @@ func TestReadFirstLine(t *testing.T) {
 func TestListDir(t *testing.T) {
 	defer os.RemoveAll("tmp")
 
-	ls, err := ListDir("", "", -1)
+	ls, err := ListDir("", TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 3)
 
-	ls, err = ListDir("tmp", "", -1)
+	ls, err = ListDir("tmp", TypeAll, -1)
 	assert.NotNil(t, err)
 	assert.Equal(t, len(ls), 0)
 
@@ -199,27 +205,27 @@ func TestListDir(t *testing.T) {
 		}
 	}
 
-	ls, err = ListDir("tmp", "", -1)
+	ls, err = ListDir("tmp", TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 110)
 
-	ls, err = ListDir("tmp", "dir", -1)
+	ls, err = ListDir("tmp", TypeDir, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 10)
 
-	ls, err = ListDir("tmp", "file", -1)
+	ls, err = ListDir("tmp", TypeFile, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 100)
 
-	ls, err = ListDir("tmp", "", 5)
+	ls, err = ListDir("tmp", TypeAll, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDir("tmp", "dir", 5)
+	ls, err = ListDir("tmp", TypeDir, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDir("tmp", "file", 5)
+	ls, err = ListDir("tmp", TypeFile, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 }
@@ -255,7 +261,7 @@ func TestCopy(t *testing.T) {
 	err = Copy("tmp/0", "tmp/102")
 	assert.Nil(t, err)
 	assert.True(t, Exists("tmp/102"))
-	ls, err := ListDir("tmp/0", "", -1)
+	ls, err := ListDir("tmp/0", TypeAll, -1)
 	assert.Nil(t, err)
 	for _, v := range ls {
 		assert.True(t, Exists("tmp/102/"+v.Name))
