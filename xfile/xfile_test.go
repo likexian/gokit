@@ -200,6 +200,7 @@ func TestListDir(t *testing.T) {
 	assert.Equal(t, len(ls), 0)
 
 	for i := 0; i < 10; i++ {
+		WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
 		for j := 0; j < 10; j++ {
 			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
 		}
@@ -207,7 +208,7 @@ func TestListDir(t *testing.T) {
 
 	ls, err = ListDir("tmp", TypeAll, -1)
 	assert.Nil(t, err)
-	assert.Equal(t, len(ls), 110)
+	assert.Equal(t, len(ls), 20)
 
 	ls, err = ListDir("tmp", TypeDir, -1)
 	assert.Nil(t, err)
@@ -215,7 +216,7 @@ func TestListDir(t *testing.T) {
 
 	ls, err = ListDir("tmp", TypeFile, -1)
 	assert.Nil(t, err)
-	assert.Equal(t, len(ls), 100)
+	assert.Equal(t, len(ls), 10)
 
 	ls, err = ListDir("tmp", TypeAll, 5)
 	assert.Nil(t, err)
@@ -226,6 +227,49 @@ func TestListDir(t *testing.T) {
 	assert.Equal(t, len(ls), 5)
 
 	ls, err = ListDir("tmp", TypeFile, 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
+}
+
+func TestListDirAll(t *testing.T) {
+	defer os.RemoveAll("tmp")
+
+	ls, err := ListDirAll("", TypeAll, -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 3)
+
+	ls, err = ListDirAll("tmp", TypeAll, -1)
+	assert.NotNil(t, err)
+	assert.Equal(t, len(ls), 0)
+
+	for i := 0; i < 10; i++ {
+		WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
+		for j := 0; j < 10; j++ {
+			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+		}
+	}
+
+	ls, err = ListDirAll("tmp", TypeAll, -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 120)
+
+	ls, err = ListDirAll("tmp", TypeDir, -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 10)
+
+	ls, err = ListDirAll("tmp", TypeFile, -1)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 110)
+
+	ls, err = ListDirAll("tmp", TypeAll, 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
+
+	ls, err = ListDirAll("tmp", TypeDir, 5)
+	assert.Nil(t, err)
+	assert.Equal(t, len(ls), 5)
+
+	ls, err = ListDirAll("tmp", TypeFile, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 }

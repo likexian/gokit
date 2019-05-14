@@ -52,7 +52,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.8.0"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -285,7 +285,7 @@ func ReadFirstLine(fpath string) (line string, err error) {
 	return
 }
 
-// ListDir list dir and children, filter by type, returns up to n
+// ListDir list dir without recursion
 func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 	if fpath == "" {
 		fpath = "."
@@ -315,7 +315,35 @@ func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 					return
 				}
 			}
-			tls, err := ListDir(tpath, ftype, n-len(ls))
+		} else {
+			if ftype == TypeAll || ftype == TypeFile {
+				ls = append(ls, LsFile{TypeFile, tpath, f.Name()})
+				if n > 0 && len(ls) >= n {
+					return
+				}
+			}
+		}
+	}
+
+	return
+}
+
+// ListDirAll list dir and children, filter by type, returns up to n
+func ListDirAll(fpath string, ftype, n int) (ls []LsFile, err error) {
+	fs, err := ListDir(fpath, TypeAll, n)
+	if err != nil {
+		return
+	}
+
+	for _, f := range fs {
+		if f.Type == TypeDir {
+			if ftype == TypeAll || ftype == TypeDir {
+				ls = append(ls, f)
+				if n > 0 && len(ls) >= n {
+					return
+				}
+			}
+			tls, err := ListDir(f.Path, ftype, n-len(ls))
 			if err != nil {
 				return ls, err
 			}
@@ -325,7 +353,7 @@ func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 			}
 		} else {
 			if ftype == TypeAll || ftype == TypeFile {
-				ls = append(ls, LsFile{TypeFile, tpath, f.Name()})
+				ls = append(ls, f)
 				if n > 0 && len(ls) >= n {
 					return
 				}
