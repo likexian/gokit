@@ -77,7 +77,7 @@ func TestFileLine(t *testing.T) {
 		xfile.WriteText(fmt.Sprintf("tmp/%d.txt", i), "0\n1\n2\n3\n4\n5\n6\n7\n8\n9")
 	}
 
-	files, err := xfile.ListDir("tmp", "file", -1)
+	files, err := xfile.ListDir("tmp", xfile.TypeFile, -1)
 	assert.Nil(t, err)
 	for _, v := range files {
 		wq.Add(v.Path)

@@ -62,6 +62,14 @@ func TestLookupUser(t *testing.T) {
 	assert.True(t, gid > 0)
 }
 
+func TestGetPwd(t *testing.T) {
+	pwd := GetPwd()
+	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
+
+	pwd = GetProcPwd()
+	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
+}
+
 func TestWritePid(t *testing.T) {
 	pid := "xos.pid"
 	defer os.Remove(pid)

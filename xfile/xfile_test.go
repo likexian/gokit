@@ -156,12 +156,6 @@ func TestFile(t *testing.T) {
 
 	err = ChownAll("tmp/not-exists", 0, 0)
 	assert.NotNil(t, err)
-
-	pwd := GetPwd()
-	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
-
-	pwd = GetProcPwd()
-	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
 }
 
 func TestReadFirstLine(t *testing.T) {

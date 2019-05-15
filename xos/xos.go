@@ -27,6 +27,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
@@ -34,7 +35,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -145,6 +146,19 @@ func SetGid(gid int) (err error) {
 	}
 
 	return
+}
+
+// GetPwd returns the abs dir of current path
+func GetPwd() string {
+	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	return dir
+}
+
+// GetProcPwd returns the abs dir of current execution file
+func GetProcPwd() string {
+	file, _ := exec.LookPath(os.Args[0])
+	dir, _ := filepath.Abs(filepath.Dir(file))
+	return dir
 }
 
 // WritePid write pid to file path

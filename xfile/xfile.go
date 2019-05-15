@@ -25,7 +25,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -52,7 +51,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.9.0"
+	return "0.10.0"
 }
 
 // Author returns package author
@@ -392,17 +391,4 @@ func ChownAll(root string, uid, gid int) error {
 		}
 		return Chown(fpath, uid, gid)
 	})
-}
-
-// GetPwd returns the abs dir of current path
-func GetPwd() string {
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-	return dir
-}
-
-// GetProcPwd returns the abs dir of current execution file
-func GetProcPwd() string {
-	file, _ := exec.LookPath(os.Args[0])
-	dir, _ := filepath.Abs(filepath.Dir(file))
-	return dir
 }
