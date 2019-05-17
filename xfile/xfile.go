@@ -329,20 +329,35 @@ func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 
 // ListDirAll list dir and children, filter by type, returns up to n
 func ListDirAll(fpath string, ftype, n int) (ls []LsFile, err error) {
-	fs, err := ListDir(fpath, TypeAll, n)
+	if fpath == "" {
+		fpath = "."
+	}
+
+	if !strings.HasSuffix(fpath, "/") {
+		fpath += "/"
+	}
+
+	fd, err := os.Open(fpath)
+	if err != nil {
+		return
+	}
+
+	defer fd.Close()
+	fs, err := fd.Readdir(-1)
 	if err != nil {
 		return
 	}
 
 	for _, f := range fs {
-		if f.Type == TypeDir {
+		tpath := fpath + f.Name()
+		if f.IsDir() {
 			if ftype == TypeAll || ftype == TypeDir {
-				ls = append(ls, f)
+				ls = append(ls, LsFile{TypeDir, tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}
 			}
-			tls, err := ListDir(f.Path, ftype, n-len(ls))
+			tls, err := ListDirAll(tpath, ftype, n-len(ls))
 			if err != nil {
 				return ls, err
 			}
@@ -352,7 +367,7 @@ func ListDirAll(fpath string, ftype, n int) (ls []LsFile, err error) {
 			}
 		} else {
 			if ftype == TypeAll || ftype == TypeFile {
-				ls = append(ls, f)
+				ls = append(ls, LsFile{TypeFile, tpath, f.Name()})
 				if n > 0 && len(ls) >= n {
 					return
 				}
