@@ -74,12 +74,12 @@ const (
 )
 
 // log level mapper
-var levels = map[string]LogLevel{
-	"debug": DEBUG,
-	"info":  INFO,
-	"warn":  WARN,
-	"error": ERROR,
-	"fatal": FATAL,
+var levelMap = map[LogLevel]string{
+	DEBUG: "DEBUG",
+	INFO:  "INFO",
+	WARN:  "WARN",
+	ERROR: "ERROR",
+	FATAL: "FATAL",
 }
 
 // log once cache
@@ -87,7 +87,7 @@ var onceCache = OnceCache{Data: map[string]int64{}}
 
 // Version returns package version
 func Version() string {
-	return "0.2.1"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -145,24 +145,6 @@ func (l *Logger) SetLevel(level LogLevel) {
 	l.Lock()
 	l.LogLevel = level
 	l.Unlock()
-}
-
-// SetLevelString set the log level by string level
-func (l *Logger) SetLevelString(level string) error {
-	value := l.GetLevelByString(level)
-	if value >= 0 {
-		l.SetLevel(value)
-	}
-	return fmt.Errorf("%s is invalid level", level)
-}
-
-// GetLevelByString returns log level by string level
-func (l *Logger) GetLevelByString(level string) LogLevel {
-	level = strings.ToLower(level)
-	if value, ok := levels[level]; ok {
-		return value
-	}
-	return -1
 }
 
 // SetDailyRotate set daily log rotate
@@ -309,25 +291,28 @@ func (l *Logger) rotateFile() (err error) {
 }
 
 // Log do log a msg
-func (l *Logger) Log(level string, msg string, args ...interface{}) {
+func (l *Logger) Log(level LogLevel, msg string, args ...interface{}) {
 	if l.Closed {
 		return
 	}
 
-	value := l.GetLevelByString(level)
-	if l.LogLevel > value {
+	if l.LogLevel > level {
+		return
+	}
+
+	if _, ok := levelMap[level]; !ok {
 		return
 	}
 
 	now := time.Now().Format("2006-01-02 15:04:05")
-	str := fmt.Sprintf("%s [%s] %s\n", now, strings.ToUpper(level), msg)
+	str := fmt.Sprintf("%s [%s] %s\n", now, levelMap[level], msg)
 
 	l.LogQueue <- fmt.Sprintf(str, args...)
 }
 
 // LogOnce do log a msg only one times
-func (l *Logger) LogOnce(level string, msg string, args ...interface{}) {
-	str := fmt.Sprintf("%s-%s", level, msg)
+func (l *Logger) LogOnce(level LogLevel, msg string, args ...interface{}) {
+	str := fmt.Sprintf("%d-%s", level, msg)
 	key := md5Sum(fmt.Sprintf(str, args...))
 
 	onceCache.RLock()
@@ -346,54 +331,49 @@ func (l *Logger) LogOnce(level string, msg string, args ...interface{}) {
 
 // Debug level msg logging
 func (l *Logger) Debug(msg string, args ...interface{}) {
-	l.Log("DEBUG", msg, args...)
+	l.Log(DEBUG, msg, args...)
 }
 
 // Info level msg logging
 func (l *Logger) Info(msg string, args ...interface{}) {
-	l.Log("INFO", msg, args...)
+	l.Log(INFO, msg, args...)
 }
 
 // Warn level msg logging
 func (l *Logger) Warn(msg string, args ...interface{}) {
-	l.Log("WARN", msg, args...)
+	l.Log(WARN, msg, args...)
 }
 
 // Error level msg logging
 func (l *Logger) Error(msg string, args ...interface{}) {
-	l.Log("ERROR", msg, args...)
+	l.Log(ERROR, msg, args...)
 }
 
 // Fatal level msg logging, followed by a call to os.Exit(1)
 func (l *Logger) Fatal(msg string, args ...interface{}) {
-	l.Log("FATAL", msg, args...)
+	l.Log(FATAL, msg, args...)
 	l.Close()
 	l.exit(1)
 }
 
 // DebugOnce level msg logging
 func (l *Logger) DebugOnce(msg string, args ...interface{}) {
-	l.LogOnce("DEBUG", msg, args...)
+	l.LogOnce(DEBUG, msg, args...)
 }
 
 // InfoOnce level msg logging
 func (l *Logger) InfoOnce(msg string, args ...interface{}) {
-	l.LogOnce("INFO", msg, args...)
+	l.LogOnce(INFO, msg, args...)
 }
 
 // WarnOnce level msg logging
 func (l *Logger) WarnOnce(msg string, args ...interface{}) {
-	l.LogOnce("WARN", msg, args...)
+	l.LogOnce(WARN, msg, args...)
 }
 
 // ErrorOnce level msg logging
 func (l *Logger) ErrorOnce(msg string, args ...interface{}) {
-	l.LogOnce("ERROR", msg, args...)
-}
-
-// FatalOnce level msg logging, followed by a call to os.Exit(1)
-func (l *Logger) FatalOnce(msg string, args ...interface{}) {
-	l.LogOnce("FATAL", msg, args...)
+	l.LogOnce(ERROR, msg, args...)
 }
 
 // exit wait for queue empty and call os.Exit()

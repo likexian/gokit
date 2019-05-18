@@ -54,18 +54,6 @@ func TestLogger(t *testing.T) {
 	log.Error("This is %s", "Args")
 	log.Error("")
 
-	// test SetLevelString
-	log.Info("Now setting level to Error")
-	log.SetLevelString("ERROR")
-	log.Debug("This is Debug shall NOT! shown")
-	log.Info("This is Info shall NOT! shown")
-	log.Warn("This is Warn shall NOT! shown")
-	log.Error("This is Error")
-	log.Error("This is %s", "Args")
-	log.Error("")
-	log.Close()
-	log.Error("Test log closed")
-
 	// log to file
 	defer os.Remove("test.log")
 	log, err := File("test.log", DEBUG)
@@ -87,11 +75,23 @@ func TestLogOnce(t *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 
+	log.LogOnce(INFO, "This only log once")
+	log.LogOnce(INFO, "This only log once")
+	log.LogOnce(INFO, "This only log once, %d", 1)
+	log.LogOnce(INFO, "This only log once, %d", 1)
+	log.LogOnce(INFO, "This only log once, %d", 2)
+
+	log.DebugOnce("This only log once")
+	log.DebugOnce("This only log once")
+
+	log.InfoOnce("This only log once")
+	log.InfoOnce("This only log once")
+
 	log.WarnOnce("This only log once")
 	log.WarnOnce("This only log once")
-	log.WarnOnce("This only log once, %d", 1)
-	log.WarnOnce("This only log once, %d", 1)
-	log.WarnOnce("This only log once, %d", 2)
+
+	log.ErrorOnce("This only log once")
+	log.ErrorOnce("This only log once")
 
 	// wait for queue empty
 	time.Sleep(1 * time.Second)
