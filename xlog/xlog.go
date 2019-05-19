@@ -20,9 +20,10 @@
 package xlog
 
 import (
-	"crypto/md5"
 	"errors"
 	"fmt"
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xhash"
 	"io"
 	"os"
 	"path/filepath"
@@ -87,7 +88,7 @@ var onceCache = OnceCache{Data: map[string]int64{}}
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.3.1"
 }
 
 // Author returns package author
@@ -176,7 +177,7 @@ func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64)
 	l.LogFile.RotateSize = rotateSize
 	l.LogFile.RotateNowDate = time.Now().Format("2006-01-02")
 
-	size, err := getFileSize(l.LogFile.Name)
+	size, err := xfile.Size(l.LogFile.Name)
 	if err != nil {
 		l.LogFile.RotateNowSize = 0
 	} else {
@@ -313,7 +314,7 @@ func (l *Logger) Log(level LogLevel, msg string, args ...interface{}) {
 // LogOnce do log a msg only one times
 func (l *Logger) LogOnce(level LogLevel, msg string, args ...interface{}) {
 	str := fmt.Sprintf("%d-%s", level, msg)
-	key := md5Sum(fmt.Sprintf(str, args...))
+	key := xhash.Md5(fmt.Sprintf(str, args...)).Hex()
 
 	onceCache.RLock()
 	_, ok := onceCache.Data[key]
@@ -384,16 +385,6 @@ func (l *Logger) exit(code int) {
 	}
 }
 
-// getFileSize returns file size
-func getFileSize(fname string) (int64, error) {
-	f, err := os.Stat(fname)
-	if err != nil {
-		return 0, err
-	}
-
-	return f.Size(), nil
-}
-
 // getFileList returns file list
 func getFileList(fname string) (result [][]interface{}, err error) {
 	result = [][]interface{}{}
@@ -413,9 +404,4 @@ func getFileList(fname string) (result [][]interface{}, err error) {
 	}
 
 	return
-}
-
-// md5Sum returns hex md5 of string
-func md5Sum(str string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(str)))
 }
