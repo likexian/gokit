@@ -37,6 +37,7 @@ func TestLogger(t *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 	log.Info("Now setting level to Debug")
+	log.Log(99, "this is Not supported")
 	log.Debug("This is Debug")
 	log.Info("This is Info")
 	log.Warn("This is Warn")
@@ -66,6 +67,9 @@ func TestLogger(t *testing.T) {
 	log.Error("This is Error")
 	log.Error("This is %s", "Args")
 	log.Close()
+
+	// will be ignore
+	log.Info("Log after closed")
 
 	// wait for queue empty
 	time.Sleep(1 * time.Second)
@@ -125,18 +129,22 @@ func TestConcurrency(t *testing.T) {
 }
 
 func TestLogRotate(t *testing.T) {
-	var wg sync.WaitGroup
-
-	// log to file
 	defer os.Remove("test.log")
 	defer os.Remove("test.log.1")
 	defer os.Remove("test.log.2")
+
+	// log to file
 	log, err := File("test.log", DEBUG)
 	if err != nil {
 		panic(err)
 	}
 
+	// not support rotateType
+	err = log.SetRotate("lkx", 0, 0)
+	assert.NotNil(t, err)
+
 	// set rotate by filesize
+	var wg sync.WaitGroup
 	log.SetSizeRotate(3, 100000)
 	for i := 0; i < 100000; i++ {
 		wg.Add(1)
@@ -145,6 +153,17 @@ func TestLogRotate(t *testing.T) {
 			wg.Done()
 		}(i)
 	}
+
+	// wait for log end
+	time.Sleep(3 * time.Second)
+	wg.Wait()
+	log.SetSizeRotate(3, 100000)
+	log.Close()
+
+	// only file log support rotate
+	log = New(os.Stderr, DEBUG)
+	err = log.SetDailyRotate(10)
+	assert.NotNil(t, err)
 
 	// wait for log end
 	time.Sleep(3 * time.Second)
