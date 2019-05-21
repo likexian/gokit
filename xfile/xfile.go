@@ -51,7 +51,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.10.0"
+	return "0.11.0"
 }
 
 // Author returns package author
@@ -188,8 +188,18 @@ func Copy(src, dst string) error {
 	return os.Chmod(dst, f.Mode())
 }
 
-// New open a file and return fd
+// New open a file for new and return fd
 func New(fpath string) (*os.File, error) {
+	return newFile(fpath, false)
+}
+
+// Append open a file for append and return fd
+func Append(fpath string) (*os.File, error) {
+	return newFile(fpath, true)
+}
+
+// newFile open a file and return fd
+func newFile(fpath string, isAppend bool) (*os.File, error) {
 	dir, _ := filepath.Split(fpath)
 	if dir != "" && !IsDir(dir) {
 		err := os.MkdirAll(dir, 0755)
@@ -198,7 +208,11 @@ func New(fpath string) (*os.File, error) {
 		}
 	}
 
-	return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	if isAppend {
+		return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
+	} else {
+		return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	}
 }
 
 // Write write bytes data to file

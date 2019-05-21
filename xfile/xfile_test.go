@@ -158,6 +158,36 @@ func TestFile(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestNewAppend(t *testing.T) {
+	defer os.RemoveAll("tmp")
+
+	testFile := "tmp/test.log"
+
+	// init test file
+	fd, err := New(testFile)
+	assert.Nil(t, err)
+	fd.Write([]byte("1"))
+	text, err := ReadText(testFile)
+	assert.Nil(t, err)
+	assert.Equal(t, text, "1")
+
+	// test new mode
+	fd, err = New(testFile)
+	assert.Nil(t, err)
+	fd.Write([]byte("1"))
+	text, err = ReadText(testFile)
+	assert.Nil(t, err)
+	assert.Equal(t, text, "1")
+
+	// test append mode
+	fd, err = Append(testFile)
+	assert.Nil(t, err)
+	fd.Write([]byte("1"))
+	text, err = ReadText(testFile)
+	assert.Nil(t, err)
+	assert.Equal(t, text, "11")
+}
+
 func TestReadFirstLine(t *testing.T) {
 	defer os.RemoveAll("tmp")
 
