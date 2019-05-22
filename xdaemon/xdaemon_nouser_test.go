@@ -21,11 +21,39 @@ package xdaemon
 
 import (
 	"github.com/likexian/gokit/assert"
+	"os"
+	"os/exec"
 	"testing"
 )
 
-func TestVersion(t *testing.T) {
-	assert.Contains(t, Version(), ".")
-	assert.Contains(t, Author(), "likexian")
-	assert.Contains(t, License(), "Apache License")
+func testNoUser(t *testing.T) {
+	c := Config{
+		Pid:   "",
+		Log:   "",
+		User:  "",
+		Chdir: "",
+	}
+
+	err := c.Daemon()
+	assert.Nil(t, err)
+}
+
+func TestNoUser(t *testing.T) {
+	if os.Getenv("TestCase") != "" && os.Getenv("TestCase") != "TestNoUser" {
+		return
+	}
+
+	if os.Getenv("TestCase") != "" {
+		testNoUser(t)
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestNoUser")
+	cmd.Env = append(os.Environ(), "TestCase=TestNoUser")
+	err := cmd.Run()
+	if err == nil {
+		return
+	}
+
+	t.Errorf("Test expect to be daemon")
 }

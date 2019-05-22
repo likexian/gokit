@@ -20,6 +20,7 @@
 package xdaemon
 
 import (
+	"github.com/likexian/gokit/xfile"
 	"github.com/likexian/gokit/xos"
 	"os"
 	"syscall"
@@ -35,7 +36,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.6.1"
 }
 
 // Author returns package author
@@ -86,7 +87,7 @@ func (c *Config) doDaemon() (err error) {
 
 	files := make([]*os.File, 3, 6)
 	if c.Log != "" {
-		fp, err := os.OpenFile(c.Log, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+		fp, err := xfile.Append(c.Log)
 		if err != nil {
 			return err
 		}
