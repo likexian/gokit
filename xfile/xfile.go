@@ -210,9 +210,9 @@ func newFile(fpath string, isAppend bool) (*os.File, error) {
 
 	if isAppend {
 		return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
-	} else {
-		return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	}
+
+	return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 }
 
 // Write write bytes data to file
