@@ -21,9 +21,8 @@ package xmail
 
 import (
 	"bytes"
-	"crypto/md5"
 	"encoding/base64"
-	"fmt"
+	"github.com/likexian/gokit/xhash"
 	"io/ioutil"
 	"net/smtp"
 	"path/filepath"
@@ -31,34 +30,34 @@ import (
 	"time"
 )
 
-// Attachment storing mail attachment
-type Attachment struct {
-	Name    string
-	Content []byte
+// attachment storing mail attachment
+type attachment struct {
+	name    string
+	content []byte
 }
 
-// Auth storing mail auth
-type Auth struct {
-	Server string
-	Auth   smtp.Auth
+// auth storing mail auth
+type auth struct {
+	server string
+	auth   smtp.Auth
 }
 
-// Message storing mail message
-type Message struct {
-	From        string
-	To          []string
-	Cc          []string
-	Bcc         []string
-	Subject     string
-	Body        string
-	ContentType string
-	Attachments map[string]*Attachment
-	Auth        *Auth
+// message storing mail message
+type message struct {
+	from        string
+	to          []string
+	cc          []string
+	bcc         []string
+	subject     string
+	body        string
+	contentType string
+	attachments map[string]*attachment
+	auth        *auth
 }
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -72,59 +71,93 @@ func License() string {
 }
 
 // New returns a new xmail
-func New(server, username, password string, ishtml bool) (m *Message) {
-	m = &Message{
-		From:        username,
-		To:          []string{username},
-		Subject:     "Mailer Test",
-		Body:        "Hello World. This is xmail via github.com/likexian/gokit/xmail.",
-		Attachments: make(map[string]*Attachment),
-	}
-
-	if ishtml {
-		m.ContentType = "text/html"
-	} else {
-		m.ContentType = "text/plain"
+func New(server, username, password string) (m *message) {
+	m = &message{
+		from:        username,
+		to:          []string{username},
+		cc:          []string{},
+		bcc:         []string{},
+		subject:     "Mailer Test",
+		body:        "Hello World. This is xmail via github.com/likexian/gokit/xmail.",
+		contentType: "text/plain",
+		attachments: map[string]*attachment{},
 	}
 
 	servers := strings.Split(server, ":")
-	m.Auth = &Auth{
-		Server: server,
-		Auth:   smtp.PlainAuth("", username, password, servers[0]),
+	m.auth = &auth{
+		server: server,
+		auth:   smtp.PlainAuth("", username, password, servers[0]),
 	}
 
 	return
 }
 
+// From set mail from
+func (m *message) From(s string) error {
+	m.from = s
+	return nil
+}
+
+// To set mail to
+func (m *message) To(s ...string) error {
+	m.to = s
+	return nil
+}
+
+// Cc set mail cc
+func (m *message) Cc(s ...string) error {
+	m.cc = s
+	return nil
+}
+
+// BCc set mail bcc
+func (m *message) BCc(s ...string) error {
+	m.bcc = s
+	return nil
+}
+
+// ContentType set mail content type
+func (m *message) ContentType(t string) error {
+	m.contentType = t
+	return nil
+}
+
+// Content set mail content
+func (m *message) Content(subject, body string) error {
+	m.subject = subject
+	m.body = body
+	return nil
+}
+
 // Attach add a attachment
-func (m *Message) Attach(fname string) (err error) {
+func (m *message) Attach(fname string) (err error) {
 	data, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return
 	}
 
 	_, name := filepath.Split(fname)
-	m.Attachments[name] = &Attachment{
-		Name:    name,
-		Content: data,
+	m.attachments[name] = &attachment{
+		name:    name,
+		content: data,
 	}
 
 	return
 }
 
 // Send do the sending
-func (m *Message) Send() (err error) {
-	return smtp.SendMail(m.Auth.Server, m.Auth.Auth, m.From, m.innerTo(), m.innerBody())
+func (m *message) Send() (err error) {
+	return smtp.SendMail(m.auth.server, m.auth.auth, m.from, m.innerTo(), m.innerBody())
 }
 
 // innerTo returns mail receipt
-func (m *Message) innerTo() (to []string) {
-	to = m.To
-	for _, v := range m.Cc {
+func (m *message) innerTo() (to []string) {
+	to = m.to
+	for _, v := range m.cc {
 		to = append(to, v)
 	}
 
-	for _, v := range m.Bcc {
+	for _, v := range m.bcc {
 		to = append(to, v)
 	}
 
@@ -132,19 +165,19 @@ func (m *Message) innerTo() (to []string) {
 }
 
 // innerBody returns mail body
-func (m *Message) innerBody() (body []byte) {
+func (m *message) innerBody() (body []byte) {
 	now := time.Now()
 	date := now.Format(time.RFC822)
 	buf := bytes.NewBuffer(nil)
-	boundary := "----=_NextPart_" + fmt.Sprintf("%x", md5.Sum([]byte(date)))[:16]
+	boundary := "----=_NextPart_" + xhash.Md5(now.UnixNano()).Hex()[:16]
 
 	buf.WriteString("Date: " + date + "\r\n")
-	buf.WriteString("From: " + m.From + "\r\n")
-	buf.WriteString("To: " + strings.Join(m.To, ",") + "\r\n")
-	if len(m.Cc) > 0 {
-		buf.WriteString("Cc: " + strings.Join(m.Cc, ",") + "\r\n")
+	buf.WriteString("From: " + m.from + "\r\n")
+	buf.WriteString("To: " + strings.Join(m.to, ",") + "\r\n")
+	if len(m.cc) > 0 {
+		buf.WriteString("Cc: " + strings.Join(m.cc, ",") + "\r\n")
 	}
-	buf.WriteString("Subject: " + m.Subject + "\r\n")
+	buf.WriteString("Subject: " + m.subject + "\r\n")
 	buf.WriteString("X-Priority: 3\r\n")
 	buf.WriteString("MIME-Version: 1.0\r\n")
 	buf.WriteString("X-Mailer: github.com/likexian/gokit/xmail\r\n")
@@ -152,20 +185,20 @@ func (m *Message) innerBody() (body []byte) {
 
 	buf.WriteString("This is a multi-part message in MIME format.\r\n")
 	buf.WriteString("\r\n--" + boundary + "\r\n")
-	buf.WriteString("Content-Type: " + m.ContentType + "; charset=utf-8\r\n\r\n")
-	buf.WriteString(m.Body)
+	buf.WriteString("Content-Type: " + m.contentType + "; charset=utf-8\r\n\r\n")
+	buf.WriteString(m.body)
 	buf.WriteString("\r\n")
 
-	if len(m.Attachments) > 0 {
-		for _, attachment := range m.Attachments {
+	if len(m.attachments) > 0 {
+		for _, attachment := range m.attachments {
 			buf.WriteString("\r\n--" + boundary + "\r\n")
 			buf.WriteString("Content-Type: application/octet-stream\r\n")
 			buf.WriteString("Content-Transfer-Encoding: base64\r\n")
-			buf.WriteString("Content-ID: <" + attachment.Name + ">\r\n")
-			buf.WriteString("Content-Disposition: attachment; filename=\"" + attachment.Name + "\"\r\n\r\n")
+			buf.WriteString("Content-ID: <" + attachment.name + ">\r\n")
+			buf.WriteString("Content-Disposition: attachment; filename=\"" + attachment.name + "\"\r\n\r\n")
 
-			data := make([]byte, base64.StdEncoding.EncodedLen(len(attachment.Content)))
-			base64.StdEncoding.Encode(data, attachment.Content)
+			data := make([]byte, base64.StdEncoding.EncodedLen(len(attachment.content)))
+			base64.StdEncoding.Encode(data, attachment.content)
 			buf.Write(data)
 			buf.WriteString("\r\n")
 		}

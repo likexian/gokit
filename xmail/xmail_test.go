@@ -32,32 +32,34 @@ func TestVersion(t *testing.T) {
 
 func TestMailer(t *testing.T) {
 	// Set the smtp info
-	m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", true)
+	m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214")
 
 	// Set email from
-	m.From = "i@likexian.com"
+	m.From("i@likexian.com")
 
 	// Set send to
-	m.To = []string{"i@likexian.com"}
+	m.To("i@likexian.com")
+
+	// Set send cc
+	m.Cc("cc@likexian.com")
+
+	// Set send bcc
+	m.BCc("bcc@likexian.com")
+
+	// set mail content type
+	m.ContentType("text/html")
 
 	// Set mail subject
-	m.Subject = "Mailer Test"
-
-	// Set mail body
-	m.Body = "Hello World. This is xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />"
+	m.Content("Mailer Test", "xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />")
 
 	// Add attachment
 	err := m.Attach("xmail_test.jpg")
-	if err != nil {
-		t.Error(err)
-	}
+	assert.Nil(t, err)
 
-	if _, ok := m.Attachments["xmail_test.jpg"]; !ok {
-		t.Error("Fail to add attachment")
-	}
-
-	// The smtp info is fake, sending will never success.
 	err = m.Send()
+	// The smtp auth info is fake, sending will never success.
+	// Change below line to
 	// assert.Nil(t, err)
+	// If specify the valid smtp auth info
 	assert.NotNil(t, err)
 }
