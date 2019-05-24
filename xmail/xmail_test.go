@@ -56,6 +56,10 @@ func TestMailer(t *testing.T) {
 	err := m.Attach("xmail_test.jpg")
 	assert.Nil(t, err)
 
+	// Add attachment
+	err = m.Attach("not-exists.jpg")
+	assert.NotNil(t, err)
+
 	err = m.Send()
 	// The smtp auth info is fake, sending will never success.
 	// Change below line to
