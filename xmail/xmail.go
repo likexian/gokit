@@ -21,6 +21,7 @@ package xmail
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/base64"
 	"github.com/likexian/gokit/xhash"
 	"io/ioutil"
@@ -38,7 +39,9 @@ type attachment struct {
 
 // auth storing mail auth
 type auth struct {
+	tls    bool
 	server string
+	host   string
 	auth   smtp.Auth
 }
 
@@ -57,7 +60,7 @@ type message struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -71,7 +74,7 @@ func License() string {
 }
 
 // New returns a new xmail
-func New(server, username, password string) (m *message) {
+func New(server, username, password string, tls bool) (m *message) {
 	m = &message{
 		from:        username,
 		to:          []string{username},
@@ -85,7 +88,9 @@ func New(server, username, password string) (m *message) {
 
 	servers := strings.Split(server, ":")
 	m.auth = &auth{
+		tls:    tls,
 		server: server,
+		host:   servers[0],
 		auth:   smtp.PlainAuth("", username, password, servers[0]),
 	}
 
@@ -147,7 +152,64 @@ func (m *message) Attach(fname string) (err error) {
 
 // Send do the sending
 func (m *message) Send() (err error) {
-	return smtp.SendMail(m.auth.server, m.auth.auth, m.from, m.innerTo(), m.innerBody())
+	if !m.auth.tls {
+		return smtp.SendMail(m.auth.server, m.auth.auth, m.from, m.innerTo(), m.innerBody())
+	}
+
+	return m.tlsSendMail()
+}
+
+// tlsSendMail send using tls
+func (m *message) tlsSendMail() (err error) {
+	conn, err := tls.Dial("tcp", m.auth.server, nil)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+
+	client, err := smtp.NewClient(conn, m.auth.host)
+	if err != nil {
+		return
+	}
+	defer client.Close()
+
+	if ok, _ := client.Extension("AUTH"); ok {
+		err = client.Auth(m.auth.auth)
+		if err != nil {
+			return
+		}
+	}
+
+	err = client.Mail(m.from)
+	if err != nil {
+		return
+	}
+
+	for _, v := range m.innerTo() {
+		err = client.Rcpt(v)
+		if err != nil {
+			return
+		}
+	}
+
+	fd, err := client.Data()
+	if err != nil {
+		return
+	}
+
+	_, err = fd.Write(m.innerBody())
+	if err != nil {
+		return
+	}
+
+	err = fd.Close()
+	if err != nil {
+		return
+	}
+
+	client.Quit()
+
+	return
 }
 
 // innerTo returns mail receipt

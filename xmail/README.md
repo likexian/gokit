@@ -22,8 +22,8 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xmail)
 
 ```go
 // Set the smtp info
-// New("smtp server:port", "smtp username", "smtp password")
-m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214")
+// New("smtp server:port", "smtp username", "smtp password", isTLS)
+m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", false)
 
 // Set email from
 m.From("i@likexian.com")
