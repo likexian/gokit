@@ -105,3 +105,21 @@ func TestTlsSend(t *testing.T) {
 	// If specify the valid smtp auth info
 	assert.NotNil(t, err)
 }
+
+func TestAuthFail(t *testing.T) {
+	// Set the smtp info
+	m := New("smtp.126.com:465", "i@likexian.com", "8Bd0a7681333214", true)
+
+	// Set email from
+	m.From("i@likexian.com")
+
+	// Set send to
+	m.To("i@likexian.com")
+
+	err := m.Send()
+	// The smtp auth info is fake, sending will never success.
+	// Change below line to
+	// assert.Nil(t, err)
+	// If specify the valid smtp auth info
+	assert.NotNil(t, err)
+}
