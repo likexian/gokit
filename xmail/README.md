@@ -2,6 +2,13 @@
 
 Mail kits for Golang development.
 
+## Features
+
+- Light weight and Easy to use
+- Attachment sending support
+- Plain text sending support
+- TLS sending support
+
 ## Installation
 
     go get -u github.com/likexian/gokit
@@ -23,7 +30,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xmail)
 ```go
 // Set the smtp info
 // New("smtp server:port", "smtp username", "smtp password", isTLS)
-m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", false)
+m := New("smtp.likexian.com:465", "i@likexian.com", "8Bd0a7681333214", true)
 
 // Set email from
 m.From("i@likexian.com")
