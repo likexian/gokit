@@ -22,8 +22,6 @@ package xlog
 import (
 	"errors"
 	"fmt"
-	"github.com/likexian/gokit/xfile"
-	"github.com/likexian/gokit/xhash"
 	"io"
 	"os"
 	"path/filepath"
@@ -31,38 +29,36 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/likexian/gokit/xcache"
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xhash"
 )
 
 // LogLevel storing log level
 type LogLevel int
 
-// LogFile storing log file
-type LogFile struct {
-	Name          string
-	Fd            *os.File
-	Writer        io.Writer
-	RotateType    string
-	RotateNum     int64
-	RotateSize    int64
-	RotateNowDate string
-	RotateNowSize int64
-	RotateNextNum int64
-}
-
 // Logger storing logger
 type Logger struct {
-	LogFile  LogFile
-	LogLevel LogLevel
-	LogQueue chan string
-	LogExit  chan bool
-	Closed   bool
+	logFile   logFile
+	logLevel  LogLevel
+	logQueue  chan string
+	logExit   chan bool
+	logClosed bool
 	sync.RWMutex
 }
 
-// OnceCache storing once cache
-type OnceCache struct {
-	Data map[string]int64
-	sync.RWMutex
+// logFile storing log file info
+type logFile struct {
+	name          string
+	fd            *os.File
+	writer        io.Writer
+	rotateType    string
+	rotateNum     int64
+	rotateSize    int64
+	rotateNowDate string
+	rotateNowSize int64
+	rotateNextNum int64
 }
 
 // Log level const
@@ -84,11 +80,11 @@ var levelMap = map[LogLevel]string{
 }
 
 // log once cache
-var onceCache = OnceCache{Data: map[string]int64{}}
+var onceCache = xcache.New(xcache.MemoryCache)
 
 // Version returns package version
 func Version() string {
-	return "0.3.1"
+	return "0.3.2"
 }
 
 // Author returns package author
@@ -103,7 +99,7 @@ func License() string {
 
 // New returns a new logger
 func New(w io.Writer, level LogLevel) *Logger {
-	return newLog(LogFile{Writer: w}, level)
+	return newLog(logFile{writer: w}, level)
 }
 
 // File returns a new file logger
@@ -112,7 +108,7 @@ func File(fname string, level LogLevel) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newLog(LogFile{Name: fname, Writer: fd, Fd: fd}, level), nil
+	return newLog(logFile{name: fname, writer: fd, fd: fd}, level), nil
 }
 
 // openFile open file with flags
@@ -121,13 +117,13 @@ func openFile(fname string) (*os.File, error) {
 }
 
 // newLogger returns a new file logger
-func newLog(lf LogFile, level LogLevel) *Logger {
+func newLog(lf logFile, level LogLevel) *Logger {
 	l := &Logger{
-		LogFile:  lf,
-		LogLevel: level,
-		LogQueue: make(chan string, 10000),
-		LogExit:  make(chan bool),
-		Closed:   false,
+		logFile:   lf,
+		logLevel:  level,
+		logQueue:  make(chan string, 10000),
+		logExit:   make(chan bool),
+		logClosed: false,
 	}
 	go l.writeLog()
 	return l
@@ -136,15 +132,15 @@ func newLog(lf LogFile, level LogLevel) *Logger {
 // Close close the logger
 func (l *Logger) Close() {
 	l.Lock()
-	l.Closed = true
+	l.logClosed = true
 	l.Unlock()
-	close(l.LogQueue)
+	close(l.logQueue)
 }
 
 // SetLevel set the log level by int level
 func (l *Logger) SetLevel(level LogLevel) {
 	l.Lock()
-	l.LogLevel = level
+	l.logLevel = level
 	l.Unlock()
 }
 
@@ -164,7 +160,7 @@ func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64)
 	l.Lock()
 	defer l.Unlock()
 
-	if l.LogFile.Name == "" {
+	if l.logFile.name == "" {
 		return errors.New("Only file log support rotate")
 	}
 
@@ -172,32 +168,32 @@ func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64)
 		return errors.New("Not support rotateType")
 	}
 
-	l.LogFile.RotateType = rotateType
-	l.LogFile.RotateNum = rotateNum
-	l.LogFile.RotateSize = rotateSize
-	l.LogFile.RotateNowDate = time.Now().Format("2006-01-02")
+	l.logFile.rotateType = rotateType
+	l.logFile.rotateNum = rotateNum
+	l.logFile.rotateSize = rotateSize
+	l.logFile.rotateNowDate = time.Now().Format("2006-01-02")
 
-	size, err := xfile.Size(l.LogFile.Name)
+	size, err := xfile.Size(l.logFile.name)
 	if err != nil {
-		l.LogFile.RotateNowSize = 0
+		l.logFile.rotateNowSize = 0
 	} else {
-		l.LogFile.RotateNowSize = size
+		l.logFile.rotateNowSize = size
 	}
 
-	if l.LogFile.RotateNum < 2 {
+	if l.logFile.rotateNum < 2 {
 		return nil
 	}
 
-	list, err := getFileList(l.LogFile.Name)
+	list, err := getFileList(l.logFile.name)
 	if err != nil {
-		l.LogFile.RotateNextNum = 1
+		l.logFile.rotateNextNum = 1
 	} else {
-		if int64(len(list)) < l.LogFile.RotateNum {
-			l.LogFile.RotateNextNum = int64(len(list))
+		if int64(len(list)) < l.logFile.rotateNum {
+			l.logFile.rotateNextNum = int64(len(list))
 		} else {
 			maxf := list[0]
 			for _, v := range list {
-				if v[0].(string) != l.LogFile.Name {
+				if v[0].(string) != l.logFile.name {
 					if v[1].(int64) < maxf[1].(int64) {
 						maxf = v
 					}
@@ -205,7 +201,7 @@ func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64)
 			}
 			fs := strings.Split(maxf[0].(string), ".")
 			num, _ := strconv.Atoi(fs[len(fs)-1])
-			l.LogFile.RotateNextNum = int64(num)
+			l.logFile.rotateNextNum = int64(num)
 		}
 	}
 
@@ -219,44 +215,44 @@ func (l *Logger) writeLog() {
 		select {
 		case <-t.C:
 			l.RLock()
-			lf := l.LogFile
+			lf := l.logFile
 			l.RUnlock()
-			if lf.RotateType == "" {
+			if lf.rotateType == "" {
 				continue
 			}
-			if lf.RotateNum < 2 {
+			if lf.rotateNum < 2 {
 				continue
 			}
 			today := time.Now().Format("2006-01-02")
-			if lf.RotateType == "date" {
-				if today != lf.RotateNowDate {
+			if lf.rotateType == "date" {
+				if today != lf.rotateNowDate {
 					l.Lock()
-					l.LogFile.RotateNowDate = today
-					l.LogFile.RotateNowSize = 0
+					l.logFile.rotateNowDate = today
+					l.logFile.rotateNowSize = 0
 					l.Unlock()
 					l.rotateFile()
 				}
 			}
-			if lf.RotateSize > 0 {
-				if lf.RotateNowSize >= lf.RotateSize {
+			if lf.rotateSize > 0 {
+				if lf.rotateNowSize >= lf.rotateSize {
 					l.Lock()
-					l.LogFile.RotateNowDate = today
-					l.LogFile.RotateNowSize = 0
+					l.logFile.rotateNowDate = today
+					l.logFile.rotateNowSize = 0
 					l.Unlock()
 					l.rotateFile()
 				}
 			}
-		case s, ok := <-l.LogQueue:
+		case s, ok := <-l.logQueue:
 			l.Lock()
 			if !ok {
-				l.LogExit <- true
-				l.LogFile.Fd.Close()
+				l.logExit <- true
+				l.logFile.fd.Close()
 				l.Unlock()
 				return
 			}
-			_, err := fmt.Fprintf(l.LogFile.Writer, s)
+			_, err := fmt.Fprintf(l.logFile.writer, s)
 			if err == nil {
-				l.LogFile.RotateNowSize += int64(len(s))
+				l.logFile.rotateNowSize += int64(len(s))
 			}
 			l.Unlock()
 		}
@@ -268,36 +264,36 @@ func (l *Logger) rotateFile() (err error) {
 	l.Lock()
 	defer l.Unlock()
 
-	l.LogFile.Fd.Close()
+	l.logFile.fd.Close()
 
-	err = os.Rename(l.LogFile.Name, fmt.Sprintf("%s.%d", l.LogFile.Name, l.LogFile.RotateNextNum))
+	err = os.Rename(l.logFile.name, fmt.Sprintf("%s.%d", l.logFile.name, l.logFile.rotateNextNum))
 	if err != nil {
 		return
 	}
 
-	l.LogFile.RotateNextNum += 1
-	if l.LogFile.RotateNextNum >= l.LogFile.RotateNum {
-		l.LogFile.RotateNextNum = 1
+	l.logFile.rotateNextNum += 1
+	if l.logFile.rotateNextNum >= l.logFile.rotateNum {
+		l.logFile.rotateNextNum = 1
 	}
 
-	fd, err := openFile(l.LogFile.Name)
+	fd, err := openFile(l.logFile.name)
 	if err != nil {
 		return err
 	}
 
-	l.LogFile.Fd = fd
-	l.LogFile.Writer = fd
+	l.logFile.fd = fd
+	l.logFile.writer = fd
 
 	return
 }
 
 // Log do log a msg
 func (l *Logger) Log(level LogLevel, msg string, args ...interface{}) {
-	if l.Closed {
+	if l.logClosed {
 		return
 	}
 
-	if l.LogLevel > level {
+	if l.logLevel > level {
 		return
 	}
 
@@ -308,25 +304,20 @@ func (l *Logger) Log(level LogLevel, msg string, args ...interface{}) {
 	now := time.Now().Format("2006-01-02 15:04:05")
 	str := fmt.Sprintf("%s [%s] %s\n", now, levelMap[level], msg)
 
-	l.LogQueue <- fmt.Sprintf(str, args...)
+	l.logQueue <- fmt.Sprintf(str, args...)
 }
 
-// LogOnce do log a msg only one times
+// LogOnce do log a msg only one times within one hour
 func (l *Logger) LogOnce(level LogLevel, msg string, args ...interface{}) {
 	str := fmt.Sprintf("%d-%s", level, msg)
 	key := xhash.Md5(fmt.Sprintf(str, args...)).Hex()
 
-	onceCache.RLock()
-	_, ok := onceCache.Data[key]
-	onceCache.RUnlock()
-	if ok {
+	v := onceCache.Get(key)
+	if v != nil {
 		return
 	}
 
-	onceCache.Lock()
-	onceCache.Data[key] = time.Now().Unix()
-	onceCache.Unlock()
-
+	onceCache.Set(key, 1, 3600)
 	l.Log(level, msg, args...)
 }
 
@@ -380,7 +371,7 @@ func (l *Logger) ErrorOnce(msg string, args ...interface{}) {
 // exit wait for queue empty and call os.Exit()
 func (l *Logger) exit(code int) {
 	select {
-	case <-l.LogExit:
+	case <-l.logExit:
 		os.Exit(code)
 	}
 }
