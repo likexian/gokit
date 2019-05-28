@@ -101,6 +101,41 @@ func TestLogOnce(t *testing.T) {
 	time.Sleep(1 * time.Second)
 }
 
+func TestFlag(t *testing.T) {
+	// log to stderr
+	log := New(os.Stderr, DEBUG)
+
+	log.SetFlag(Ldate)
+	log.Info("Log with flag LDate")
+
+	log.SetFlag(Ltime)
+	log.Info("Log with flag Ltime")
+
+	log.SetFlag(Lmicroseconds)
+	log.Info("Log with flag Lmicroseconds")
+
+	log.SetFlag(Ldate | Ltime)
+	log.Info("Log with flag LDate|Ltime")
+
+	log.SetFlag(Ldate | Ltime | Lmicroseconds)
+	log.Info("Log with flag LDate|Ltime|Lmicroseconds")
+
+	log.SetFlag(Ldate | Ltime | Lmicroseconds | LUTC)
+	log.Info("Log with flag LDate|Ltime|Lmicroseconds|LUTC")
+
+	log.SetFlag(Ldate | Ltime | Llongfile)
+	log.Info("Log with flag LDate|Ltime|Llongfile")
+
+	log.SetFlag(Ldate | Ltime | Lshortfile)
+	log.Info("Log with flag LDate|Ltime|Lshortfile")
+
+	log.SetFlag(LstdFlags)
+	log.Info("Log with flag LstdFlags")
+
+	// wait for queue empty
+	time.Sleep(1 * time.Second)
+}
+
 func TestConcurrency(t *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)

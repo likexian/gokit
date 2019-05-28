@@ -25,6 +25,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -38,10 +39,14 @@ import (
 // LogLevel storing log level
 type LogLevel int
 
+// LogFlag storing log flag
+type LogFlag int
+
 // Logger storing logger
 type Logger struct {
 	logFile   logFile
 	logLevel  LogLevel
+	logFlag   LogFlag
 	logQueue  chan string
 	logExit   chan bool
 	logClosed bool
@@ -70,6 +75,17 @@ const (
 	FATAL
 )
 
+// Log prefix flag, similar to golang log package
+const (
+	Ldate = 1 << iota
+	Ltime
+	Lmicroseconds
+	Llongfile
+	Lshortfile
+	LUTC
+	LstdFlags = Ldate | Ltime
+)
+
 // log level mapper
 var levelMap = map[LogLevel]string{
 	DEBUG: "DEBUG",
@@ -84,7 +100,7 @@ var onceCache = xcache.New(xcache.MemoryCache)
 
 // Version returns package version
 func Version() string {
-	return "0.3.2"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -99,7 +115,7 @@ func License() string {
 
 // New returns a new logger
 func New(w io.Writer, level LogLevel) *Logger {
-	return newLog(logFile{writer: w}, level)
+	return newLog(logFile{writer: w}, level, LstdFlags)
 }
 
 // File returns a new file logger
@@ -108,7 +124,7 @@ func File(fname string, level LogLevel) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newLog(logFile{name: fname, writer: fd, fd: fd}, level), nil
+	return newLog(logFile{name: fname, writer: fd, fd: fd}, level, LstdFlags), nil
 }
 
 // openFile open file with flags
@@ -117,10 +133,11 @@ func openFile(fname string) (*os.File, error) {
 }
 
 // newLogger returns a new file logger
-func newLog(lf logFile, level LogLevel) *Logger {
+func newLog(lf logFile, level LogLevel, flag LogFlag) *Logger {
 	l := &Logger{
 		logFile:   lf,
 		logLevel:  level,
+		logFlag:   flag,
 		logQueue:  make(chan string, 10000),
 		logExit:   make(chan bool),
 		logClosed: false,
@@ -141,6 +158,13 @@ func (l *Logger) Close() {
 func (l *Logger) SetLevel(level LogLevel) {
 	l.Lock()
 	l.logLevel = level
+	l.Unlock()
+}
+
+// SetFlag set the log flag
+func (l *Logger) SetFlag(flag LogFlag) {
+	l.Lock()
+	l.logFlag = flag
 	l.Unlock()
 }
 
@@ -301,9 +325,38 @@ func (l *Logger) Log(level LogLevel, msg string, args ...interface{}) {
 		return
 	}
 
-	now := time.Now().Format("2006-01-02 15:04:05")
-	str := fmt.Sprintf("%s [%s] %s\n", now, levelMap[level], msg)
+	logTime := ""
+	now := time.Now()
+	if l.logFlag&(Ldate|Ltime|Lmicroseconds) != 0 {
+		if l.logFlag&LUTC != 0 {
+			now = now.UTC()
+		}
+		if l.logFlag&Ldate != 0 {
+			logTime += fmt.Sprintf("%s ", now.Format("2006-01-02"))
+		}
+		if l.logFlag&Ltime != 0 {
+			logTime += fmt.Sprintf("%s ", now.Format("15:04:05"))
+		}
+		if l.logFlag&Lmicroseconds != 0 {
+			logTime = fmt.Sprintf("%s.%d ", strings.TrimSpace(logTime), now.Nanosecond()/1e3)
+		}
+	}
 
+	logFile := ""
+	if l.logFlag&(Llongfile|Lshortfile) != 0 {
+		_, file, line, ok := runtime.Caller(2)
+		if !ok {
+			logFile = "???:? "
+		} else {
+			logFile = fmt.Sprintf("%s:%d ", file, line)
+		}
+		if l.logFlag&Lshortfile != 0 {
+			ls := strings.Split(logFile, "/")
+			logFile = ls[len(ls)-1]
+		}
+	}
+
+	str := fmt.Sprintf("%s%s[%s] %s\n", logTime, logFile, levelMap[level], msg)
 	l.logQueue <- fmt.Sprintf(str, args...)
 }
 
