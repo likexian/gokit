@@ -100,7 +100,7 @@ var onceCache = xcache.New(xcache.MemoryCache)
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -151,7 +151,9 @@ func (l *Logger) Close() {
 	l.Lock()
 	l.logClosed = true
 	l.Unlock()
+
 	close(l.logQueue)
+	<-l.logExit
 }
 
 // SetLevel set the log level by int level
@@ -398,7 +400,7 @@ func (l *Logger) Error(msg string, args ...interface{}) {
 func (l *Logger) Fatal(msg string, args ...interface{}) {
 	l.Log(FATAL, msg, args...)
 	l.Close()
-	l.exit(1)
+	os.Exit(1)
 }
 
 // DebugOnce level msg logging
@@ -419,14 +421,6 @@ func (l *Logger) WarnOnce(msg string, args ...interface{}) {
 // ErrorOnce level msg logging
 func (l *Logger) ErrorOnce(msg string, args ...interface{}) {
 	l.LogOnce(ERROR, msg, args...)
-}
-
-// exit wait for queue empty and call os.Exit()
-func (l *Logger) exit(code int) {
-	select {
-	case <-l.logExit:
-		os.Exit(code)
-	}
 }
 
 // getFileList returns file list

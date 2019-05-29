@@ -25,17 +25,20 @@ log := xlog.New(os.Stderr, xlog.INFO)
 log.Info("This is Info")
 log.SetLevel(xlog.DEBUG)
 log.Debug("This is Debug")
+log.Close()
 ```
 
 ### Do logging to a file
 
 ```go
-flog, err := xlog.File("test.log", xlog.DEBUG)
+log, err := xlog.File("test.log", xlog.DEBUG)
 if err != nil {
     panic(err)
 }
-flog.Debug("This is Debug")
-flog.Info("This is Info")
+log.SetFlag(xlog.LstdFlags|xlog.Llongfile)
+log.Debug("This is Debug")
+log.Info("This is Info")
+log.Close()
 ```
 
 ## LICENSE

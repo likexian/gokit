@@ -70,9 +70,6 @@ func TestLogger(t *testing.T) {
 
 	// will be ignore
 	log.Info("Log after closed")
-
-	// wait for queue empty
-	time.Sleep(1 * time.Second)
 }
 
 func TestLogOnce(t *testing.T) {
@@ -97,8 +94,7 @@ func TestLogOnce(t *testing.T) {
 	log.ErrorOnce("This only log once")
 	log.ErrorOnce("This only log once")
 
-	// wait for queue empty
-	time.Sleep(1 * time.Second)
+	log.Close()
 }
 
 func TestFlag(t *testing.T) {
@@ -132,8 +128,10 @@ func TestFlag(t *testing.T) {
 	log.SetFlag(LstdFlags)
 	log.Info("Log with flag LstdFlags")
 
-	// wait for queue empty
-	time.Sleep(1 * time.Second)
+	log.SetFlag(LstdFlags | Lshortfile)
+	log.Info("Log with flag LstdFlags|Lshortfile")
+
+	log.Close()
 }
 
 func TestConcurrency(t *testing.T) {
