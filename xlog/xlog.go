@@ -100,7 +100,7 @@ var onceCache = xcache.New(xcache.MemoryCache)
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.5.1"
 }
 
 // Author returns package author
@@ -150,9 +150,8 @@ func newLog(lf logFile, level LogLevel, flag LogFlag) *Logger {
 func (l *Logger) Close() {
 	l.Lock()
 	l.logClosed = true
-	l.Unlock()
-
 	close(l.logQueue)
+	l.Unlock()
 	<-l.logExit
 }
 

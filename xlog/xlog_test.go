@@ -156,7 +156,7 @@ func TestConcurrency(t *testing.T) {
 	}
 
 	// wait for queue empty
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	log.Close()
 	flog.Close()
 }
@@ -178,8 +178,8 @@ func TestLogRotate(t *testing.T) {
 
 	// set rotate by filesize
 	var wg sync.WaitGroup
-	log.SetSizeRotate(3, 100000)
-	for i := 0; i < 100000; i++ {
+	log.SetSizeRotate(3, 10000)
+	for i := 0; i < 10000; i++ {
 		wg.Add(1)
 		go func(i int) {
 			log.Info("This is a log line of log file by log thread: %d", i)
@@ -190,7 +190,7 @@ func TestLogRotate(t *testing.T) {
 	// wait for log end
 	time.Sleep(3 * time.Second)
 	wg.Wait()
-	log.SetSizeRotate(3, 100000)
+	log.SetSizeRotate(3, 10000)
 	log.Close()
 
 	// only file log support rotate
