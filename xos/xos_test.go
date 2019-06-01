@@ -70,15 +70,6 @@ func TestGetPwd(t *testing.T) {
 	assert.NotEqual(t, pwd, "", "pwd expect to be not empty")
 }
 
-func TestWritePid(t *testing.T) {
-	pid := "xos.pid"
-	defer os.Remove(pid)
-
-	err := WritePid(pid)
-	assert.Nil(t, err)
-	assert.True(t, xfile.Exists(pid))
-}
-
 func TestSetid(t *testing.T) {
 	err := SetUid(0)
 	assert.Nil(t, err)

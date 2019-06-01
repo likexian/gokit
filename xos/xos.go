@@ -160,8 +160,3 @@ func GetProcPwd() string {
 	dir, _ := filepath.Abs(filepath.Dir(file))
 	return dir
 }
-
-// WritePid write pid to file path
-func WritePid(path string) error {
-	return xfile.WriteText(path, fmt.Sprintf("%d\n", os.Getpid()))
-}
