@@ -22,8 +22,6 @@ package xos
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"github.com/likexian/gokit/xfile"
 	"os"
 	"os/exec"
 	"os/user"

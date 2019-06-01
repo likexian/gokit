@@ -20,10 +20,9 @@
 package xos
 
 import (
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xfile"
-	"os"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
