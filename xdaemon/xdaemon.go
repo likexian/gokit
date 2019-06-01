@@ -36,7 +36,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.1"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -51,13 +51,23 @@ func License() string {
 
 // Daemon start to daemon
 func (c *Config) Daemon() (err error) {
+	var pid *xos.Pidx
+
+	if c.Pid != "" {
+		pid = xos.Pid(c.Pid)
+		_, err := pid.Alive()
+		if err == nil {
+			return xos.ErrPidExists
+		}
+	}
+
 	err = c.doDaemon()
 	if err != nil {
 		return
 	}
 
 	if c.Pid != "" {
-		err = xos.WritePid(c.Pid)
+		_, err = pid.Create()
 		if err != nil {
 			return
 		}

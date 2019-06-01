@@ -29,8 +29,8 @@ import (
 	"github.com/likexian/gokit/xfile"
 )
 
-// Pid storing pid info
-type Pid struct {
+// Pidx storing pid info
+type Pidx struct {
 	file string
 }
 
@@ -41,13 +41,13 @@ var (
 	ErrPidLockFailed = errors.New("xos: lock pid file failed")
 )
 
-// New init a new pid
-func New(f string) *Pid {
-	return &Pid{f}
+// Pid init a new pid
+func Pid(f string) *Pidx {
+	return &Pidx{f}
 }
 
 // Create check create a new pid file
-func (p *Pid) Create() (int, error) {
+func (p *Pidx) Create() (int, error) {
 	if xfile.Exists(p.file) {
 		pid, err := p.Alive()
 		if err == nil {
@@ -73,7 +73,7 @@ func (p *Pid) Create() (int, error) {
 }
 
 // Alive returns pid is alive
-func (p *Pid) Alive() (int, error) {
+func (p *Pidx) Alive() (int, error) {
 	pid, err := p.Value()
 	if err != nil {
 		return 0, err
@@ -93,7 +93,7 @@ func (p *Pid) Alive() (int, error) {
 }
 
 // Value returns pid value
-func (p *Pid) Value() (int, error) {
+func (p *Pidx) Value() (int, error) {
 	text, err := xfile.ReadText(p.file)
 	if err != nil {
 		return 0, err

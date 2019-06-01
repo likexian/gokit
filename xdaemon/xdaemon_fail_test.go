@@ -21,6 +21,7 @@ package xdaemon
 
 import (
 	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xfile"
 	"os"
 	"testing"
 )
@@ -48,4 +49,21 @@ func TestFailDaemon(t *testing.T) {
 	assert.NotNil(t, err)
 
 	os.Args[0] = v
+}
+
+func TestIsRunning(t *testing.T) {
+	pidFile := "/tmp/test.pid"
+	defer os.Remove(pidFile)
+
+	err := xfile.WriteText(pidFile, "1")
+	assert.Nil(t, err)
+
+	c := Config{
+		Pid:   pidFile,
+		Log:   "/tmp/test.log",
+		User:  "nobody",
+		Chdir: "/",
+	}
+	err = c.Daemon()
+	assert.NotNil(t, err)
 }

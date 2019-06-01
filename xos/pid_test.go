@@ -35,7 +35,7 @@ const (
 func TestValue(t *testing.T) {
 	defer os.Remove(pidFile)
 
-	p := New(pidFile)
+	p := Pid(pidFile)
 	_, err := p.Value()
 	assert.NotNil(t, err)
 
@@ -50,7 +50,7 @@ func TestValue(t *testing.T) {
 func TestAlive(t *testing.T) {
 	defer os.Remove(pidFile)
 
-	p := New(pidFile)
+	p := Pid(pidFile)
 	_, err := p.Alive()
 	assert.NotNil(t, err)
 
@@ -74,7 +74,7 @@ func TestCreate(t *testing.T) {
 	err := xfile.WriteText(pidFile, "1")
 	assert.Nil(t, err)
 
-	p := New(pidFile)
+	p := Pid(pidFile)
 	pid, err := p.Create()
 	assert.NotNil(t, err)
 	assert.Equal(t, pid, 1)
@@ -89,7 +89,7 @@ func TestCreate(t *testing.T) {
 func TestConcurrency(t *testing.T) {
 	defer os.Remove(pidFile)
 
-	p := New(pidFile)
+	p := Pid(pidFile)
 	for i := 0; i < 1000; i++ {
 		go func() {
 			_, err := p.Create()
