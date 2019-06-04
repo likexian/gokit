@@ -56,15 +56,15 @@ func TestFile(t *testing.T) {
 	ok = IsFile("tmp/file")
 	assert.False(t, ok, "file expect to be not file")
 
-	fd, err := New("tmp/dir/test/")
+	_, err = New("tmp/dir/test/")
 	assert.NotNil(t, err)
 
-	fd, err = New("tmp/file")
+	fd, err := New("tmp/file")
 	assert.Nil(t, err)
 	err = fd.Close()
 	assert.Nil(t, err)
 
-	fd, err = New("tmp/file/test")
+	_, err = New("tmp/file/test")
 	assert.NotNil(t, err)
 
 	ok = IsFile("tmp/file")

@@ -161,13 +161,13 @@ func TestIsMatch(t *testing.T) {
 		y interface{}
 		z bool
 	}{
-		{regexp.MustCompile("v\\d+"), "v100", true},
-		{"v\\d+", "v100", true},
-		{"\\d+\\.\\d+", 100.1, true},
-		{regexp.MustCompile("v\\d+"), "x100", false},
-		{"v\\d+", "x100", false},
-		{"\\d+\\.\\d+", "x100", false},
-		{"v\\d+", i, false},
+		{regexp.MustCompile(`v\d+`), "v100", true},
+		{`v\d+`, "v100", true},
+		{`\d+\.\d+`, 100.1, true},
+		{regexp.MustCompile(`v\d+`), "x100", false},
+		{`v\d+`, "x100", false},
+		{`\d+\.\d+`, "x100", false},
+		{`v\d+`, i, false},
 		{i, 100.1, false},
 	}
 

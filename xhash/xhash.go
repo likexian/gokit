@@ -157,8 +157,6 @@ func (h Hashx) writeString(s ...interface{}) {
 			h.Hash.Write([]byte(xstring.ToString(v)))
 		}
 	}
-
-	return
 }
 
 // writeFile write file content to hash

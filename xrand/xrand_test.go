@@ -79,7 +79,7 @@ func TestStringRange(t *testing.T) {
 
 		v = StringRange(10, "abc")
 		assert.Equal(t, len(v), 10)
-		for _, vv := range []rune(v) {
+		for _, vv := range v {
 			assert.True(t, vv == 'a' || vv == 'b' || vv == 'c')
 		}
 	}

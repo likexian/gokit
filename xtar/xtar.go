@@ -180,10 +180,7 @@ func Extract(tarFile, dstFolder string) (err error) {
 				return err
 			}
 		}
-		fname := h.Name
-		if strings.HasPrefix(fname, "/") {
-			fname = fname[1:]
-		}
+		fname := strings.TrimPrefix(h.Name, "/")
 		if fname == "" {
 			continue
 		}

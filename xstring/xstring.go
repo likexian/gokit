@@ -44,7 +44,7 @@ func License() string {
 // IsLetter returns if s is an english letter
 func IsLetter(s uint8) bool {
 	n := (s | 0x20) - 'a'
-	return n >= 0 && n < 26
+	return n < 26
 }
 
 // IsLetters returns if s is all english letter

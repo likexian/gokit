@@ -216,10 +216,16 @@ func (m *message) tlsSendMail() (err error) {
 func (m *message) innerTo() (to []string) {
 	to = m.to
 	for _, v := range m.cc {
+		if v == "" {
+			continue
+		}
 		to = append(to, v)
 	}
 
 	for _, v := range m.bcc {
+		if v == "" {
+			continue
+		}
 		to = append(to, v)
 	}
 

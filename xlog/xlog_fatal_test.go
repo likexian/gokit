@@ -47,7 +47,7 @@ func TestFatal(t *testing.T) {
 
 	err := cmd.Run()
 	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
-		output := strings.TrimSpace(string(stderr.Bytes()))
+		output := strings.TrimSpace(stderr.String())
 		if !strings.Contains(output, LogLine) {
 			t.Errorf("Test got %s, expect %s", output, LogLine)
 		}

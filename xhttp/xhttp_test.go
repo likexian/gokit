@@ -302,14 +302,14 @@ func TestJson(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
-	s, err := rsp.Json()
+	_, err = rsp.Json()
 	assert.NotNil(t, err)
 
 	rsp, err = req.Do("GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
-	s, err = rsp.Json()
+	s, err := rsp.Json()
 	assert.Nil(t, err)
 	assert.Equal(t, s.Get("url").MustString(""), LOCALURL+"get")
 }
@@ -1012,15 +1012,12 @@ func ServerForTesting(listen string) string {
 		})
 		http.HandleFunc("/put", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			return
 		})
 		http.HandleFunc("/patch", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			return
 		})
 		http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			return
 		})
 		http.HandleFunc("/cookies", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
