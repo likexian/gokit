@@ -24,13 +24,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xcache"
-	"github.com/likexian/gokit/xfile"
-	"github.com/likexian/gokit/xhash"
-	"github.com/likexian/gokit/xjson"
-	"github.com/likexian/gokit/xrand"
-	"github.com/likexian/gokit/xtime"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -43,6 +36,14 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xcache"
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xhash"
+	"github.com/likexian/gokit/xjson"
+	"github.com/likexian/gokit/xrand"
+	"github.com/likexian/gokit/xtime"
 )
 
 // Timeout storing timeout setting
@@ -190,7 +191,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.16.1"
+	return "0.16.2"
 }
 
 // Author returns package author
@@ -591,7 +592,7 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 				}
 				for k, v := range formParam.Values {
 					for _, vv := range v {
-						bw.WriteField(k, vv)
+						_ = bw.WriteField(k, vv)
 					}
 				}
 				bw.Close()
@@ -701,7 +702,7 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 	}
 
 	if s.CacheKey != "" {
-		caching.Set(s.CacheKey, s, cacheTTL)
+		_ = caching.Set(s.CacheKey, s, cacheTTL)
 	}
 
 	return

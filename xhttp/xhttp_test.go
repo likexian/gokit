@@ -23,17 +23,19 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xfile"
-	"github.com/likexian/gokit/xjson"
-	"github.com/likexian/gokit/xtime"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xjson"
+	"github.com/likexian/gokit/xtime"
 )
 
 var (
@@ -751,7 +753,7 @@ func TestSetRetries(t *testing.T) {
 	go func() {
 		time.AfterFunc(100*time.Millisecond, func() {
 			http.HandleFunc("/after3/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "Hello!") })
-			http.ListenAndServe("127.0.0.1:5555", nil)
+			_ = http.ListenAndServe("127.0.0.1:5555", nil)
 		})
 	}()
 
@@ -900,6 +902,28 @@ func TestCheckClient(t *testing.T) {
 	defer rsp.Close()
 	err = CheckClient(req.Request, "")
 	assert.Nil(t, err)
+}
+
+func TestConcurrent(t *testing.T) {
+	var wg sync.WaitGroup
+
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			req := New()
+			req.SetHeader("X-Test-Value", "Test")
+			rsp, err := req.Do("GET", LOCALURL)
+			assert.Nil(t, err)
+			defer rsp.Close()
+			assert.Equal(t, rsp.StatusCode, 200)
+			str, err := rsp.String()
+			assert.Nil(t, err)
+			assert.Equal(t, len(str), 128)
+		}()
+	}
+
+	wg.Wait()
 }
 
 func TestGetClientIPs(t *testing.T) {
@@ -1082,8 +1106,10 @@ func ServerForTesting(listen string) string {
 			w.Header().Set("Content-Type", "text/html")
 			time.Sleep(1 * time.Second)
 		})
-		http.ListenAndServe(listen, GzWrap(SetHeaderWrap(http.DefaultServeMux, Header{"Server": "Testing"})))
+		_ = http.ListenAndServe(listen, GzWrap(SetHeaderWrap(http.DefaultServeMux, Header{"Server": "Testing"})))
 	}()
+
+	time.Sleep(1 * time.Second)
 
 	return fmt.Sprintf("http://%s/", listen)
 }

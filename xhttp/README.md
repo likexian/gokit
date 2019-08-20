@@ -103,6 +103,29 @@ defer rsp.Close()
 ...
 ```
 
+### xhttp.Request not thread-safe
+
+This version of xhttp.Request is not thread-safe, please New every thread when doing concurrent
+
+```go
+for i := 0; i < 100; i++ {
+    go func() {
+        // always New one
+        req := New()
+        rsp, err := req.Do("GET", LOCALURL)
+        if err != nil {
+            fmt.Println(err)
+            return
+        }
+        defer rsp.Close()
+        str, err := rsp.String()
+        if err == nil {
+            fmt.Println(str)
+        }
+    }()
+}
+```
+
 ## LICENSE
 
 Copyright 2012-2019 Li Kexian
