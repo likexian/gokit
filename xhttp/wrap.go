@@ -68,8 +68,8 @@ func GzWrap(next http.Handler) http.Handler {
 
 		gz := gzPool.Get().(*gzip.Writer)
 		defer func() {
-			gzPool.Put(gz)
 			gz.Reset(ioutil.Discard)
+			gzPool.Put(gz)
 		}()
 
 		gz.Reset(w)

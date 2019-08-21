@@ -1109,7 +1109,13 @@ func ServerForTesting(listen string) string {
 		_ = http.ListenAndServe(listen, GzWrap(SetHeaderWrap(http.DefaultServeMux, Header{"Server": "Testing"})))
 	}()
 
-	time.Sleep(1 * time.Second)
+	req := New()
+	for {
+		_, err := req.Do("GET", fmt.Sprintf("http://%s/", listen))
+		if err == nil {
+			break
+		}
+	}
 
 	return fmt.Sprintf("http://%s/", listen)
 }
