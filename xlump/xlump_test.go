@@ -20,14 +20,15 @@
 package xlump
 
 import (
+	"context"
 	"fmt"
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xfile"
-	"github.com/likexian/gokit/xhttp"
 	"net/http"
 	"os"
 	"testing"
-	"time"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xhttp"
 )
 
 func TestVersion(t *testing.T) {
@@ -74,7 +75,7 @@ func TestFileLine(t *testing.T) {
 	wq.SetMerger(lineSum, 0)
 
 	for i := 0; i < 100; i++ {
-		xfile.WriteText(fmt.Sprintf("tmp/%d.txt", i), "0\n1\n2\n3\n4\n5\n6\n7\n8\n9")
+		_ = xfile.WriteText(fmt.Sprintf("tmp/%d.txt", i), "0\n1\n2\n3\n4\n5\n6\n7\n8\n9")
 	}
 
 	files, err := xfile.ListDir("tmp", xfile.TypeFile, -1)
@@ -100,12 +101,20 @@ func TestHttpStatus(t *testing.T) {
 			}
 			w.WriteHeader(s)
 		})
-		http.ListenAndServe("127.0.0.1:6666", nil)
+		_ = http.ListenAndServe("127.0.0.1:6666", nil)
 	}()
 
-	time.Sleep(1 * time.Second)
+	req := xhttp.New()
+	for {
+		_, err := req.Do(context.Background(), "GET", fmt.Sprintf("http://127.0.0.1:6666/"))
+		if err == nil {
+			break
+		}
+	}
+
 	getStatus := func(t Task) Task {
-		rsp, err := xhttp.New().Get(fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
+		ctx := context.Background()
+		rsp, err := xhttp.New().Get(ctx, fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
 		if err != nil {
 			return 0
 		}
