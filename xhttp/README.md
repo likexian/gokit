@@ -31,7 +31,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xhttp)
 ### The Most easy way
 
 ```go
-rsp, err := xhttp.Get("https://www.likexian.com/")
+rsp, err := xhttp.Get(context.Background(), "https://www.likexian.com/")
 if err != nil {
     panic(err)
 }
@@ -48,7 +48,7 @@ if err == nil {
 
 ```go
 // xhttp.FormParam is form, xhttp.FormFile is file
-rsp, err := xhttp.Post("https://www.likexian.com/",
+rsp, err := xhttp.Post(context.Background(), "https://www.likexian.com/",
     xhttp.FormParam{"name": "likexian", "age": 18}, xhttp.FormFile{"file": "README.md"})
 if err != nil {
     panic(err)
@@ -81,7 +81,7 @@ req.FollowRedirect(false)
 req.EnableCookie(true)
 
 // will send get to https://www.likexian.com/?v=1.0.0
-rsp, err := req.Get("https://www.likexian.com/", xhttp.QueryParam{"v", "1.0.0"})
+rsp, err := req.Get(context.Background(), "https://www.likexian.com/", xhttp.QueryParam{"v", "1.0.0"})
 if err != nil {
     panic(err)
 }
@@ -94,7 +94,7 @@ if err == nil {
 }
 
 // use the request param as above
-rsp, err := req.Get("https://www.likexian.com/page/")
+rsp, err := req.Get(context.Background(), "https://www.likexian.com/page/")
 if err != nil {
     panic(err)
 }
@@ -112,7 +112,7 @@ for i := 0; i < 100; i++ {
     go func() {
         // always New one
         req := New()
-        rsp, err := req.Do("GET", LOCALURL)
+        rsp, err := req.Do(context.Background(), "GET", LOCALURL)
         if err != nil {
             fmt.Println(err)
             return

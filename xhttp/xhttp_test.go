@@ -50,105 +50,108 @@ func TestVersion(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
-	_, err := req.Do("GET", LOCALURL)
+	_, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "GET")
 	assert.Equal(t, req.Request.URL.String(), LOCALURL)
 
-	_, err = req.Do("CODE", LOCALURL)
+	_, err = req.Do(ctx, "CODE", LOCALURL)
 	assert.NotNil(t, err)
-	_, err = req.Do("GET", "")
+	_, err = req.Do(ctx, "GET", "")
 	assert.NotNil(t, err)
-	_, err = req.Do("GET", "::")
+	_, err = req.Do(ctx, "GET", "::")
 	assert.NotNil(t, err)
 
-	_, err = req.Do("get", LOCALURL)
+	_, err = req.Do(ctx, "get", LOCALURL)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "GET")
 	assert.Equal(t, req.Request.URL.String(), LOCALURL)
 
-	_, err = req.Do("POST", LOCALURL+"post")
+	_, err = req.Do(ctx, "POST", LOCALURL+"post")
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.Method, "POST")
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 
 	clientId := req.ClientId
 	req = New()
-	_, err = req.Do("GET", LOCALURL)
+	_, err = req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	assert.NotEqual(t, req.ClientId, clientId)
 }
 
 func TestMethod(t *testing.T) {
-	rsp, err := Get(LOCALURL + "get")
+	ctx := context.Background()
+
+	rsp, err := Get(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Head(LOCALURL + "get")
+	rsp, err = Head(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Post(LOCALURL + "post")
+	rsp, err = Post(ctx, LOCALURL+"post")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Put(LOCALURL + "put")
+	rsp, err = Put(ctx, LOCALURL+"put")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Patch(LOCALURL + "patch")
+	rsp, err = Patch(ctx, LOCALURL+"patch")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Delete(LOCALURL + "delete")
+	rsp, err = Delete(ctx, LOCALURL+"delete")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = Options(LOCALURL + "get")
+	rsp, err = Options(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
 	req := New()
 
-	rsp, err = req.Get(LOCALURL + "get")
+	rsp, err = req.Get(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Head(LOCALURL + "get")
+	rsp, err = req.Head(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Post(LOCALURL + "post")
+	rsp, err = req.Post(ctx, LOCALURL+"post")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Put(LOCALURL + "put")
+	rsp, err = req.Put(ctx, LOCALURL+"put")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Patch(LOCALURL + "patch")
+	rsp, err = req.Patch(ctx, LOCALURL+"patch")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Delete(LOCALURL + "delete")
+	rsp, err = req.Delete(ctx, LOCALURL+"delete")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 
-	rsp, err = req.Options(LOCALURL + "get")
+	rsp, err = req.Options(ctx, LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -163,18 +166,22 @@ func TestSetClientKey(t *testing.T) {
 
 func TestSetHost(t *testing.T) {
 	req := New()
+	ctx := context.Background()
+
 	host := req.Request.Host
 	req.SetHost("likexian.com")
 	assert.Equal(t, req.Request.Host, "likexian.com")
 	assert.NotEqual(t, req.Request.Host, host)
 
 	var h Host = "likexian.com"
-	_, _ = req.Do("GET", LOCALURL, h)
+	_, _ = req.Do(ctx, "GET", LOCALURL, h)
 	assert.Equal(t, req.Request.Host, "likexian.com")
 }
 
 func TestSetHeader(t *testing.T) {
 	req := New()
+	ctx := context.Background()
+
 	author := req.GetHeader("X-Author")
 	assert.Equal(t, author, "")
 	req.SetHeader("X-Author", "likexian")
@@ -183,14 +190,14 @@ func TestSetHeader(t *testing.T) {
 	h1 := Header{
 		"X-Version": Version(),
 	}
-	_, _ = req.Do("GET", LOCALURL, h1)
+	_, _ = req.Do(ctx, "GET", LOCALURL, h1)
 	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
 	assert.Equal(t, req.GetHeader("X-Version"), Version())
 
 	h2 := http.Header{
 		"X-License": []string{License()},
 	}
-	_, _ = req.Do("GET", LOCALURL, h2)
+	_, _ = req.Do(ctx, "GET", LOCALURL, h2)
 	assert.Equal(t, req.GetHeader("X-Author"), "likexian")
 	assert.Equal(t, req.GetHeader("X-Version"), Version())
 	assert.Equal(t, req.GetHeader("X-License"), License())
@@ -216,7 +223,9 @@ func TestSetReferer(t *testing.T) {
 
 func TestGetHeader(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -229,7 +238,8 @@ func TestGetHeader(t *testing.T) {
 
 func TestSetClient(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL, &http.Client{})
+	ctx := context.Background()
+	rsp, err := req.Do(ctx, "GET", LOCALURL, &http.Client{})
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -237,7 +247,9 @@ func TestSetClient(t *testing.T) {
 
 func TestBytes(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -251,7 +263,7 @@ func TestBytes(t *testing.T) {
 	assert.NotEqual(t, tracing.Timestamp, "")
 	assert.NotEqual(t, tracing.Nonce, "")
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -268,7 +280,7 @@ func TestBytes(t *testing.T) {
 
 	tracing = rsp.Tracing
 	req = New()
-	rsp, err = req.Do("GET", LOCALURL+"status/404")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"status/404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 404)
@@ -278,7 +290,9 @@ func TestBytes(t *testing.T) {
 
 func TestString(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -287,7 +301,7 @@ func TestString(t *testing.T) {
 	assert.NotEqual(t, len(s), 0)
 	assert.Equal(t, s[0:1], "<")
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -299,15 +313,16 @@ func TestString(t *testing.T) {
 
 func TestJson(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
-	rsp, err := req.Do("GET", LOCALURL)
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 	_, err = rsp.Json()
 	assert.NotNil(t, err)
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -324,8 +339,9 @@ func TestFile(t *testing.T) {
 	}()
 
 	req := New()
+	ctx := context.Background()
 
-	rsp, err := req.Do("GET", LOCALURL)
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -335,7 +351,7 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -345,7 +361,7 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -355,14 +371,14 @@ func TestFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, fs, ss)
 
-	rsp, err = req.Do("GET", LOCALURL+"get")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
 	_, err = rsp.File("get.html")
 	assert.NotNil(t, err)
 
-	rsp, err = req.Do("GET", LOCALURL+"status/404")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"status/404")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 404)
@@ -372,7 +388,9 @@ func TestFile(t *testing.T) {
 
 func TestFollowRedirect(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL+"redirect/3")
+	ctx := context.Background()
+
+	rsp, err := req.Do(ctx, "GET", LOCALURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -380,7 +398,7 @@ func TestFollowRedirect(t *testing.T) {
 	assert.Equal(t, loc, "")
 
 	req.FollowRedirect(false)
-	rsp, err = req.Do("GET", LOCALURL+"redirect/3")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 302)
@@ -388,7 +406,7 @@ func TestFollowRedirect(t *testing.T) {
 	assert.Equal(t, loc, "/redirect/2")
 
 	req.FollowRedirect(true)
-	rsp, err = req.Do("GET", LOCALURL+"redirect/3")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"redirect/3")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -398,7 +416,9 @@ func TestFollowRedirect(t *testing.T) {
 
 func TestSetGzip(t *testing.T) {
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -408,7 +428,7 @@ func TestSetGzip(t *testing.T) {
 	assert.Equal(t, s[0:1], "<")
 
 	req.SetGzip(false)
-	rsp, err = req.Do("GET", LOCALURL)
+	rsp, err = req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -418,7 +438,7 @@ func TestSetGzip(t *testing.T) {
 	assert.Equal(t, s[0:1], "<")
 
 	req.SetGzip(true)
-	rsp, err = req.Do("GET", LOCALURL)
+	rsp, err = req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
@@ -480,73 +500,77 @@ func TestSetProxy(t *testing.T) {
 	req := New().SetProxy(func(req *http.Request) (*url.URL, error) {
 		return url.ParseRequestURI("http://127.0.0.1:8080")
 	})
-	_, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+	_, err := req.Do(ctx, "GET", LOCALURL)
 	assert.NotNil(t, err)
 }
 
 func TestSetProxyUrl(t *testing.T) {
 	req := New().SetProxyUrl("127.0.0.1:8080")
-	_, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+	_, err := req.Do(ctx, "GET", LOCALURL)
 	assert.NotNil(t, err)
 }
 
 func TestEnableCookie(t *testing.T) {
 	// not enable cookies
 	req := New()
+	ctx := context.Background()
+
 	req.FollowRedirect(false)
-	rsp, err := req.Do("GET", LOCALURL+"cookies/set/k/v")
+	rsp, err := req.Do(ctx, "GET", LOCALURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	rsp, err = req.Do("GET", LOCALURL+"cookies")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// enable cookies
 	req.EnableCookie(true)
-	rsp, err = req.Do("GET", LOCALURL+"cookies/set/k/v")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	rsp, err = req.Do("GET", LOCALURL+"cookies")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
 	// delete cookies
-	rsp, err = req.Do("GET", LOCALURL+"cookies/delete?k=")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies/delete?k=")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
-	rsp, err = req.Do("GET", LOCALURL+"cookies")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
 	// set cookie again
 	req.EnableCookie(true)
-	rsp, err = req.Do("GET", LOCALURL+"cookies/set/k/v")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	rsp, err = req.Do("GET", LOCALURL+"cookies")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
 
 	// disable cookies
 	req.EnableCookie(false)
-	rsp, err = req.Do("GET", LOCALURL+"cookies/set/k/v")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies/set/k/v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
 
-	rsp, err = req.Do("GET", LOCALURL+"cookies")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"cookies")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 0)
@@ -554,7 +578,7 @@ func TestEnableCookie(t *testing.T) {
 	// set cookies by args
 	cookie := &http.Cookie{Name: "k", Value: "likexian"}
 	req.EnableCookie(true)
-	rsp, err = req.Do("GET", LOCALURL, cookie)
+	rsp, err = req.Do(ctx, "GET", LOCALURL, cookie)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, len(req.Request.Cookies()), 1)
@@ -562,28 +586,30 @@ func TestEnableCookie(t *testing.T) {
 
 func TestQueryParam(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
 	query := QueryParam{"k": "v"}
-	_, err := req.Do("GET", LOCALURL+"get", query)
+	_, err := req.Do(ctx, "GET", LOCALURL+"get", query)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"get?k=v")
 
 	query = QueryParam{"a": "1", "b": 2, "c": 3}
-	_, err = req.Do("GET", req.Request.URL.String(), query)
+	_, err = req.Do(ctx, "GET", req.Request.URL.String(), query)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"get?k=v&a=1&b=2&c=3")
 
 	query = QueryParam{}
-	_, err = req.Do("GET", LOCALURL+"get", query)
+	_, err = req.Do(ctx, "GET", LOCALURL+"get", query)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"get")
 }
 
 func TestFormParam(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
 	form := FormParam{"k": "v"}
-	rsp, err := req.Do("POST", LOCALURL+"post", form)
+	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err := rsp.Json()
@@ -591,7 +617,7 @@ func TestFormParam(t *testing.T) {
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
 	form = FormParam{"a": "1", "b": 2, "c": 3}
-	rsp, err = req.Do("POST", req.Request.URL.String(), form)
+	rsp, err = req.Do(ctx, "POST", req.Request.URL.String(), form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -601,7 +627,7 @@ func TestFormParam(t *testing.T) {
 	assert.Equal(t, json.Get("form").Get("c.0").MustString(""), "3")
 
 	form = FormParam{}
-	rsp, err = req.Do("POST", LOCALURL+"post", form)
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -610,7 +636,7 @@ func TestFormParam(t *testing.T) {
 	assert.Equal(t, m, map[string]interface{}{})
 
 	data := map[string]interface{}{"a": "1", "b": 2, "c": 3}
-	rsp, err = req.Do("POST", LOCALURL+"post", FormParam(data))
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormParam(data))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -622,15 +648,16 @@ func TestFormParam(t *testing.T) {
 
 func TestValuesParam(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 	values := url.Values{"k": []string{"v"}}
 
 	// url.Values as query string
-	_, err := req.Do("GET", LOCALURL+"get", values)
+	_, err := req.Do(ctx, "GET", LOCALURL+"get", values)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"get?k=v")
 
 	// url.Values as form data
-	rsp, err := req.Do("POST", LOCALURL+"post", values)
+	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", values)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err := rsp.Json()
@@ -640,9 +667,10 @@ func TestValuesParam(t *testing.T) {
 
 func TestPostBody(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
 	// Post string
-	rsp, err := req.Do("POST", LOCALURL+"post", "k=v")
+	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", "k=v")
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err := rsp.Json()
@@ -650,7 +678,7 @@ func TestPostBody(t *testing.T) {
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
 	// Post []byte
-	rsp, err = req.Do("POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
+	rsp, err = req.Do(ctx, "POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -662,7 +690,7 @@ func TestPostBody(t *testing.T) {
 	// Post bytes.Buffer
 	var b bytes.Buffer
 	b.Write([]byte("k=v"))
-	rsp, err = req.Do("POST", LOCALURL+"post", b)
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", b)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -670,7 +698,7 @@ func TestPostBody(t *testing.T) {
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
 	// Post json string
-	rsp, err = req.Do("POST", LOCALURL+"post", `{"k": "v"}`, Header{"Content-Type": "application/json"})
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", `{"k": "v"}`, Header{"Content-Type": "application/json"})
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	json, err = rsp.Json()
@@ -679,7 +707,7 @@ func TestPostBody(t *testing.T) {
 
 	// Post map as json
 	data := map[string]interface{}{"a": "1", "b": 2, "c": 3}
-	rsp, err = req.Do("POST", LOCALURL+"post", JsonParam(data))
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", JsonParam(data))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 	j, err := rsp.Json()
@@ -692,9 +720,10 @@ func TestPostBody(t *testing.T) {
 
 func TestPostFile(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
 	// Test post one file
-	rsp, err := req.Do("POST", LOCALURL+"post", FormFile{"file": "../go.mod"})
+	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", FormFile{"file": "../go.mod"})
 	assert.Nil(t, err)
 	defer rsp.Close()
 	json, err := rsp.Json()
@@ -703,7 +732,7 @@ func TestPostFile(t *testing.T) {
 	assert.Contains(t, json.Get("file").Get("file").MustString(""), "module github.com/likexian/gokit")
 
 	// Test post more files
-	rsp, err = req.Do("POST", LOCALURL+"post", FormFile{"file_0": "../go.mod"}, FormFile{"file_1": "../go.sum"})
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormFile{"file_0": "../go.mod"}, FormFile{"file_1": "../go.sum"})
 	assert.Nil(t, err)
 	defer rsp.Close()
 	json, err = rsp.Json()
@@ -713,7 +742,7 @@ func TestPostFile(t *testing.T) {
 	assert.Contains(t, json.Get("file").Get("file_1").MustString(""), "github.com/likexian/gokit")
 
 	// Test post file and form
-	rsp, err = req.Do("POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod", "404": "404.md"})
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod", "404": "404.md"})
 	assert.Nil(t, err)
 	defer rsp.Close()
 	json, err = rsp.Json()
@@ -723,29 +752,30 @@ func TestPostFile(t *testing.T) {
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 }
 
-func TestWithContext(t *testing.T) {
+func TestWithCancel(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		time.AfterFunc(100*time.Millisecond, cancel)
 	}()
 
 	req := New()
-	_, err := req.Do("GET", LOCALURL+"sleep", ctx)
+	_, err := req.Do(ctx, "GET", LOCALURL+"sleep")
 	assert.NotNil(t, err)
 }
 
 func TestSetRetries(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 	assert.Panic(t, func() { req.SetRetries() })
 
 	// no retry (default)
-	rsp, err := req.Do("Get", "http://127.0.0.1:5555/")
+	rsp, err := req.Do(ctx, "Get", "http://127.0.0.1:5555/")
 	assert.NotNil(t, err)
 	assert.Equal(t, rsp.Tracing.Retries, 0)
 
 	// retry 3 times
 	req.SetRetries(3)
-	rsp, err = req.Do("Get", "http://127.0.0.1:5555/")
+	rsp, err = req.Do(ctx, "Get", "http://127.0.0.1:5555/")
 	assert.NotNil(t, err)
 	assert.Equal(t, rsp.Tracing.Retries, 3)
 
@@ -759,7 +789,7 @@ func TestSetRetries(t *testing.T) {
 
 	// retry until success, sleep 1 second per request
 	req.SetRetries(-1, time.Duration(100*time.Millisecond))
-	rsp, err = req.Do("Get", "http://127.0.0.1:5555/after3/")
+	rsp, err = req.Do(ctx, "Get", "http://127.0.0.1:5555/after3/")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	text, err := rsp.String()
@@ -770,16 +800,17 @@ func TestSetRetries(t *testing.T) {
 
 func TestDump(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
 	req.SetDump(true, false)
-	rsp, err := req.Do("POST", LOCALURL+"post", "k=v")
+	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", "k=v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	dump := rsp.Dump()
 	assert.NotContains(t, string(dump[0]), "k=v")
 
 	req.SetDump(true, true)
-	rsp, err = req.Do("POST", LOCALURL+"post", "k=v")
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", "k=v")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	dump = rsp.Dump()
@@ -788,8 +819,9 @@ func TestDump(t *testing.T) {
 
 func TestEnableCache(t *testing.T) {
 	req := New()
+	ctx := context.Background()
 
-	rsp, err := req.Do("GET", LOCALURL+"time")
+	rsp, err := req.Do(ctx, "GET", LOCALURL+"time")
 	assert.Nil(t, err)
 	defer rsp.Close()
 
@@ -797,7 +829,7 @@ func TestEnableCache(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, text, "")
 
-	newRsp, err := req.Do("GET", LOCALURL+"time")
+	newRsp, err := req.Do(ctx, "GET", LOCALURL+"time")
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -809,7 +841,7 @@ func TestEnableCache(t *testing.T) {
 	// enable get cache
 	req.EnableCache("GET", 300)
 
-	rsp, err = req.Do("GET", LOCALURL+"time")
+	rsp, err = req.Do(ctx, "GET", LOCALURL+"time")
 	assert.Nil(t, err)
 	defer rsp.Close()
 
@@ -817,7 +849,7 @@ func TestEnableCache(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, text, "")
 
-	newRsp, err = req.Do("GET", LOCALURL+"time")
+	newRsp, err = req.Do(ctx, "GET", LOCALURL+"time")
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -826,7 +858,7 @@ func TestEnableCache(t *testing.T) {
 	assert.Equal(t, newText, text)
 	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
 
-	newRsp, err = req.Do("GET", LOCALURL+"time", QueryParam{"q": "a"})
+	newRsp, err = req.Do(ctx, "GET", LOCALURL+"time", QueryParam{"q": "a"})
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -838,7 +870,7 @@ func TestEnableCache(t *testing.T) {
 	// enable post cache
 	req.EnableCache("post", 300)
 
-	rsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
 	assert.Nil(t, err)
 	defer rsp.Close()
 
@@ -846,7 +878,7 @@ func TestEnableCache(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEqual(t, text, "")
 
-	newRsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
+	newRsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian"})
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -855,7 +887,7 @@ func TestEnableCache(t *testing.T) {
 	assert.Equal(t, newText, text)
 	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
 
-	newRsp, err = req.Do("POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian", "q": "a"})
+	newRsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian", "q": "a"})
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -897,7 +929,8 @@ func TestCheckClient(t *testing.T) {
 	assert.NotNil(t, err)
 
 	req := New()
-	rsp, err := req.Do("GET", LOCALURL)
+	ctx := context.Background()
+	rsp, err := req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
 	defer rsp.Close()
 	err = CheckClient(req.Request, "")
@@ -906,6 +939,7 @@ func TestCheckClient(t *testing.T) {
 
 func TestConcurrent(t *testing.T) {
 	var wg sync.WaitGroup
+	ctx := context.Background()
 
 	for i := 0; i < 100; i++ {
 		wg.Add(1)
@@ -913,7 +947,7 @@ func TestConcurrent(t *testing.T) {
 			defer wg.Done()
 			req := New()
 			req.SetHeader("X-Test-Value", "Test")
-			rsp, err := req.Do("GET", LOCALURL)
+			rsp, err := req.Do(ctx, "GET", LOCALURL)
 			assert.Nil(t, err)
 			defer rsp.Close()
 			assert.Equal(t, rsp.StatusCode, 200)
@@ -1111,7 +1145,7 @@ func ServerForTesting(listen string) string {
 
 	req := New()
 	for {
-		_, err := req.Do("GET", fmt.Sprintf("http://%s/", listen))
+		_, err := req.Do(context.Background(), "GET", fmt.Sprintf("http://%s/", listen))
 		if err == nil {
 			break
 		}

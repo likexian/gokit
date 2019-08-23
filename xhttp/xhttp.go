@@ -191,7 +191,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.16.2"
+	return "0.17.0"
 }
 
 // Author returns package author
@@ -247,73 +247,73 @@ func New() (r *Request) {
 }
 
 // Get do http GET request and returns response
-func Get(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("GET", surl, args...)
+func Get(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "GET", surl, args...)
 }
 
 // Head do http HEAD request and returns response
-func Head(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("HEAD", surl, args...)
+func Head(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "HEAD", surl, args...)
 }
 
 // Post do http POST request and returns response
-func Post(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("POST", surl, args...)
+func Post(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "POST", surl, args...)
 }
 
 // Put do http PUT request and returns response
-func Put(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("PUT", surl, args...)
+func Put(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "PUT", surl, args...)
 }
 
 // Patch do http PATCH request and returns response
-func Patch(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("PATCH", surl, args...)
+func Patch(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "PATCH", surl, args...)
 }
 
 // Delete do http DELETE request and returns response
-func Delete(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("DELETE", surl, args...)
+func Delete(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "DELETE", surl, args...)
 }
 
 // Options do http OPTIONS request and returns response
-func Options(surl string, args ...interface{}) (s *Response, err error) {
-	return DefaultRequest.Do("OPTIONS", surl, args...)
+func Options(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return DefaultRequest.Do(ctx, "OPTIONS", surl, args...)
 }
 
 // Get do http GET request and returns response
-func (r *Request) Get(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("GET", surl, args...)
+func (r *Request) Get(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "GET", surl, args...)
 }
 
 // Head do http HEAD request and returns response
-func (r *Request) Head(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("HEAD", surl, args...)
+func (r *Request) Head(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "HEAD", surl, args...)
 }
 
 // Post do http POST request and returns response
-func (r *Request) Post(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("POST", surl, args...)
+func (r *Request) Post(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "POST", surl, args...)
 }
 
 // Put do http PUT request and returns response
-func (r *Request) Put(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("PUT", surl, args...)
+func (r *Request) Put(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "PUT", surl, args...)
 }
 
 // Patch do http PATCH request and returns response
-func (r *Request) Patch(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("PATCH", surl, args...)
+func (r *Request) Patch(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "PATCH", surl, args...)
 }
 
 // Delete do http DELETE request and returns response
-func (r *Request) Delete(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("DELETE", surl, args...)
+func (r *Request) Delete(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "DELETE", surl, args...)
 }
 
 // Options do http OPTIONS request and returns response
-func (r *Request) Options(surl string, args ...interface{}) (s *Response, err error) {
-	return r.Do("OPTIONS", surl, args...)
+func (r *Request) Options(ctx context.Context, surl string, args ...interface{}) (s *Response, err error) {
+	return r.Do(ctx, "OPTIONS", surl, args...)
 }
 
 // GetHeader return request header value by name
@@ -495,7 +495,7 @@ func (r *Request) SetDump(dumpHttp, dumpBody bool) *Request {
 }
 
 // Do send http request and return response
-func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err error) {
+func (r *Request) Do(ctx context.Context, method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
 	r.Request.Header.Del("Cookie")
 	r.Request.Header.Del("Content-Type")
@@ -562,11 +562,10 @@ func (r *Request) Do(method, surl string, args ...interface{}) (s *Response, err
 			for k, v := range vv {
 				formFile[k] = v
 			}
-		case context.Context:
-			r.Request = r.Request.WithContext(vv)
 		}
 	}
 
+	r.Request = r.Request.WithContext(ctx)
 	r.Request.Body = nil
 	r.Request.ContentLength = 0
 
