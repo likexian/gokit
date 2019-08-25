@@ -27,10 +27,11 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/likexian/gokit/xstring"
 	"hash"
 	"io"
 	"os"
+
+	"github.com/likexian/gokit/xstring"
 )
 
 // Hashx storing hash object
@@ -152,9 +153,9 @@ func (h Hashx) writeString(s ...interface{}) {
 	for _, v := range s {
 		switch v.(type) {
 		case []byte:
-			h.Hash.Write(v.([]byte))
+			_, _ = h.Hash.Write(v.([]byte))
 		default:
-			h.Hash.Write([]byte(xstring.ToString(v)))
+			_, _ = h.Hash.Write([]byte(xstring.ToString(v)))
 		}
 	}
 }

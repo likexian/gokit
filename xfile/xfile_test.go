@@ -21,9 +21,10 @@ package xfile
 
 import (
 	"fmt"
-	"github.com/likexian/gokit/assert"
 	"os"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
@@ -166,7 +167,7 @@ func TestNewAppend(t *testing.T) {
 	// init test file
 	fd, err := New(testFile)
 	assert.Nil(t, err)
-	fd.Write([]byte("1"))
+	_, _ = fd.Write([]byte("1"))
 	text, err := ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "1")
@@ -174,7 +175,7 @@ func TestNewAppend(t *testing.T) {
 	// test new mode
 	fd, err = New(testFile)
 	assert.Nil(t, err)
-	fd.Write([]byte("1"))
+	_, _ = fd.Write([]byte("1"))
 	text, err = ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "1")
@@ -182,7 +183,7 @@ func TestNewAppend(t *testing.T) {
 	// test append mode
 	fd, err = Append(testFile)
 	assert.Nil(t, err)
-	fd.Write([]byte("1"))
+	_, _ = fd.Write([]byte("1"))
 	text, err = ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "11")
@@ -224,9 +225,9 @@ func TestListDir(t *testing.T) {
 	assert.Equal(t, len(ls), 0)
 
 	for i := 0; i < 10; i++ {
-		WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
+		_ = WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
 		for j := 0; j < 10; j++ {
-			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
 		}
 	}
 
@@ -267,9 +268,9 @@ func TestListDirAll(t *testing.T) {
 	assert.Equal(t, len(ls), 0)
 
 	for i := 0; i < 10; i++ {
-		WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
+		_ = WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
 		for j := 0; j < 10; j++ {
-			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
 		}
 	}
 
@@ -303,11 +304,11 @@ func TestCopy(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), fmt.Sprintf("%d", i+j))
+			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), fmt.Sprintf("%d", i+j))
 		}
 	}
 
-	os.Symlink("tmp/0", "tmp/100")
+	_ = os.Symlink("tmp/0", "tmp/100")
 
 	err := Copy("", "")
 	assert.Equal(t, err, ErrHasExists)

@@ -20,9 +20,10 @@
 package xstruct
 
 import (
-	"github.com/likexian/gokit/assert"
 	"reflect"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 type Techer struct {

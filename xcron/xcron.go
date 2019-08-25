@@ -22,13 +22,14 @@ package xcron
 import (
 	"context"
 	"fmt"
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xhash"
-	"github.com/likexian/gokit/xtime"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xhash"
+	"github.com/likexian/gokit/xtime"
 )
 
 // Rule is parsed cron rule

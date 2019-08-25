@@ -255,7 +255,7 @@ func (l *Logger) writeLog() {
 					l.logFile.rotateNowDate = today
 					l.logFile.rotateNowSize = 0
 					l.Unlock()
-					l.rotateFile()
+					_ = l.rotateFile()
 				}
 			}
 			if lf.rotateSize > 0 {
@@ -264,7 +264,7 @@ func (l *Logger) writeLog() {
 					l.logFile.rotateNowDate = today
 					l.logFile.rotateNowSize = 0
 					l.Unlock()
-					l.rotateFile()
+					_ = l.rotateFile()
 				}
 			}
 		case s, ok := <-l.logQueue:
@@ -371,7 +371,7 @@ func (l *Logger) LogOnce(level LogLevel, msg string, args ...interface{}) {
 		return
 	}
 
-	onceCache.Set(key, 1, 3600)
+	_ = onceCache.Set(key, 1, 3600)
 	l.Log(level, msg, args...)
 }
 

@@ -20,10 +20,11 @@
 package xdaemon
 
 import (
-	"github.com/likexian/gokit/xfile"
-	"github.com/likexian/gokit/xos"
 	"os"
 	"syscall"
+
+	"github.com/likexian/gokit/xfile"
+	"github.com/likexian/gokit/xos"
 )
 
 // Config storing config for daemon
@@ -36,7 +37,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.7.1"
 }
 
 // Author returns package author
@@ -88,7 +89,10 @@ func (c *Config) doDaemon() (err error) {
 	syscall.Umask(0)
 
 	if c.Chdir != "" {
-		os.Chdir(c.Chdir)
+		err = os.Chdir(c.Chdir)
+		if err != nil {
+			return
+		}
 	}
 
 	if syscall.Getppid() == 1 {
@@ -120,7 +124,10 @@ func (c *Config) doDaemon() (err error) {
 		return
 	}
 
-	proc.Release()
+	err = proc.Release()
+	if err != nil {
+		return
+	}
 	os.Exit(0)
 
 	return

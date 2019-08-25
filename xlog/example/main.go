@@ -20,8 +20,9 @@
 package main
 
 import (
-	"github.com/likexian/gokit/xlog"
 	"time"
+
+	"github.com/likexian/gokit/xlog"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func dailyLog() {
 		panic(err)
 	}
 
-	log.SetDailyRotate(3)
+	_ = log.SetDailyRotate(3)
 	for {
 		log.Info("This is a test log")
 		time.Sleep(1 * time.Second)
@@ -50,7 +51,7 @@ func sizeLog() {
 		panic(err)
 	}
 
-	log.SetSizeRotate(10, 1000000)
+	_ = log.SetSizeRotate(10, 1000000)
 	for i := 0; i < 1000; i++ {
 		go func() {
 			for {

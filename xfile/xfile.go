@@ -51,7 +51,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.11.0"
+	return "0.11.1"
 }
 
 // Author returns package author
@@ -159,7 +159,10 @@ func Copy(src, dst string) error {
 			return err
 		}
 		for _, v := range ls {
-			Copy(src+v.Name, dst+v.Name)
+			err = Copy(src+v.Name, dst+v.Name)
+			if err != nil {
+				return err
+			}
 		}
 		if err = os.Chtimes(dst, f.ModTime(), f.ModTime()); err != nil {
 			return err

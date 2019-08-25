@@ -21,9 +21,10 @@ package xtime
 
 import (
 	"errors"
-	"github.com/likexian/gokit/assert"
 	"testing"
 	"time"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {

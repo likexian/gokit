@@ -62,7 +62,10 @@ func (p *Pidx) Create() (int, error) {
 
 	defer fd.Close()
 	pid := os.Getpid()
-	fd.Write([]byte(strconv.Itoa(pid)))
+	_, err = fd.Write([]byte(strconv.Itoa(pid)))
+	if err != nil {
+		return pid, err
+	}
 
 	err = syscall.Flock(int(fd.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
 	if err == syscall.EWOULDBLOCK {

@@ -20,8 +20,9 @@
 package xhuman
 
 import (
-	"github.com/likexian/gokit/assert"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {

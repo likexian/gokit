@@ -23,15 +23,16 @@ import (
 	"archive/tar"
 	"compress/gzip"
 	"fmt"
-	"github.com/likexian/gokit/xfile"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/likexian/gokit/xfile"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.1.1"
 }
 
 // Author returns package author
@@ -191,7 +192,10 @@ func Extract(tarFile, dstFolder string) (err error) {
 			if err != nil {
 				return err
 			}
-			io.Copy(ffd, tr)
+			_, err = io.Copy(ffd, tr)
+			if err != nil {
+				return err
+			}
 			ffd.Close()
 		case tar.TypeLink:
 			err = os.Link(h.Linkname, dstFile)
@@ -213,9 +217,9 @@ func Extract(tarFile, dstFolder string) (err error) {
 		default:
 			return fmt.Errorf("unsupport file type: %v", h.Typeflag)
 		}
-		os.Chtimes(dstFile, h.AccessTime, h.ModTime)
-		os.Chmod(dstFile, os.FileMode(h.Mode))
-		os.Chown(dstFile, h.Uid, h.Gid)
+		_ = os.Chtimes(dstFile, h.AccessTime, h.ModTime)
+		_ = os.Chmod(dstFile, os.FileMode(h.Mode))
+		_ = os.Chown(dstFile, h.Uid, h.Gid)
 	}
 
 	return

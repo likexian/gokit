@@ -21,9 +21,10 @@ package memory
 
 import (
 	"fmt"
-	"github.com/likexian/gokit/assert"
 	"testing"
 	"time"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
@@ -124,8 +125,8 @@ func TestIncr(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		c.Set("k", v.in, 0)
-		c.Incr("k")
+		_ = c.Set("k", v.in, 0)
+		_ = c.Incr("k")
 		assert.Equal(t, c.Get("k"), v.out)
 	}
 
@@ -156,8 +157,8 @@ func TestDecr(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		c.Set("k", v.in, 0)
-		c.Decr("k")
+		_ = c.Set("k", v.in, 0)
+		_ = c.Decr("k")
 		assert.Equal(t, c.Get("k"), v.out)
 	}
 
@@ -175,7 +176,7 @@ func TestDecr(t *testing.T) {
 		uint32(0),
 		uint64(0),
 	} {
-		c.Set("k", v, 0)
+		_ = c.Set("k", v, 0)
 		err = c.Decr("k")
 		assert.NotNil(t, err)
 	}

@@ -20,8 +20,9 @@
 package xmail
 
 import (
-	"github.com/likexian/gokit/assert"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
@@ -35,22 +36,22 @@ func TestSend(t *testing.T) {
 	m := New("smtp.likexian.com:25", "i@likexian.com", "8Bd0a7681333214", false)
 
 	// Set email from
-	m.From("i@likexian.com")
+	_ = m.From("i@likexian.com")
 
 	// Set send to
-	m.To("i@likexian.com")
+	_ = m.To("i@likexian.com")
 
 	// Set send cc
-	m.Cc("cc@likexian.com")
+	_ = m.Cc("cc@likexian.com")
 
 	// Set send bcc
-	m.BCc("bcc@likexian.com")
+	_ = m.BCc("bcc@likexian.com")
 
 	// set mail content type
-	m.ContentType("text/html")
+	_ = m.ContentType("text/html")
 
 	// Set mail subject
-	m.Content("Mailer Test", "xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />")
+	_ = m.Content("Mailer Test", "xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />")
 
 	// Add attachment
 	err := m.Attach("xmail_test.jpg")
@@ -73,22 +74,22 @@ func TestTlsSend(t *testing.T) {
 	m := New("smtp.likexian.com:465", "i@likexian.com", "8Bd0a7681333214", true)
 
 	// Set email from
-	m.From("i@likexian.com")
+	_ = m.From("i@likexian.com")
 
 	// Set send to
-	m.To("i@likexian.com")
+	_ = m.To("i@likexian.com")
 
 	// Set send cc
-	m.Cc("cc@likexian.com")
+	_ = m.Cc("cc@likexian.com")
 
 	// Set send bcc
-	m.BCc("bcc@likexian.com")
+	_ = m.BCc("bcc@likexian.com")
 
 	// set mail content type
-	m.ContentType("text/html")
+	_ = m.ContentType("text/html")
 
 	// Set mail subject
-	m.Content("Mailer Test", "xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />")
+	_ = m.Content("Mailer Test", "xmail via github.com/likexian/gokit/xmail.<br /><img src=\"cid:xmail_test.jpg\" />")
 
 	// Add attachment
 	err := m.Attach("xmail_test.jpg")
@@ -111,10 +112,10 @@ func TestAuthFail(t *testing.T) {
 	m := New("smtp.126.com:465", "i@likexian.com", "8Bd0a7681333214", true)
 
 	// Set email from
-	m.From("i@likexian.com")
+	_ = m.From("i@likexian.com")
 
 	// Set send to
-	m.To("i@likexian.com")
+	_ = m.To("i@likexian.com")
 
 	err := m.Send()
 	// The smtp auth info is fake, sending will never success.

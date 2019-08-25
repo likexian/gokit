@@ -20,11 +20,12 @@
 package xlog
 
 import (
-	"github.com/likexian/gokit/assert"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
@@ -178,7 +179,7 @@ func TestLogRotate(t *testing.T) {
 
 	// set rotate by filesize
 	var wg sync.WaitGroup
-	log.SetSizeRotate(3, 10000)
+	_ = log.SetSizeRotate(3, 10000)
 	for i := 0; i < 10000; i++ {
 		wg.Add(1)
 		go func(i int) {
@@ -190,7 +191,7 @@ func TestLogRotate(t *testing.T) {
 	// wait for log end
 	time.Sleep(3 * time.Second)
 	wg.Wait()
-	log.SetSizeRotate(3, 10000)
+	_ = log.SetSizeRotate(3, 10000)
 	log.Close()
 
 	// only file log support rotate

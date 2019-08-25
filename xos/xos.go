@@ -82,7 +82,7 @@ func TimeoutExec(timeout int, cmd string, args ...string) (stdout, stderr string
 	go func() {
 		select {
 		case <-ctx.Done():
-			syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
+			_ = syscall.Kill(-c.Process.Pid, syscall.SIGKILL)
 			return
 		case <-end:
 			return

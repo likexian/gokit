@@ -20,9 +20,10 @@
 package xhash
 
 import (
-	"github.com/likexian/gokit/assert"
 	"os"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func TestVersion(t *testing.T) {
@@ -379,7 +380,7 @@ func TestFileMd5(t *testing.T) {
 	_, err = FileMd5("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	assert.Panic(t, func() { FileMd5(true) })
+	assert.Panic(t, func() { _, _ = FileMd5(true) })
 }
 
 func TestFileSha1(t *testing.T) {
@@ -406,7 +407,7 @@ func TestFileSha1(t *testing.T) {
 	_, err = FileSha1("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	assert.Panic(t, func() { FileSha1(true) })
+	assert.Panic(t, func() { _, _ = FileSha1(true) })
 }
 
 func TestFileSha256(t *testing.T) {
@@ -433,7 +434,7 @@ func TestFileSha256(t *testing.T) {
 	_, err = FileSha256("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	assert.Panic(t, func() { FileSha256(true) })
+	assert.Panic(t, func() { _, _ = FileSha256(true) })
 }
 
 func TestFileSha512(t *testing.T) {
@@ -460,5 +461,5 @@ func TestFileSha512(t *testing.T) {
 	_, err = FileSha512("/i-am-not-exists")
 	assert.NotNil(t, err)
 
-	assert.Panic(t, func() { FileSha512(true) })
+	assert.Panic(t, func() { _, _ = FileSha512(true) })
 }

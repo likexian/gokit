@@ -20,10 +20,11 @@
 package xdaemon
 
 import (
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xfile"
 	"os"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xfile"
 )
 
 func TestFailDaemon(t *testing.T) {

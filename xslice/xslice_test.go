@@ -20,8 +20,9 @@
 package xslice
 
 import (
-	"github.com/likexian/gokit/assert"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 type A struct {

@@ -20,11 +20,12 @@
 package xtar
 
 import (
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xfile"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xfile"
 )
 
 var (
@@ -125,7 +126,7 @@ func TestWithSysTar(t *testing.T) {
 	tar := "xtar.tar"
 	tgz := "xtar.tar.gz"
 
-	exec.Command("tar", "zcvf", tar, "xtar.go").Run()
+	_ = exec.Command("tar", "zcvf", tar, "xtar.go").Run()
 	assert.True(t, xfile.Exists(tar))
 
 	err = Extract(tar, "tmp")
@@ -140,7 +141,7 @@ func TestWithSysTar(t *testing.T) {
 	os.Remove(tgz)
 	os.RemoveAll("tmp")
 
-	exec.Command("tar", "cvf", tgz, "xtar.go").Run()
+	_ = exec.Command("tar", "cvf", tgz, "xtar.go").Run()
 	assert.True(t, xfile.Exists(tgz))
 
 	err = Extract(tgz, "tmp")

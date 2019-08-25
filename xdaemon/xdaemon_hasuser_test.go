@@ -20,10 +20,11 @@
 package xdaemon
 
 import (
-	"github.com/likexian/gokit/assert"
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/likexian/gokit/assert"
 )
 
 func testHasUser(t *testing.T) {

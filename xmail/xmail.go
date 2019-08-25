@@ -23,12 +23,13 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/base64"
-	"github.com/likexian/gokit/xhash"
 	"io/ioutil"
 	"net/smtp"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/likexian/gokit/xhash"
 )
 
 // attachment storing mail attachment
@@ -207,7 +208,7 @@ func (m *message) tlsSendMail() (err error) {
 		return
 	}
 
-	client.Quit()
+	err = client.Quit()
 
 	return
 }

@@ -20,10 +20,11 @@
 package xcron
 
 import (
-	"github.com/likexian/gokit/assert"
-	"github.com/likexian/gokit/xtime"
 	"testing"
 	"time"
+
+	"github.com/likexian/gokit/assert"
+	"github.com/likexian/gokit/xtime"
 )
 
 func TestVersion(t *testing.T) {
