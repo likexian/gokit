@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Go module for JSON parsing
+ * A toolkit for Golang development
  * https://www.likexian.com/
  */
 
-package simplejson
+package xjson
 
 import (
 	"encoding/json"
@@ -48,7 +48,7 @@ type Status struct {
 var (
 	jsonResult = JsonResult{}
 	textResult = `{"result":{"intlist":[0,1,2,3,4],"online":true,"rate":0.8},"status":{"code":1,"message":"success"}}`
-	textFile   = "simplejson.json"
+	textFile   = "xjson.json"
 	jsonName   = "Li Kexian"
 	jsonLink   = "https://www.likexian.com/"
 )

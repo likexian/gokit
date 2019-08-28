@@ -1,16 +1,6 @@
-# simplejson.go
+# GoKit - xjson
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/likexian/simplejson-go?status.svg)](https://godoc.org/github.com/likexian/simplejson-go)
-[![Build Status](https://travis-ci.org/likexian/simplejson-go.svg?branch=master)](https://travis-ci.org/likexian/simplejson-go)
-[![Go Report Card](https://goreportcard.com/badge/github.com/likexian/simplejson-go)](https://goreportcard.com/report/github.com/likexian/simplejson-go)
-[![Code Cover](https://codecov.io/gh/likexian/simplejson-go/graph/badge.svg)](https://codecov.io/gh/likexian/simplejson-go)
-
-simplejson-go is a simple and powerful Go module for JSON parsing.
-
-## Overview
-
-This module provides the most friendly way to use JSON in golang.
+Json kits for Golang development.
 
 ## Features
 
@@ -22,17 +12,17 @@ This module provides the most friendly way to use JSON in golang.
 
 ## Installation
 
-    go get -u github.com/likexian/simplejson-go
+    go get -u github.com/likexian/gokit
 
 ## Importing
 
     import (
-        "github.com/likexian/simplejson-go"
+        "github.com/likexian/gokit/xjson"
     )
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/simplejson-go)
+Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit/xjson)
 
 ## Example
 
@@ -49,14 +39,14 @@ type Status struct {
 status := Status{1, "Success"}
 
 // Dump status to json string
-j := simplejson.New(status)
+j := xjson.New(status)
 s, err := j.Dumps()
 if err == nil {
     fmt.Println("Json text is:", s)
 }
 
 // OR dumps using the easy way
-s, err := simplejson.Dumps(status)
+s, err := xjson.Dumps(status)
 if err == nil {
     fmt.Println("Json text is:", s)
 }
@@ -75,7 +65,7 @@ data := map[string]interface{}{
 }
 
 // Dump to string in the easy way
-s, err := simplejson.Dumps(status)
+s, err := xjson.Dumps(status)
 if err == nil {
     fmt.Println("Json text is:", s)
 }
@@ -88,7 +78,7 @@ if err == nil {
 text := `{"Code": 1, "Message": "Success", "Result": {"Student": [{"Name": "Li Kexian"}]}}`
 
 // Load json string
-j, err := simplejson.Loads(text)
+j, err := xjson.Loads(text)
 if err == nil {
     fmt.Println("Code is:", j.Get("Code").MustInt(0))
     fmt.Println("Message is:", j.Get("Message").MustString(""))

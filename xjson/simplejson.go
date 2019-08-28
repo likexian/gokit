@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Go module for JSON parsing
+ * A toolkit for Golang development
  * https://www.likexian.com/
  */
 
-package simplejson
+package xjson
 
 import (
 	"bytes"
@@ -39,7 +39,7 @@ type Json struct {
 
 // Version returns package version
 func Version() string {
-	return "0.12.1"
+	return "0.13.0"
 }
 
 // Author returns package author
@@ -215,9 +215,7 @@ func (j *Json) Del(key string) {
 		}
 	}
 
-	if _, ok := result[keys[len(keys)-1]]; ok {
-		delete(result, keys[len(keys)-1])
-	}
+	delete(result, keys[len(keys)-1])
 }
 
 // Has check json object has key, dot(.) separated key is supported
