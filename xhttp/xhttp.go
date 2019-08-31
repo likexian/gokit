@@ -547,7 +547,7 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 				queryParam.Update(param{vv})
 			}
 		case JsonParam:
-			formBody, err = xjson.Encode(vv)
+			formBody, err = xjson.Dumps(vv)
 			if err != nil {
 				return nil, fmt.Errorf("xhttp: encode json param failed: %s", err.Error())
 			}
@@ -795,15 +795,15 @@ func (r *Response) String() (s string, err error) {
 	return string(b), nil
 }
 
-// Json returns response body as *simplejson.Json
-// For more please refer to https://github.com/likexian/simplejson-go
-func (r *Response) Json() (*xjson.Jsonx, error) {
+// Json returns response body as *xjson.Json
+// For more please refer to gokit/xjson
+func (r *Response) Json() (*xjson.Json, error) {
 	s, err := r.String()
 	if err != nil {
-		return &xjson.Jsonx{}, err
+		return &xjson.Json{}, err
 	}
 
-	return xjson.Decode(s)
+	return xjson.Loads(s)
 }
 
 // Dump returns http dump of request and response

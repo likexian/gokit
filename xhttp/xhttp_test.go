@@ -739,7 +739,7 @@ func TestPostFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, json.Get("headers.Content-Type.0").MustString(""), "multipart/form-data")
 	assert.Contains(t, json.Get("file").Get("file_0").MustString(""), "module github.com/likexian/gokit")
-	assert.Contains(t, json.Get("file").Get("file_1").MustString(""), "github.com/likexian/gokit")
+	assert.Contains(t, json.Get("file").Get("file_1").MustString(""), "")
 
 	// Test post file and form
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod", "404": "404.md"})
@@ -1020,8 +1020,8 @@ func ServerForTesting(listen string) string {
 				Origin:  strings.Split(r.RemoteAddr, ":")[0],
 				Url:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
 			}
-			text, _ := xjson.Encode(result)
-			fmt.Fprintf(w, text)
+			text, _ := xjson.Dumps(result)
+			fmt.Fprint(w, text)
 		})
 		http.HandleFunc("/post", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -1046,7 +1046,7 @@ func ServerForTesting(listen string) string {
 			}
 			if r.Header.Get("Content-Type") == "application/json" {
 				body, _ := ioutil.ReadAll(r.Body)
-				json, _ := xjson.Decode(string(body))
+				json, _ := xjson.Loads(string(body))
 				result.Json, _ = json.Map()
 			} else {
 				err := r.ParseMultipartForm(32 << 20)
@@ -1065,8 +1065,8 @@ func ServerForTesting(listen string) string {
 					}
 				}
 			}
-			text, _ := xjson.Encode(result)
-			fmt.Fprintf(w, text)
+			text, _ := xjson.Dumps(result)
+			fmt.Fprint(w, text)
 		})
 		http.HandleFunc("/put", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
@@ -1088,8 +1088,8 @@ func ServerForTesting(listen string) string {
 			for _, v := range r.Cookies() {
 				result.Cookies[v.Name] = v.Value
 			}
-			text, _ := xjson.Encode(result)
-			fmt.Fprintf(w, text)
+			text, _ := xjson.Dumps(result)
+			fmt.Fprint(w, text)
 		})
 		http.HandleFunc("/cookies/set/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
@@ -1134,7 +1134,7 @@ func ServerForTesting(listen string) string {
 			w.WriteHeader(s)
 		})
 		http.HandleFunc("/time", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, fmt.Sprintf("%d", time.Now().UnixNano()))
+			fmt.Fprint(w, fmt.Sprintf("%d", time.Now().UnixNano()))
 		})
 		http.HandleFunc("/sleep", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
