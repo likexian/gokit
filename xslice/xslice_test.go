@@ -40,7 +40,23 @@ func TestVersion(t *testing.T) {
 }
 
 func TestUnique(t *testing.T) {
+	// Not a slice
 	tests := []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{1, 1},
+		{1.0, 1.0},
+		{true, true},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Unique(v.in), v.out)
+		assert.True(t, IsUnique(v.in))
+	}
+
+	// Is a slice
+	tests = []struct {
 		in  interface{}
 		out interface{}
 	}{
@@ -61,12 +77,11 @@ func TestUnique(t *testing.T) {
 		{[]interface{}{0, 1, 1, "1", 2}, []interface{}{0, 1, "1", 2}},
 		{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
 		{[]interface{}{a{0, 1}, a{1, 2}, a{0, 1}, b{0, 1}}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}}},
-		{1, 1},
-		{1.0, 1.0},
-		{true, true},
 	}
 
 	for _, v := range tests {
 		assert.Equal(t, Unique(v.in), v.out)
+		assert.False(t, IsUnique(v.in))
+		assert.True(t, IsUnique(v.out))
 	}
 }

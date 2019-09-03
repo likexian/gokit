@@ -27,7 +27,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -55,4 +55,25 @@ func Unique(v interface{}) interface{} {
 	}
 
 	return r.Interface()
+}
+
+// IsUnique returns whether slice is unique
+func IsUnique(v interface{}) bool {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return true
+	}
+
+	if vv.Len() <= 1 {
+		return true
+	}
+
+	x := vv.Index(0)
+	y := vv.Slice(1, vv.Len())
+
+	if assert.IsContains(y.Interface(), x.Interface()) {
+		return false
+	}
+
+	return IsUnique(y.Interface())
 }
