@@ -20,12 +20,14 @@
 package xslice
 
 import (
+	"reflect"
+
 	"github.com/likexian/gokit/assert"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -38,66 +40,19 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// Unique returns unique processed array
-func Unique(array interface{}) interface{} {
-	switch array.(type) {
-	case []int:
-		result := []int{}
-		for _, v := range array.([]int) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []int64:
-		result := []int64{}
-		for _, v := range array.([]int64) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []uint64:
-		result := []uint64{}
-		for _, v := range array.([]uint64) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []float64:
-		result := []float64{}
-		for _, v := range array.([]float64) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []string:
-		result := []string{}
-		for _, v := range array.([]string) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []bool:
-		result := []bool{}
-		for _, v := range array.([]bool) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	case []interface{}:
-		result := []interface{}{}
-		for _, v := range array.([]interface{}) {
-			if !assert.IsContains(result, v) {
-				result = append(result, v)
-			}
-		}
-		return result
-	default:
-		return array
+// Unique returns an unique slice
+func Unique(v interface{}) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
 	}
+
+	r := reflect.MakeSlice(reflect.TypeOf(v), 0, vv.Cap())
+	for i := 0; i < vv.Len(); i++ {
+		if !assert.IsContains(r.Interface(), vv.Index(i).Interface()) {
+			r = reflect.Append(r, vv.Index(i))
+		}
+	}
+
+	return r.Interface()
 }

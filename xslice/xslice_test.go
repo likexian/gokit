@@ -25,11 +25,11 @@ import (
 	"github.com/likexian/gokit/assert"
 )
 
-type A struct {
+type a struct {
 	x, y int
 }
 
-type B struct {
+type b struct {
 	x, y int
 }
 
@@ -45,14 +45,22 @@ func TestUnique(t *testing.T) {
 		out interface{}
 	}{
 		{[]int{0, 0, 1, 1, 1, 2, 2, 3}, []int{0, 1, 2, 3}},
+		{[]int8{0, 0, 1, 1, 1, 2, 2, 3}, []int8{0, 1, 2, 3}},
+		{[]int16{0, 0, 1, 1, 1, 2, 2, 3}, []int16{0, 1, 2, 3}},
+		{[]int32{0, 0, 1, 1, 1, 2, 2, 3}, []int32{0, 1, 2, 3}},
 		{[]int64{0, 0, 1, 1, 1, 2, 2, 3}, []int64{0, 1, 2, 3}},
+		{[]uint{0, 0, 1, 1, 1, 2, 2, 3}, []uint{0, 1, 2, 3}},
+		{[]uint8{0, 0, 1, 1, 1, 2, 2, 3}, []uint8{0, 1, 2, 3}},
+		{[]uint16{0, 0, 1, 1, 1, 2, 2, 3}, []uint16{0, 1, 2, 3}},
+		{[]uint32{0, 0, 1, 1, 1, 2, 2, 3}, []uint32{0, 1, 2, 3}},
 		{[]uint64{0, 0, 1, 1, 1, 2, 2, 3}, []uint64{0, 1, 2, 3}},
+		{[]float32{0, 0, 1, 1, 1, 2, 2, 3}, []float32{0, 1, 2, 3}},
 		{[]float64{0, 0, 1, 1, 1, 2, 2, 3}, []float64{0, 1, 2, 3}},
 		{[]string{"a", "a", "b", "b", "b", "c"}, []string{"a", "b", "c"}},
 		{[]bool{true, true, true, false}, []bool{true, false}},
 		{[]interface{}{0, 1, 1, "1", 2}, []interface{}{0, 1, "1", 2}},
 		{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}}},
-		{[]interface{}{A{0, 1}, A{1, 2}, A{0, 1}, B{0, 1}}, []interface{}{A{0, 1}, A{1, 2}, B{0, 1}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, a{0, 1}, b{0, 1}}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}}},
 		{1, 1},
 		{1.0, 1.0},
 		{true, true},
