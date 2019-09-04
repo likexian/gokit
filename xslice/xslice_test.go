@@ -85,3 +85,56 @@ func TestUnique(t *testing.T) {
 		assert.True(t, IsUnique(v.out))
 	}
 }
+
+func TestUniqueAppend(t *testing.T) {
+	// Not a slice
+	tests := []struct {
+		x   interface{}
+		y   interface{}
+		out interface{}
+	}{
+		{1, 1, 1},
+		{1.0, 1.0, 1.0},
+		{true, true, true},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, UniqueAppend(v.x, v.y), v.out)
+	}
+
+	// Is a slice
+	tests = []struct {
+		x   interface{}
+		y   interface{}
+		out interface{}
+	}{
+		{[]int{0, 1, 2, 3}, int(0), []int{0, 1, 2, 3}},
+		{[]int{0, 1, 2, 3}, int(4), []int{0, 1, 2, 3, 4}},
+		{[]int8{0, 1, 2, 3}, int8(0), []int8{0, 1, 2, 3}},
+		{[]int8{0, 1, 2, 3}, int8(4), []int8{0, 1, 2, 3, 4}},
+		{[]int16{0, 1, 2, 3}, int16(0), []int16{0, 1, 2, 3}},
+		{[]int16{0, 1, 2, 3}, int16(4), []int16{0, 1, 2, 3, 4}},
+		{[]int32{0, 1, 2, 3}, int32(0), []int32{0, 1, 2, 3}},
+		{[]int32{0, 1, 2, 3}, int32(4), []int32{0, 1, 2, 3, 4}},
+		{[]int64{0, 1, 2, 3}, int64(0), []int64{0, 1, 2, 3}},
+		{[]int64{0, 1, 2, 3}, int64(4), []int64{0, 1, 2, 3, 4}},
+		{[]float32{0, 1, 2, 3}, float32(0), []float32{0, 1, 2, 3}},
+		{[]float32{0, 1, 2, 3}, float32(4), []float32{0, 1, 2, 3, 4}},
+		{[]float64{0, 1, 2, 3}, float64(0), []float64{0, 1, 2, 3}},
+		{[]float64{0, 1, 2, 3}, float64(4), []float64{0, 1, 2, 3, 4}},
+		{[]string{"a", "b", "c"}, "a", []string{"a", "b", "c"}},
+		{[]string{"a", "b", "c"}, "d", []string{"a", "b", "c", "d"}},
+		{[]bool{true, false}, false, []bool{true, false}},
+		{[]bool{true}, false, []bool{true, false}},
+		{[]interface{}{0, 1, "1", 2}, 0, []interface{}{0, 1, "1", 2}},
+		{[]interface{}{0, 1, "1", 2}, 3, []interface{}{0, 1, "1", 2, 3}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []int{0, 1}, []interface{}{[]int{0, 1}, []int{1, 2}}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []int{2, 3}, []interface{}{[]int{0, 1}, []int{1, 2}, []int{2, 3}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, a{0, 1}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, b{1, 2}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}, b{1, 2}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, UniqueAppend(v.x, v.y), v.out)
+	}
+}
