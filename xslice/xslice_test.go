@@ -138,3 +138,47 @@ func TestUniqueAppend(t *testing.T) {
 		assert.Equal(t, UniqueAppend(v.x, v.y), v.out)
 	}
 }
+
+func TestIntersect(t *testing.T) {
+	// Not a slice
+	tests := []struct {
+		x   interface{}
+		y   interface{}
+		out interface{}
+	}{
+		{1, 1, nil},
+		{1.0, 1.0, nil},
+		{true, true, nil},
+		{[]int{1}, 1, nil},
+		{[]float64{1.0}, 1, nil},
+		{[]bool{true}, true, nil},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Intersect(v.x, v.y), v.out)
+	}
+
+	// Is a slice
+	tests = []struct {
+		x   interface{}
+		y   interface{}
+		out interface{}
+	}{
+		{[]int{0, 1, 2}, []int{1, 2, 3}, []int{1, 2}},
+		{[]int8{0, 1, 2}, []int8{1, 2, 3}, []int8{1, 2}},
+		{[]int16{0, 1, 2}, []int16{1, 2, 3}, []int16{1, 2}},
+		{[]int32{0, 1, 2}, []int32{1, 2, 3}, []int32{1, 2}},
+		{[]int64{0, 1, 2}, []int64{1, 2, 3}, []int64{1, 2}},
+		{[]float32{0, 1, 2}, []float32{1, 2, 3}, []float32{1, 2}},
+		{[]float64{0, 1, 2}, []float64{1, 2, 3}, []float64{1, 2}},
+		{[]string{"0", "1", "2"}, []string{"1", "2", "3"}, []string{"1", "2"}},
+		{[]bool{true, false}, []bool{true}, []bool{true}},
+		{[]interface{}{0, 1, "1", 2}, []interface{}{1, "1", 2, 3}, []interface{}{1, "1", 2}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []interface{}{[]int{1, 2}, []int{2, 3}}, []interface{}{[]int{1, 2}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{a{1, 2}, b{2, 3}}, []interface{}{a{1, 2}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Intersect(v.x, v.y), v.out)
+	}
+}

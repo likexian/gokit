@@ -20,6 +20,7 @@
 package xslice
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/likexian/gokit/assert"
@@ -27,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -88,6 +89,37 @@ func UniqueAppend(v interface{}, x interface{}) interface{} {
 	r := vv.Slice(0, vv.Len())
 	if !assert.IsContains(v, x) {
 		r = reflect.Append(r, reflect.ValueOf(x))
+	}
+
+	return r.Interface()
+}
+
+// Intersect returns intersection of two slice
+func Intersect(x, y interface{}) interface{} {
+	xx := reflect.ValueOf(x)
+	if xx.Kind() != reflect.Slice {
+		return nil
+	}
+
+	yy := reflect.ValueOf(y)
+	if yy.Kind() != reflect.Slice {
+		return nil
+	}
+
+	hash := func(x interface{}) interface{} {
+		return fmt.Sprintf("%#v", x)
+	}
+
+	h := make(map[interface{}]bool)
+	for i := 0; i < xx.Len(); i++ {
+		h[hash(xx.Index(i).Interface())] = true
+	}
+
+	r := reflect.MakeSlice(reflect.TypeOf(x), 0, 0)
+	for i := 0; i < yy.Len(); i++ {
+		if _, ok := h[hash(yy.Index(i).Interface())]; ok {
+			r = reflect.Append(r, yy.Index(i))
+		}
 	}
 
 	return r.Interface()
