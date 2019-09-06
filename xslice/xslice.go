@@ -94,7 +94,7 @@ func UniqueAppend(v interface{}, x interface{}) interface{} {
 	return r.Interface()
 }
 
-// Intersect returns intersection of two slice
+// Intersect returns intersection of two slices
 func Intersect(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
@@ -106,21 +106,49 @@ func Intersect(x, y interface{}) interface{} {
 		return nil
 	}
 
-	hash := func(x interface{}) interface{} {
-		return fmt.Sprintf("%#v", x)
-	}
-
 	h := make(map[interface{}]bool)
 	for i := 0; i < xx.Len(); i++ {
-		h[hash(xx.Index(i).Interface())] = true
+		h[hashValue(xx.Index(i).Interface())] = true
 	}
 
 	r := reflect.MakeSlice(reflect.TypeOf(x), 0, 0)
 	for i := 0; i < yy.Len(); i++ {
-		if _, ok := h[hash(yy.Index(i).Interface())]; ok {
+		if _, ok := h[hashValue(yy.Index(i).Interface())]; ok {
 			r = reflect.Append(r, yy.Index(i))
 		}
 	}
 
 	return r.Interface()
+}
+
+// Different returns difference of two slices
+func Different(x, y interface{}) interface{} {
+	xx := reflect.ValueOf(x)
+	if xx.Kind() != reflect.Slice {
+		return nil
+	}
+
+	yy := reflect.ValueOf(y)
+	if yy.Kind() != reflect.Slice {
+		return nil
+	}
+
+	h := make(map[interface{}]bool)
+	for i := 0; i < yy.Len(); i++ {
+		h[hashValue(yy.Index(i).Interface())] = true
+	}
+
+	r := reflect.MakeSlice(reflect.TypeOf(x), 0, 0)
+	for i := 0; i < xx.Len(); i++ {
+		if _, ok := h[hashValue(xx.Index(i).Interface())]; !ok {
+			r = reflect.Append(r, xx.Index(i))
+		}
+	}
+
+	return r.Interface()
+}
+
+// hashValue returns a hashable value
+func hashValue(x interface{}) interface{} {
+	return fmt.Sprintf("%#v", x)
 }
