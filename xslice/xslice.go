@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.8.0"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -142,6 +142,33 @@ func Different(x, y interface{}) interface{} {
 	for i := 0; i < xx.Len(); i++ {
 		if _, ok := h[hashValue(xx.Index(i).Interface())]; !ok {
 			r = reflect.Append(r, xx.Index(i))
+		}
+	}
+
+	return r.Interface()
+}
+
+// Merge returns merged of two slices
+func Merge(x, y interface{}) interface{} {
+	xx := reflect.ValueOf(x)
+	if xx.Kind() != reflect.Slice {
+		return x
+	}
+
+	yy := reflect.ValueOf(y)
+	if yy.Kind() != reflect.Slice {
+		return x
+	}
+
+	h := make(map[interface{}]bool)
+	for i := 0; i < xx.Len(); i++ {
+		h[hashValue(xx.Index(i).Interface())] = true
+	}
+
+	r := xx.Slice(0, xx.Len())
+	for i := 0; i < yy.Len(); i++ {
+		if _, ok := h[hashValue(yy.Index(i).Interface())]; !ok {
+			r = reflect.Append(r, yy.Index(i))
 		}
 	}
 
