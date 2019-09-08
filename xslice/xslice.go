@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.9.0"
+	return "0.9.1"
 }
 
 // Author returns package author
@@ -41,7 +41,7 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// Unique returns an unique slice
+// Unique returns unique values of slice
 func Unique(v interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
@@ -58,7 +58,7 @@ func Unique(v interface{}) interface{} {
 	return r.Interface()
 }
 
-// IsUnique returns whether slice is unique
+// IsUnique returns whether slice values is unique
 func IsUnique(v interface{}) bool {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
@@ -79,7 +79,7 @@ func IsUnique(v interface{}) bool {
 	return IsUnique(y.Interface())
 }
 
-// UniqueAppend append to slice if not exists
+// UniqueAppend append to slice if value x not exists in
 func UniqueAppend(v interface{}, x interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
@@ -94,7 +94,7 @@ func UniqueAppend(v interface{}, x interface{}) interface{} {
 	return r.Interface()
 }
 
-// Intersect returns intersection of two slices
+// Intersect returns values in both slices
 func Intersect(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
@@ -121,7 +121,7 @@ func Intersect(x, y interface{}) interface{} {
 	return r.Interface()
 }
 
-// Different returns difference of two slices
+// Different returns values in x but not in y
 func Different(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
@@ -148,7 +148,7 @@ func Different(x, y interface{}) interface{} {
 	return r.Interface()
 }
 
-// Merge returns merged of two slices
+// Merge append y values to x if not exists in
 func Merge(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
