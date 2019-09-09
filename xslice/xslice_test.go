@@ -137,6 +137,10 @@ func TestUniqueAppend(t *testing.T) {
 	for _, v := range tests {
 		assert.Equal(t, UniqueAppend(v.x, v.y), v.out)
 	}
+
+	// Append multi
+	assert.Equal(t, UniqueAppend([]int{0, 1, 2, 3}, 2, 3), []int{0, 1, 2, 3})
+	assert.Equal(t, UniqueAppend([]int{0, 1, 2, 3}, 2, 3, 4, 5), []int{0, 1, 2, 3, 4, 5})
 }
 
 func TestIntersect(t *testing.T) {
