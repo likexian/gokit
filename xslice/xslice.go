@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.10.0"
+	return "0.11.0"
 }
 
 // Author returns package author
@@ -180,6 +180,21 @@ func Merge(x, y interface{}) interface{} {
 	}
 
 	return r.Interface()
+}
+
+// Reverse returns a slice with elements in reverse order
+func Reverse(v interface{}) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	swap := reflect.Swapper(v)
+	for i, j := 0, vv.Len()-1; i < j; i, j = i+1, j-1 {
+		swap(i, j)
+	}
+
+	return v
 }
 
 // hashValue returns a hashable value

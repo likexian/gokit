@@ -281,3 +281,42 @@ func TestMerge(t *testing.T) {
 		assert.Equal(t, Merge(v.x, v.y), v.out)
 	}
 }
+
+func TestReverse(t *testing.T) {
+	// Not a slice
+	tests := []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{1, 1},
+		{1.0, 1.0},
+		{true, true},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Reverse(v.in), v.out)
+	}
+
+	// Is a slice
+	tests = []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{[]int{0, 1, 2, 3, 4}, []int{4, 3, 2, 1, 0}},
+		{[]int8{0, 1, 2, 3, 4}, []int8{4, 3, 2, 1, 0}},
+		{[]int16{0, 1, 2, 3, 4}, []int16{4, 3, 2, 1, 0}},
+		{[]int32{0, 1, 2, 3, 4}, []int32{4, 3, 2, 1, 0}},
+		{[]int64{0, 1, 2, 3, 4}, []int64{4, 3, 2, 1, 0}},
+		{[]float32{0, 1, 2, 3, 4}, []float32{4, 3, 2, 1, 0}},
+		{[]float64{0, 1, 2, 3, 4}, []float64{4, 3, 2, 1, 0}},
+		{[]string{"a", "b", "c", "d", "e"}, []string{"e", "d", "c", "b", "a"}},
+		{[]bool{true, false, true, false}, []bool{false, true, false, true}},
+		{[]interface{}{0, 1, 2, "3", 3}, []interface{}{3, "3", 2, 1, 0}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []interface{}{[]int{1, 2}, []int{0, 1}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{b{0, 1}, a{1, 2}, a{0, 1}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Reverse(v.in), v.out)
+	}
+}
