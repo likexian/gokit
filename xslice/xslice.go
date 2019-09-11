@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.9.2"
+	return "0.10.0"
 }
 
 // Author returns package author
@@ -39,6 +39,11 @@ func Author() string {
 // License returns package license
 func License() string {
 	return "Licensed under the Apache License 2.0"
+}
+
+// IsSlice returns whether value is slice
+func IsSlice(v interface{}) bool {
+	return reflect.ValueOf(v).Kind() == reflect.Slice
 }
 
 // Unique returns unique values of slice

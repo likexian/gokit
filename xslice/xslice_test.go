@@ -39,6 +39,13 @@ func TestVersion(t *testing.T) {
 	assert.Contains(t, License(), "Apache License")
 }
 
+func TestIsSlice(t *testing.T) {
+	assert.False(t, IsSlice(0))
+	assert.False(t, IsSlice("0"))
+	assert.True(t, IsSlice([]int{0, 1, 2}))
+	assert.True(t, IsSlice([]string{"0", "1", "2"}))
+}
+
 func TestUnique(t *testing.T) {
 	// Not a slice
 	tests := []struct {
