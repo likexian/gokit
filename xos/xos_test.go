@@ -20,6 +20,7 @@
 package xos
 
 import (
+	"os"
 	"testing"
 
 	"github.com/likexian/gokit/assert"
@@ -29,6 +30,13 @@ func TestVersion(t *testing.T) {
 	assert.Contains(t, Version(), ".")
 	assert.Contains(t, Author(), "likexian")
 	assert.Contains(t, License(), "Apache License")
+}
+
+func TestGetenv(t *testing.T) {
+	assert.Equal(t, Getenv("TEST", ""), "")
+
+	os.Setenv("TEST", "gokit")
+	assert.Equal(t, Getenv("TEST", ""), "gokit")
 }
 
 func TestExec(t *testing.T) {

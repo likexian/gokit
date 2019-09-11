@@ -33,7 +33,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -44,6 +44,16 @@ func Author() string {
 // License returns package license
 func License() string {
 	return "Licensed under the Apache License 2.0"
+}
+
+// Getenv returns system environment variable or default value
+func Getenv(name, def string) string {
+	value := os.Getenv(name)
+	if value != "" {
+		return value
+	}
+
+	return def
 }
 
 // Exec exec command and returns
