@@ -320,3 +320,34 @@ func TestReverse(t *testing.T) {
 		assert.Equal(t, Reverse(v.in), v.out)
 	}
 }
+
+func TestFill(t *testing.T) {
+	tests := []struct {
+		v   interface{}
+		n   int
+		out interface{}
+	}{
+		{1, -1, nil},
+		{1, 0, nil},
+		{1, 1, []int{1}},
+		{1, 3, []int{1, 1, 1}},
+		{int(1), 3, []int{1, 1, 1}},
+		{int8(1), 3, []int8{1, 1, 1}},
+		{int16(1), 3, []int16{1, 1, 1}},
+		{int32(1), 3, []int32{1, 1, 1}},
+		{int64(1), 3, []int64{1, 1, 1}},
+		{float32(1), 3, []float32{1, 1, 1}},
+		{float64(1), 3, []float64{1, 1, 1}},
+		{"a", 3, []string{"a", "a", "a"}},
+		{true, 3, []bool{true, true, true}},
+		{[]int{1, 2}, 3, [][]int{{1, 2}, {1, 2}, {1, 2}}},
+		{a{1, 2}, 3, []a{{1, 2}, {1, 2}, {1, 2}}},
+		{[]interface{}{0, "1"}, 3, [][]interface{}{{0, "1"}, {0, "1"}, {0, "1"}}},
+		{[]interface{}{[]int{0, 1}}, 3, [][]interface{}{{[]int{0, 1}}, {[]int{0, 1}}, {[]int{0, 1}}}},
+		{[]interface{}{a{0, 1}}, 3, [][]interface{}{{a{x: 0, y: 1}}, {a{x: 0, y: 1}}, {a{x: 0, y: 1}}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Fill(v.v, v.n), v.out)
+	}
+}

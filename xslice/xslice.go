@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.11.0"
+	return "0.12.0"
 }
 
 // Author returns package author
@@ -195,6 +195,20 @@ func Reverse(v interface{}) interface{} {
 	}
 
 	return v
+}
+
+// Fill returns a slice with count number of v values
+func Fill(v interface{}, count int) interface{} {
+	if count <= 0 {
+		return nil
+	}
+
+	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
+	for i := 0; i < count; i++ {
+		r = reflect.Append(r, reflect.ValueOf(v))
+	}
+
+	return r.Interface()
 }
 
 // hashValue returns a hashable value
