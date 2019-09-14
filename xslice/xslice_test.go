@@ -359,9 +359,11 @@ func TestFilter(t *testing.T) {
 		f   func(interface{}) bool
 		out interface{}
 	}{
-		{1, func(v interface{}) bool { return v.(int) >= 0 }, 1},
+		{1, nil, 1},
+		{[]interface{}{0, 1, nil, 2}, nil, []interface{}{0, 1, 2}},
 		{[]int{-2, -1, 0, 1, 2}, func(v interface{}) bool { return v.(int) >= 0 }, []int{0, 1, 2}},
-		{[]string{"a_0", "a_1", "b_1", "b_2", "a_2"}, func(v interface{}) bool { return strings.HasPrefix(v.(string), "a_") }, []string{"a_0", "a_1", "a_2"}},
+		{[]string{"a_0", "b_1", "a_1"}, func(v interface{}) bool { return strings.HasPrefix(v.(string), "a_") }, []string{"a_0", "a_1"}},
+		{[]bool{true, false, false}, func(v interface{}) bool { return !v.(bool) }, []bool{false, false}},
 	}
 
 	for _, v := range tests {

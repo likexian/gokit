@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.13.0"
+	return "0.13.1"
 }
 
 // Author returns package author
@@ -216,6 +216,12 @@ func Filter(v interface{}, fn func(interface{}) bool) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
 		return v
+	}
+
+	if fn == nil {
+		fn = func(v interface{}) bool {
+			return v != nil
+		}
 	}
 
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
