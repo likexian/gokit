@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.12.0"
+	return "0.13.0"
 }
 
 // Author returns package author
@@ -206,6 +206,23 @@ func Fill(v interface{}, count int) interface{} {
 	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
 	for i := 0; i < count; i++ {
 		r = reflect.Append(r, reflect.ValueOf(v))
+	}
+
+	return r.Interface()
+}
+
+// Filter filter slice values usig callback fnction fn
+func Filter(v interface{}, fn func(interface{}) bool) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	r := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
+	for i := 0; i < vv.Len(); i++ {
+		if fn(vv.Index(i).Interface()) {
+			r = reflect.Append(r, vv.Index(i))
+		}
 	}
 
 	return r.Interface()

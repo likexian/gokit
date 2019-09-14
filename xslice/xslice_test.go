@@ -20,6 +20,7 @@
 package xslice
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/likexian/gokit/assert"
@@ -349,5 +350,21 @@ func TestFill(t *testing.T) {
 
 	for _, v := range tests {
 		assert.Equal(t, Fill(v.v, v.n), v.out)
+	}
+}
+
+func TestFilter(t *testing.T) {
+	tests := []struct {
+		v   interface{}
+		f   func(interface{}) bool
+		out interface{}
+	}{
+		{1, func(v interface{}) bool { return v.(int) >= 0 }, 1},
+		{[]int{-2, -1, 0, 1, 2}, func(v interface{}) bool { return v.(int) >= 0 }, []int{0, 1, 2}},
+		{[]string{"a_0", "a_1", "b_1", "b_2", "a_2"}, func(v interface{}) bool { return strings.HasPrefix(v.(string), "a_") }, []string{"a_0", "a_1", "a_2"}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Filter(v.v, v.f), v.out)
 	}
 }
