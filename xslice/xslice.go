@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.13.1"
+	return "0.13.2"
 }
 
 // Author returns package author
@@ -212,26 +212,55 @@ func Fill(v interface{}, count int) interface{} {
 }
 
 // Filter filter slice values usig callback fnction fn
-func Filter(v interface{}, fn func(interface{}) bool) interface{} {
+func Filter(v interface{}, fn interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
 		return v
 	}
 
-	if fn == nil {
+	if fn != nil {
+		err := CheckIsFunc(fn, 1, 1)
+		if err != nil {
+			panic("Filter: " + err.Error())
+		}
+	} else {
 		fn = func(v interface{}) bool {
 			return v != nil
 		}
 	}
 
+	fv := reflect.ValueOf(fn)
+	ot := fv.Type().Out(0).Kind()
+	if ot != reflect.Bool {
+		panic("Filter: fn expected to return a bool but got " + ot.String())
+	}
+
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
 	for i := 0; i < vv.Len(); i++ {
-		if fn(vv.Index(i).Interface()) {
+		if fv.Call([]reflect.Value{vv.Index(i)})[0].Interface().(bool) {
 			r = reflect.Append(r, vv.Index(i))
 		}
 	}
 
 	return r.Interface()
+}
+
+// CheckIsFunc check if fn is a function with n[0] arguments and n[1] returns
+func CheckIsFunc(fn interface{}, n ...int) error {
+	ft := reflect.TypeOf(fn)
+	if ft.Kind() != reflect.Func {
+		return fmt.Errorf("fn is not a function")
+	}
+
+	if len(n) >= 1 && n[0] != ft.NumIn() {
+		return fmt.Errorf("fn expected to have %d arguments but got %d", n[0], ft.NumIn())
+	}
+
+	if len(n) >= 2 && n[1] != ft.NumOut() {
+		return fmt.Errorf("fn expected to have %d returns but got %d", n[1], ft.NumOut())
+	}
+
+	return nil
 }
 
 // hashValue returns a hashable value

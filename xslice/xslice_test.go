@@ -354,19 +354,36 @@ func TestFill(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
+	// General tests
 	tests := []struct {
 		v   interface{}
-		f   func(interface{}) bool
+		f   interface{}
 		out interface{}
 	}{
 		{1, nil, 1},
 		{[]interface{}{0, 1, nil, 2}, nil, []interface{}{0, 1, 2}},
-		{[]int{-2, -1, 0, 1, 2}, func(v interface{}) bool { return v.(int) >= 0 }, []int{0, 1, 2}},
-		{[]string{"a_0", "b_1", "a_1"}, func(v interface{}) bool { return strings.HasPrefix(v.(string), "a_") }, []string{"a_0", "a_1"}},
-		{[]bool{true, false, false}, func(v interface{}) bool { return !v.(bool) }, []bool{false, false}},
+		{[]int{-2, -1, 0, 1, 2}, func(v int) bool { return v >= 0 }, []int{0, 1, 2}},
+		{[]string{"a_0", "b_1", "a_1"}, func(v string) bool { return strings.HasPrefix(v, "a_") }, []string{"a_0", "a_1"}},
+		{[]bool{true, false, false}, func(v bool) bool { return !v }, []bool{false, false}},
 	}
 
 	for _, v := range tests {
 		assert.Equal(t, Filter(v.v, v.f), v.out)
+	}
+
+	// Panic tests
+	tests = []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{[]int{1}, 1, nil},
+		{[]int{1}, func() {}, nil},
+		{[]int{1}, func(v int) {}, nil},
+		{[]int{1}, func(v int) int { return v }, nil},
+	}
+
+	for _, v := range tests {
+		assert.Panic(t, func() { Filter(v.v, v.f) })
 	}
 }
