@@ -354,29 +354,13 @@ func TestFill(t *testing.T) {
 }
 
 func TestFilter(t *testing.T) {
-	// General tests
+	// Panic tests
 	tests := []struct {
 		v   interface{}
 		f   interface{}
 		out interface{}
 	}{
-		{1, nil, 1},
-		{[]interface{}{0, 1, nil, 2}, nil, []interface{}{0, 1, 2}},
-		{[]int{-2, -1, 0, 1, 2}, func(v int) bool { return v >= 0 }, []int{0, 1, 2}},
-		{[]string{"a_0", "b_1", "a_1"}, func(v string) bool { return strings.HasPrefix(v, "a_") }, []string{"a_0", "a_1"}},
-		{[]bool{true, false, false}, func(v bool) bool { return !v }, []bool{false, false}},
-	}
-
-	for _, v := range tests {
-		assert.Equal(t, Filter(v.v, v.f), v.out)
-	}
-
-	// Panic tests
-	tests = []struct {
-		v   interface{}
-		f   interface{}
-		out interface{}
-	}{
+		{[]int{1}, nil, nil},
 		{[]int{1}, 1, nil},
 		{[]int{1}, func() {}, nil},
 		{[]int{1}, func(v int) {}, nil},
@@ -385,5 +369,58 @@ func TestFilter(t *testing.T) {
 
 	for _, v := range tests {
 		assert.Panic(t, func() { Filter(v.v, v.f) })
+	}
+
+	// General tests
+	tests = []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{1, func(v int) bool { return v > 0 }, 1},
+		{[]interface{}{0, 1, nil, 2}, func(v interface{}) bool { return v != nil }, []interface{}{0, 1, 2}},
+		{[]int{-2, -1, 0, 1, 2}, func(v int) bool { return v >= 0 }, []int{0, 1, 2}},
+		{[]string{"a_0", "b_1", "a_1"}, func(v string) bool { return strings.HasPrefix(v, "a_") }, []string{"a_0", "a_1"}},
+		{[]bool{true, false, false}, func(v bool) bool { return !v }, []bool{false, false}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Filter(v.v, v.f), v.out)
+	}
+}
+
+func TestMap(t *testing.T) {
+	// Panic tests
+	tests := []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{[]int{1}, nil, nil},
+		{[]int{1}, 1, nil},
+		{[]int{1}, func() {}, nil},
+		{[]int{1}, func(v int) {}, nil},
+	}
+
+	for _, v := range tests {
+		assert.Panic(t, func() { Map(v.v, v.f) })
+	}
+
+	// General tests
+	tests = []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{1, func(v int) int { return v }, 1},
+		{[]int{1, 2, 3, 4, 5}, func(v int) int { return v * v * v }, []int{1, 8, 27, 64, 125}},
+		{[]int{-2, -1, 0, 1, 2}, func(v int) bool { return v > 0 }, []bool{false, false, false, true, true}},
+		{[]string{"a", "b", "c"}, func(v string) string { return "x_" + v }, []string{"x_a", "x_b", "x_c"}},
+		{[]bool{true, false, false}, func(v bool) bool { return !v }, []bool{false, true, true}},
+		{[]interface{}{1, nil}, func(v interface{}) interface{} { return assert.If(v == nil, -1, v) }, []interface{}{1, -1}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Map(v.v, v.f), v.out)
 	}
 }

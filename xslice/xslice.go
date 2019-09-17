@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.13.2"
+	return "0.14.0"
 }
 
 // Author returns package author
@@ -211,28 +211,22 @@ func Fill(v interface{}, count int) interface{} {
 	return r.Interface()
 }
 
-// Filter filter slice values usig callback fnction fn
+// Filter filter slice values using callback function fn
 func Filter(v interface{}, fn interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
 		return v
 	}
 
-	if fn != nil {
-		err := CheckIsFunc(fn, 1, 1)
-		if err != nil {
-			panic("Filter: " + err.Error())
-		}
-	} else {
-		fn = func(v interface{}) bool {
-			return v != nil
-		}
+	err := CheckIsFunc(fn, 1, 1)
+	if err != nil {
+		panic("Filter: " + err.Error())
 	}
 
 	fv := reflect.ValueOf(fn)
-	ot := fv.Type().Out(0).Kind()
-	if ot != reflect.Bool {
-		panic("Filter: fn expected to return a bool but got " + ot.String())
+	ot := fv.Type().Out(0)
+	if ot.Kind() != reflect.Bool {
+		panic("Filter: fn expected to return bool but got " + ot.Kind().String())
 	}
 
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
@@ -245,11 +239,38 @@ func Filter(v interface{}, fn interface{}) interface{} {
 	return r.Interface()
 }
 
+// Map apply callback function fn to elements of slice
+func Map(v interface{}, fn interface{}) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	err := CheckIsFunc(fn, 1, 1)
+	if err != nil {
+		panic("Map: " + err.Error())
+	}
+
+	fv := reflect.ValueOf(fn)
+	ot := fv.Type().Out(0)
+
+	r := reflect.MakeSlice(reflect.SliceOf(ot), 0, 0)
+	for i := 0; i < vv.Len(); i++ {
+		r = reflect.Append(r, fv.Call([]reflect.Value{vv.Index(i)})[0])
+	}
+
+	return r.Interface()
+}
+
 // CheckIsFunc check if fn is a function with n[0] arguments and n[1] returns
 func CheckIsFunc(fn interface{}, n ...int) error {
+	if fn == nil {
+		return fmt.Errorf("fn excepted to be a function but got nil")
+	}
+
 	ft := reflect.TypeOf(fn)
 	if ft.Kind() != reflect.Func {
-		return fmt.Errorf("fn is not a function")
+		return fmt.Errorf("fn excepted to be a function but got " + ft.Kind().String())
 	}
 
 	if len(n) >= 1 && n[0] != ft.NumIn() {
