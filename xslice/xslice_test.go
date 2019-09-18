@@ -295,7 +295,8 @@ func TestReverse(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		assert.Equal(t, Reverse(v.in), v.out)
+		Reverse(v.in)
+		assert.Equal(t, v.in, v.out)
 	}
 
 	// Is a slice
@@ -318,7 +319,49 @@ func TestReverse(t *testing.T) {
 	}
 
 	for _, v := range tests {
-		assert.Equal(t, Reverse(v.in), v.out)
+		Reverse(v.in)
+		assert.Equal(t, v.in, v.out)
+	}
+}
+
+func TestShuffle(t *testing.T) {
+	// Not a slice
+	tests := []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{1, 1},
+		{1.0, 1.0},
+		{true, true},
+	}
+
+	for _, v := range tests {
+		Shuffle(v.in)
+		assert.Equal(t, v.in, v.out)
+	}
+
+	// Is a slice
+	tests = []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{[]int{0, 1, 2, 3, 4}, []int{0, 1, 2, 3, 4}},
+		{[]int8{0, 1, 2, 3, 4}, []int8{0, 1, 2, 3, 4}},
+		{[]int16{0, 1, 2, 3, 4}, []int16{0, 1, 2, 3, 4}},
+		{[]int32{0, 1, 2, 3, 4}, []int32{0, 1, 2, 3, 4}},
+		{[]int64{0, 1, 2, 3, 4}, []int64{0, 1, 2, 3, 4}},
+		{[]float32{0, 1, 2, 3, 4}, []float32{0, 1, 2, 3, 4}},
+		{[]float64{0, 1, 2, 3, 4}, []float64{0, 1, 2, 3, 4}},
+		{[]string{"a", "b", "c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
+		{[]bool{true, false, false, true, true}, []bool{true, false, false, true, true}},
+		{[]interface{}{0, 1, 2, "3", 3}, []interface{}{0, 1, 2, "3", 3}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}, []int{1, 2}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}}},
+	}
+
+	for _, v := range tests {
+		Shuffle(v.in)
+		assert.NotEqual(t, v.in, v.out)
 	}
 }
 

@@ -21,6 +21,7 @@ package xslice
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
 
 	"github.com/likexian/gokit/assert"
@@ -28,7 +29,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.15.0"
+	return "0.16.0"
 }
 
 // Author returns package author
@@ -183,18 +184,30 @@ func Merge(x, y interface{}) interface{} {
 }
 
 // Reverse returns a slice with elements in reverse order
-func Reverse(v interface{}) interface{} {
+func Reverse(v interface{}) {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		return
 	}
 
 	swap := reflect.Swapper(v)
 	for i, j := 0, vv.Len()-1; i < j; i, j = i+1, j-1 {
 		swap(i, j)
 	}
+}
 
-	return v
+// Shuffle shuffle a slice
+func Shuffle(v interface{}) {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return
+	}
+
+	swap := reflect.Swapper(v)
+	for i := vv.Len() - 1; i >= 1; i-- {
+		j := rand.Intn(i + 1)
+		swap(i, j)
+	}
 }
 
 // Fill returns a slice with count number of v values
