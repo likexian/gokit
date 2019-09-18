@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.14.0"
+	return "0.15.0"
 }
 
 // Author returns package author
@@ -257,6 +257,41 @@ func Map(v interface{}, fn interface{}) interface{} {
 	r := reflect.MakeSlice(reflect.SliceOf(ot), 0, 0)
 	for i := 0; i < vv.Len(); i++ {
 		r = reflect.Append(r, fv.Call([]reflect.Value{vv.Index(i)})[0])
+	}
+
+	return r.Interface()
+}
+
+// Reduce reduce the slice values using callback function fn
+func Reduce(v interface{}, fn interface{}) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	if vv.Len() == 0 {
+		panic("Reduce: slice is empty")
+	}
+
+	err := CheckIsFunc(fn, 2, 1)
+	if err != nil {
+		panic("Reduce: " + err.Error())
+	}
+
+	fv := reflect.ValueOf(fn)
+	if vv.Type().Elem() != fv.Type().In(0) || vv.Type().Elem() != fv.Type().In(1) {
+		panic(fmt.Sprintf("Reduce: fn expected to have (%s, %s) arguments but got (%s, %s)",
+			vv.Type().Elem(), vv.Type().Elem(), fv.Type().In(0), fv.Type().In(1)))
+	}
+
+	if vv.Type().Elem() != fv.Type().Out(0) {
+		panic(fmt.Sprintf("Reduce: fn expected to return %s but got %s",
+			vv.Type().Elem(), fv.Type().Out(0).String()))
+	}
+
+	r := vv.Index(0)
+	for i := 1; i < vv.Len(); i++ {
+		r = fv.Call([]reflect.Value{r, vv.Index(i)})[0]
 	}
 
 	return r.Interface()

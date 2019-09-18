@@ -424,3 +424,42 @@ func TestMap(t *testing.T) {
 		assert.Equal(t, Map(v.v, v.f), v.out)
 	}
 }
+
+func TestReduce(t *testing.T) {
+	// Panic tests
+	tests := []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{[]int{}, nil, nil},
+		{[]int{0, 1}, nil, nil},
+		{[]int{0, 1}, 1, nil},
+		{[]int{0, 1}, func() {}, nil},
+		{[]int{0, 1}, func(x int) {}, nil},
+		{[]int{0, 1}, func(x, y int) {}, nil},
+		{[]int{0, 1}, func(x bool, y int) int { return y }, nil},
+		{[]int{0, 1}, func(x int, y bool) int { return x }, nil},
+		{[]int{0, 1}, func(x int, y int) bool { return true }, nil},
+	}
+
+	for _, v := range tests {
+		assert.Panic(t, func() { Reduce(v.v, v.f) })
+	}
+
+	// General tests
+	tests = []struct {
+		v   interface{}
+		f   interface{}
+		out interface{}
+	}{
+		{1, nil, 1},
+		{[]int{1}, func(x, y int) int { return x + y }, 1},
+		{[]int{1, 2}, func(x, y int) int { return x + y }, 3},
+		{[]int{1, 2, 3, 4}, func(x, y int) int { return x * y }, 24},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Reduce(v.v, v.f).(int), v.out)
+	}
+}
