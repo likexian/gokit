@@ -29,7 +29,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.16.0"
+	return "0.17.0"
 }
 
 // Author returns package author
@@ -219,6 +219,36 @@ func Fill(v interface{}, count int) interface{} {
 	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
 	for i := 0; i < count; i++ {
 		r = reflect.Append(r, reflect.ValueOf(v))
+	}
+
+	return r.Interface()
+}
+
+// Chunk split slice into chunks
+func Chunk(v interface{}, size int) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	if size < 1 {
+		panic("Chunk: size less than 1")
+	}
+
+	i := 0
+	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
+	for i < vv.Len() {
+		rr := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
+		for j := 0; j < size; j++ {
+			rr = reflect.Append(rr, vv.Index(i))
+			i++
+			if i >= vv.Len() {
+				break
+			}
+		}
+		if rr.Len() > 0 {
+			r = reflect.Append(r, rr)
+		}
 	}
 
 	return r.Interface()

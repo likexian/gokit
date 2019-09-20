@@ -396,6 +396,37 @@ func TestFill(t *testing.T) {
 	}
 }
 
+func TestChunk(t *testing.T) {
+	tests := []struct {
+		v   interface{}
+		n   int
+		out interface{}
+	}{
+		{[]int{1}, 0, nil},
+	}
+
+	for _, v := range tests {
+		assert.Panic(t, func() { Chunk(v.v, v.n) })
+	}
+
+	tests = []struct {
+		v   interface{}
+		n   int
+		out interface{}
+	}{
+		{1, 1, 1},
+		{[]int{0, 1, 2}, 1, [][]int{{0}, {1}, {2}}},
+		{[]int{0, 1, 2, 3, 4}, 2, [][]int{{0, 1}, {2, 3}, {4}}},
+		{[]int{0, 1, 2, 3, 4, 5}, 2, [][]int{{0, 1}, {2, 3}, {4, 5}}},
+		{[]string{"a", "b", "c", "d", "e"}, 3, [][]string{{"a", "b", "c"}, {"d", "e"}}},
+		{[]interface{}{a{0, 1}, b{2, 3}, a{4, 5}}, 2, [][]interface{}{{a{0, 1}, b{2, 3}}, {a{4, 5}}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Chunk(v.v, v.n), v.out)
+	}
+}
+
 func TestFilter(t *testing.T) {
 	// Panic tests
 	tests := []struct {
