@@ -427,6 +427,24 @@ func TestChunk(t *testing.T) {
 	}
 }
 
+func TestConcat(t *testing.T) {
+	tests := []struct {
+		in  interface{}
+		out interface{}
+	}{
+		{1, 1},
+		{[]int{}, []int{}},
+		{[]int{0, 1, 2, 3, 4}, []int{0, 1, 2, 3, 4}},
+		{[][]int{{0, 1}, {2, 3}, {4}}, []int{0, 1, 2, 3, 4}},
+		{[][]string{{"a", "b"}, {"c"}, {"d", "e"}}, []string{"a", "b", "c", "d", "e"}},
+		{[][]interface{}{{a{0, 1}, b{0, 1}}, {a{1, 2}}}, []interface{}{a{0, 1}, b{0, 1}, a{1, 2}}},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Concat(v.in), v.out)
+	}
+}
+
 func TestFilter(t *testing.T) {
 	// Panic tests
 	tests := []struct {

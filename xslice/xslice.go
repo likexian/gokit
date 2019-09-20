@@ -21,6 +21,7 @@ package xslice
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"reflect"
 
@@ -29,7 +30,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.17.0"
+	return "0.18.0"
 }
 
 // Author returns package author
@@ -235,19 +236,42 @@ func Chunk(v interface{}, size int) interface{} {
 		panic("Chunk: size less than 1")
 	}
 
-	i := 0
+	n := int(math.Ceil(float64(vv.Len()) / float64(size)))
 	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
-	for i < vv.Len() {
+	for i := 0; i < n; i++ {
 		rr := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
 		for j := 0; j < size; j++ {
-			rr = reflect.Append(rr, vv.Index(i))
-			i++
-			if i >= vv.Len() {
+			if i*size+j >= vv.Len() {
 				break
 			}
+			rr = reflect.Append(rr, vv.Index(i*size+j))
 		}
-		if rr.Len() > 0 {
-			r = reflect.Append(r, rr)
+		r = reflect.Append(r, rr)
+	}
+
+	return r.Interface()
+}
+
+// Concat returns a new flatten slice of []slice
+func Concat(v interface{}) interface{} {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		return v
+	}
+
+	if vv.Len() == 0 {
+		return v
+	}
+
+	vt := reflect.TypeOf(v)
+	if vt.Elem().Kind() != reflect.Slice {
+		return v
+	}
+
+	r := reflect.MakeSlice(reflect.TypeOf(v).Elem(), 0, 0)
+	for i := 0; i < vv.Len(); i++ {
+		for j := 0; j < vv.Index(i).Len(); j++ {
+			r = reflect.Append(r, vv.Index(i).Index(j))
 		}
 	}
 
