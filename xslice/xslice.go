@@ -30,7 +30,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.18.0"
+	return "0.19.0"
 }
 
 // Author returns package author
@@ -84,23 +84,6 @@ func IsUnique(v interface{}) bool {
 	}
 
 	return IsUnique(y.Interface())
-}
-
-// UniqueAppend append to slice if value x not exists in
-func UniqueAppend(v interface{}, x ...interface{}) interface{} {
-	vv := reflect.ValueOf(v)
-	if vv.Kind() != reflect.Slice {
-		return v
-	}
-
-	r := vv.Slice(0, vv.Len())
-	for _, xx := range x {
-		if !assert.IsContains(v, xx) {
-			r = reflect.Append(r, reflect.ValueOf(xx))
-		}
-	}
-
-	return r.Interface()
 }
 
 // Intersect returns values in both slices
