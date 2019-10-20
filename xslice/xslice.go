@@ -30,7 +30,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.19.0"
+	return "0.20.0"
 }
 
 // Author returns package author
@@ -52,7 +52,7 @@ func IsSlice(v interface{}) bool {
 func Unique(v interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, vv.Cap())
@@ -69,7 +69,7 @@ func Unique(v interface{}) interface{} {
 func IsUnique(v interface{}) bool {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return true
+		panic("xslice: v expected to be a slice")
 	}
 
 	if vv.Len() <= 1 {
@@ -90,12 +90,12 @@ func IsUnique(v interface{}) bool {
 func Intersect(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
-		return nil
+		panic("xslice: x expected to be a slice")
 	}
 
 	yy := reflect.ValueOf(y)
 	if yy.Kind() != reflect.Slice {
-		return nil
+		panic("xslice: y expected to be a slice")
 	}
 
 	h := make(map[interface{}]bool)
@@ -117,12 +117,12 @@ func Intersect(x, y interface{}) interface{} {
 func Different(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
-		return nil
+		panic("xslice: x expected to be a slice")
 	}
 
 	yy := reflect.ValueOf(y)
 	if yy.Kind() != reflect.Slice {
-		return nil
+		panic("xslice: y expected to be a slice")
 	}
 
 	h := make(map[interface{}]bool)
@@ -144,12 +144,12 @@ func Different(x, y interface{}) interface{} {
 func Merge(x, y interface{}) interface{} {
 	xx := reflect.ValueOf(x)
 	if xx.Kind() != reflect.Slice {
-		return x
+		panic("xslice: x expected to be a slice")
 	}
 
 	yy := reflect.ValueOf(y)
 	if yy.Kind() != reflect.Slice {
-		return x
+		panic("xslice: y expected to be a slice")
 	}
 
 	h := make(map[interface{}]bool)
@@ -171,7 +171,7 @@ func Merge(x, y interface{}) interface{} {
 func Reverse(v interface{}) {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return
+		panic("xslice: v expected to be a slice")
 	}
 
 	swap := reflect.Swapper(v)
@@ -184,7 +184,7 @@ func Reverse(v interface{}) {
 func Shuffle(v interface{}) {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return
+		panic("xslice: v expected to be a slice")
 	}
 
 	swap := reflect.Swapper(v)
@@ -197,7 +197,7 @@ func Shuffle(v interface{}) {
 // Fill returns a slice with count number of v values
 func Fill(v interface{}, count int) interface{} {
 	if count <= 0 {
-		return nil
+		panic("xslice: count expected to be greater than 0")
 	}
 
 	r := reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(v)), 0, 0)
@@ -212,11 +212,11 @@ func Fill(v interface{}, count int) interface{} {
 func Chunk(v interface{}, size int) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
-	if size < 1 {
-		panic("Chunk: size less than 1")
+	if size <= 0 {
+		panic("xslice: size expected to be greater than 0")
 	}
 
 	n := int(math.Ceil(float64(vv.Len()) / float64(size)))
@@ -239,7 +239,7 @@ func Chunk(v interface{}, size int) interface{} {
 func Concat(v interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
 	if vv.Len() == 0 {
@@ -265,18 +265,18 @@ func Concat(v interface{}) interface{} {
 func Filter(v interface{}, fn interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
 	err := CheckIsFunc(fn, 1, 1)
 	if err != nil {
-		panic("Filter: " + err.Error())
+		panic("xslice: " + err.Error())
 	}
 
 	fv := reflect.ValueOf(fn)
 	ot := fv.Type().Out(0)
 	if ot.Kind() != reflect.Bool {
-		panic("Filter: fn expected to return bool but got " + ot.Kind().String())
+		panic("xslice: fn expected to return bool but got " + ot.Kind().String())
 	}
 
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, 0)
@@ -293,12 +293,12 @@ func Filter(v interface{}, fn interface{}) interface{} {
 func Map(v interface{}, fn interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
 	err := CheckIsFunc(fn, 1, 1)
 	if err != nil {
-		panic("Map: " + err.Error())
+		panic("xslice: " + err.Error())
 	}
 
 	fv := reflect.ValueOf(fn)
@@ -316,26 +316,26 @@ func Map(v interface{}, fn interface{}) interface{} {
 func Reduce(v interface{}, fn interface{}) interface{} {
 	vv := reflect.ValueOf(v)
 	if vv.Kind() != reflect.Slice {
-		return v
+		panic("xslice: v expected to be a slice")
 	}
 
 	if vv.Len() == 0 {
-		panic("Reduce: slice is empty")
+		panic("xslice: v expected to be not empty")
 	}
 
 	err := CheckIsFunc(fn, 2, 1)
 	if err != nil {
-		panic("Reduce: " + err.Error())
+		panic("xslice: " + err.Error())
 	}
 
 	fv := reflect.ValueOf(fn)
 	if vv.Type().Elem() != fv.Type().In(0) || vv.Type().Elem() != fv.Type().In(1) {
-		panic(fmt.Sprintf("Reduce: fn expected to have (%s, %s) arguments but got (%s, %s)",
+		panic(fmt.Sprintf("xslice: fn expected to have (%s, %s) arguments but got (%s, %s)",
 			vv.Type().Elem(), vv.Type().Elem(), fv.Type().In(0), fv.Type().In(1)))
 	}
 
 	if vv.Type().Elem() != fv.Type().Out(0) {
-		panic(fmt.Sprintf("Reduce: fn expected to return %s but got %s",
+		panic(fmt.Sprintf("xslice: fn expected to return %s but got %s",
 			vv.Type().Elem(), fv.Type().Out(0).String()))
 	}
 
