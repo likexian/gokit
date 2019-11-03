@@ -24,13 +24,11 @@ import (
 	"math"
 	"math/rand"
 	"reflect"
-
-	"github.com/likexian/gokit/assert"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.20.0"
+	return "0.21.0"
 }
 
 // Author returns package author
@@ -55,9 +53,13 @@ func Unique(v interface{}) interface{} {
 		panic("xslice: v expected to be a slice")
 	}
 
+	h := make(map[interface{}]bool)
 	r := reflect.MakeSlice(reflect.TypeOf(v), 0, vv.Cap())
+
 	for i := 0; i < vv.Len(); i++ {
-		if !assert.IsContains(r.Interface(), vv.Index(i).Interface()) {
+		hv := hashValue(vv.Index(i).Interface())
+		if _, ok := h[hv]; !ok {
+			h[hv] = true
 			r = reflect.Append(r, vv.Index(i))
 		}
 	}
@@ -76,14 +78,16 @@ func IsUnique(v interface{}) bool {
 		return true
 	}
 
-	x := vv.Index(0)
-	y := vv.Slice(1, vv.Len())
-
-	if assert.IsContains(y.Interface(), x.Interface()) {
-		return false
+	h := make(map[interface{}]bool)
+	for i := 0; i < vv.Len(); i++ {
+		hv := hashValue(vv.Index(i).Interface())
+		if _, ok := h[hv]; ok {
+			return false
+		}
+		h[hv] = true
 	}
 
-	return IsUnique(y.Interface())
+	return true
 }
 
 // Intersect returns values in both slices

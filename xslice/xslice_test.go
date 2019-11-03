@@ -136,6 +136,7 @@ func TestIsUnique(t *testing.T) {
 	tests = []struct {
 		in interface{}
 	}{
+		{[]int{1}},
 		{[]int{0, 1, 2, 3}},
 		{[]int8{0, 1, 2, 3}},
 		{[]int16{0, 1, 2, 3}},
