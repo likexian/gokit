@@ -25,6 +25,12 @@ import (
 	"github.com/likexian/gokit/assert"
 )
 
+func TestVersion(t *testing.T) {
+	assert.Contains(t, Version(), ".")
+	assert.Contains(t, Author(), "likexian")
+	assert.Contains(t, License(), "Apache License")
+}
+
 func TestInt(t *testing.T) {
 	v := int(1)
 	p := Int(v)

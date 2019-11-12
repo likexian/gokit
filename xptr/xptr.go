@@ -19,6 +19,21 @@
 
 package xptr
 
+// Version returns package version
+func Version() string {
+	return "0.2.0"
+}
+
+// Author returns package author
+func Author() string {
+	return "[Li Kexian](https://www.likexian.com/)"
+}
+
+// License returns package license
+func License() string {
+	return "Licensed under the Apache License 2.0"
+}
+
 // Int converts an int to a pointer
 func Int(v int) *int {
 	return &v
