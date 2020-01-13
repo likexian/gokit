@@ -98,7 +98,7 @@ rule, err := xcron.Parse("@every 6 hour")
 
 ## LICENSE
 
-Copyright 2012-2019 Li Kexian
+Copyright 2012-2020 Li Kexian
 
 Licensed under the Apache License 2.0
 

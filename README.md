@@ -24,7 +24,7 @@ Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit)
 
 ## LICENSE
 
-Copyright 2012-2019 Li Kexian
+Copyright 2012-2020 Li Kexian
 
 Licensed under the Apache License 2.0
 

@@ -43,7 +43,7 @@ fmt.Println("16843009 long2ip is:", ip)
 
 ## LICENSE
 
-Copyright 2012-2019 Li Kexian
+Copyright 2012-2020 Li Kexian
 
 Licensed under the Apache License 2.0
 
