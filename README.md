@@ -14,9 +14,11 @@ A toolkit for Golang development.
 
 ## Importing
 
-    import (
-        "github.com/likexian/gokit"
-    )
+```go
+import (
+    "github.com/likexian/gokit"
+)
+```
 
 ## Documentation
 
