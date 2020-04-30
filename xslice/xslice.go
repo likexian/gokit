@@ -28,7 +28,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.21.0"
+	return "0.22.0"
 }
 
 // Author returns package author
@@ -44,6 +44,22 @@ func License() string {
 // IsSlice returns whether value is slice
 func IsSlice(v interface{}) bool {
 	return reflect.ValueOf(v).Kind() == reflect.Slice
+}
+
+// Index returns the index of the first value in v, or -1 if not found
+func Index(v interface{}, value interface{}) int {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Slice {
+		panic("xslice: v expected to be a slice")
+	}
+
+	for i := 0; i < vv.Len(); i++ {
+		if reflect.DeepEqual(value, vv.Index(i).Interface()) {
+			return i
+		}
+	}
+
+	return -1
 }
 
 // Unique returns unique values of slice

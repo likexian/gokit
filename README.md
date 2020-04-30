@@ -10,13 +10,17 @@ A toolkit for Golang development.
 
 ## Installation
 
-    go get -u github.com/likexian/gokit
+```shell
+go get -u github.com/likexian/gokit
+```
 
 ## Importing
 
-    import (
-        "github.com/likexian/gokit"
-    )
+```go
+import (
+    "github.com/likexian/gokit"
+)
+```
 
 ## Documentation
 

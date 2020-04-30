@@ -47,6 +47,52 @@ func TestIsSlice(t *testing.T) {
 	assert.True(t, IsSlice([]string{"0", "1", "2"}))
 }
 
+func TestIndex(t *testing.T) {
+	// Not a slice
+	tests := []struct {
+		x interface{}
+		y interface{}
+		z int
+	}{
+		{1, 1, -1},
+		{1.0, 1.0, -1},
+		{true, true, -1},
+	}
+
+	for _, v := range tests {
+		assert.Panic(t, func() { Index(v.x, v.y) })
+	}
+
+	// Is a slice
+	tests = []struct {
+		x interface{}
+		y interface{}
+		z int
+	}{
+		{[]int{0, 0, 1, 1, 1, 2, 2, 3}, int(0), 0},
+		{[]int8{0, 0, 1, 1, 1, 2, 2, 3}, int8(1), 2},
+		{[]int16{0, 0, 1, 1, 1, 2, 2, 3}, int16(2), 5},
+		{[]int32{0, 0, 1, 1, 1, 2, 2, 3}, int32(3), 7},
+		{[]int64{0, 0, 1, 1, 1, 2, 2, 3}, int64(4), -1},
+		{[]uint{0, 0, 1, 1, 1, 2, 2, 3}, uint(0), 0},
+		{[]uint8{0, 0, 1, 1, 1, 2, 2, 3}, uint8(1), 2},
+		{[]uint16{0, 0, 1, 1, 1, 2, 2, 3}, uint16(2), 5},
+		{[]uint32{0, 0, 1, 1, 1, 2, 2, 3}, uint32(3), 7},
+		{[]uint64{0, 0, 1, 1, 1, 2, 2, 3}, uint64(4), -1},
+		{[]float32{0, 0, 1, 1, 1, 2, 2, 3}, float32(0), 0},
+		{[]float64{0, 0, 1, 1, 1, 2, 2, 3}, float64(4), -1},
+		{[]string{"a", "a", "b", "b", "b", "c"}, "a", 0},
+		{[]bool{true, true, true, false}, false, 3},
+		{[]interface{}{0, 1, 1, "1", 2}, "1", 3},
+		{[]interface{}{[]int{0, 1}, []int{0, 1}, []int{1, 2}}, []int{1, 2}, 2},
+		{[]interface{}{a{0, 1}, a{1, 2}, a{0, 1}, b{0, 1}}, a{0, 1}, 0},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, Index(v.x, v.y), v.z)
+	}
+}
+
 func TestUnique(t *testing.T) {
 	// Not a slice
 	tests := []struct {
