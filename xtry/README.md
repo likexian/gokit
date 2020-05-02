@@ -33,16 +33,14 @@ if err != nil {
 }
 ```
 
-## LICENSE
+## License
 
-Copyright 2012-2020 Li Kexian
+Copyright 2012-2020 [Li Kexian](https://www.likexian.com/)
 
 Licensed under the Apache License 2.0
 
-## About
+## Donation
 
-- [Li Kexian](https://www.likexian.com/)
+If this project is helpful, please share it with friends.
 
-## DONATE
-
-- [Help me make perfect](https://www.likexian.com/donate/)
+If you want to thank me, you can [give me a cup of coffee](https://www.likexian.com/donate/).
