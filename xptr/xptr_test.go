@@ -122,7 +122,7 @@ func TestRune(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
-	v := string(1)
+	v := string("1")
 	p := String(v)
 	assert.Equal(t, *p, v)
 }
