@@ -330,8 +330,10 @@ func TestMerge(t *testing.T) {
 		{[]string{"0", "1", "2"}, []string{"1", "2", "3"}, []string{"0", "1", "2", "3"}},
 		{[]bool{true, false}, []bool{true}, []bool{true, false}},
 		{[]interface{}{0, 1, "1", 2}, []interface{}{1, "1", 2, 3}, []interface{}{0, 1, "1", 2, 3}},
-		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []interface{}{[]int{1, 2}, []int{2, 3}}, []interface{}{[]int{0, 1}, []int{1, 2}, []int{2, 3}}},
-		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{a{1, 2}, b{2, 3}}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}, b{2, 3}}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}}, []interface{}{[]int{1, 2},
+			[]int{2, 3}}, []interface{}{[]int{0, 1}, []int{1, 2}, []int{2, 3}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{a{1, 2}, b{2, 3}},
+			[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}, b{2, 3}}},
 	}
 
 	for _, v := range tests {

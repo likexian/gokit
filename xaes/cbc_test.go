@@ -27,47 +27,47 @@ import (
 )
 
 var (
-	CBC_AES_KEY    = []byte("1234567812345678")
-	CBC_PLAINTEXT  = []byte("hello xaes!")
-	CBC_CIPHERTEXT = []byte{32, 73, 238, 61, 249, 194, 179, 122, 136, 105, 227, 59, 55, 89, 10, 97}
+	cbcAESKey     = []byte("1234567812345678")
+	cbcPlaintext  = []byte("hello xaes!")
+	cbcCiphertext = []byte{32, 73, 238, 61, 249, 194, 179, 122, 136, 105, 227, 59, 55, 89, 10, 97}
 )
 
 func TestCBCEncrypt(t *testing.T) {
-	ciphertext, err := CBCEncrypt(nil, CBC_AES_KEY, nil)
+	ciphertext, err := CBCEncrypt(nil, cbcAESKey, nil)
 	assert.Nil(t, err)
 	assert.Equal(t, ciphertext, []byte(nil))
 
-	_, err = CBCEncrypt(CBC_PLAINTEXT, nil, nil)
+	_, err = CBCEncrypt(cbcPlaintext, nil, nil)
 	assert.NotNil(t, err)
 
-	_, err = CBCEncrypt(CBC_PLAINTEXT, CBC_AES_KEY[:1], nil)
+	_, err = CBCEncrypt(cbcPlaintext, cbcAESKey[:1], nil)
 	assert.NotNil(t, err)
 
-	_, err = CBCEncrypt(CBC_PLAINTEXT, CBC_AES_KEY, CBC_AES_KEY[:1])
+	_, err = CBCEncrypt(cbcPlaintext, cbcAESKey, cbcAESKey[:1])
 	assert.NotNil(t, err)
 
-	ciphertext, err = CBCEncrypt(CBC_PLAINTEXT, CBC_AES_KEY, nil)
+	ciphertext, err = CBCEncrypt(cbcPlaintext, cbcAESKey, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, ciphertext, CBC_CIPHERTEXT)
+	assert.Equal(t, ciphertext, cbcCiphertext)
 }
 
 func TestCBCDecrypt(t *testing.T) {
-	CBC_PLAINTEXT, err := CBCDecrypt(nil, CBC_AES_KEY, nil)
+	cbcPlaintext, err := CBCDecrypt(nil, cbcAESKey, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, CBC_PLAINTEXT, []byte(nil))
+	assert.Equal(t, cbcPlaintext, []byte(nil))
 
-	_, err = CBCDecrypt(CBC_CIPHERTEXT, nil, nil)
+	_, err = CBCDecrypt(cbcCiphertext, nil, nil)
 	assert.NotNil(t, err)
 
-	_, err = CBCDecrypt(CBC_CIPHERTEXT, CBC_AES_KEY[:1], nil)
+	_, err = CBCDecrypt(cbcCiphertext, cbcAESKey[:1], nil)
 	assert.NotNil(t, err)
 
-	_, err = CBCDecrypt(CBC_CIPHERTEXT, CBC_AES_KEY, CBC_AES_KEY[:1])
+	_, err = CBCDecrypt(cbcCiphertext, cbcAESKey, cbcAESKey[:1])
 	assert.NotNil(t, err)
 
-	CBC_PLAINTEXT, err = CBCDecrypt(CBC_CIPHERTEXT, CBC_AES_KEY, nil)
+	cbcPlaintext, err = CBCDecrypt(cbcCiphertext, cbcAESKey, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, CBC_PLAINTEXT, CBC_PLAINTEXT)
+	assert.Equal(t, cbcPlaintext, cbcPlaintext)
 }
 
 func TestCBC(t *testing.T) {
@@ -75,10 +75,10 @@ func TestCBC(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		data += strconv.Itoa(i)
 
-		ciphertext, err := CBCEncrypt([]byte(data), CBC_AES_KEY, nil)
+		ciphertext, err := CBCEncrypt([]byte(data), cbcAESKey, nil)
 		assert.Nil(t, err)
 
-		plaintext, err := CBCDecrypt(ciphertext, CBC_AES_KEY, nil)
+		plaintext, err := CBCDecrypt(ciphertext, cbcAESKey, nil)
 		assert.Nil(t, err)
 
 		assert.Equal(t, plaintext, []byte(data))

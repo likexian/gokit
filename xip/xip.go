@@ -29,14 +29,14 @@ import (
 	"strings"
 )
 
-// ErrInvalidIP ip value is invalid
-var ErrInvalidIP = errors.New("xip: not valid ip string")
-
-// ErrInvalidMask ip mask value is invalid
-var ErrInvalidMask = errors.New("xip: not valid ip mask")
-
-// ErrInvalidHex hex string is invalid
-var ErrInvalidHex = errors.New("xip: not valid hex string")
+var (
+	// ErrInvalidIP ip value is invalid
+	ErrInvalidIP = errors.New("xip: not valid ip string")
+	// ErrInvalidMask ip mask value is invalid
+	ErrInvalidMask = errors.New("xip: not valid ip mask")
+	// ErrInvalidHex hex string is invalid
+	ErrInvalidHex = errors.New("xip: not valid hex string")
+)
 
 // PrivateIPs is private ip
 var PrivateIPs = []string{
@@ -49,7 +49,7 @@ var PrivateIPs = []string{
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author

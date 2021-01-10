@@ -160,27 +160,32 @@ func TestSha512(t *testing.T) {
 	}{
 		{
 			[]interface{}{[]byte("12345678")},
-			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c70669" +
+				"5a03cddce372f139eff4d13959da6f1f5d3eabe",
 			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
 		},
 		{
 			[]interface{}{"12345678"},
-			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c70669" +
+				"5a03cddce372f139eff4d13959da6f1f5d3eabe",
 			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
 		},
 		{
 			[]interface{}{"1234", "5678"},
-			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c70669" +
+				"5a03cddce372f139eff4d13959da6f1f5d3eabe",
 			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
 		},
 		{
 			[]interface{}{1234, 5678},
-			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c70669" +
+				"5a03cddce372f139eff4d13959da6f1f5d3eabe",
 			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
 		},
 		{
 			[]interface{}{123, 456, 78},
-			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c706695a03cddce372f139eff4d13959da6f1f5d3eabe",
+			"fa585d89c851dd338a70dcf535aa2a92fee7836dd6aff1226583e88e0996293f16bc009c652826e0fc5c70669" +
+				"5a03cddce372f139eff4d13959da6f1f5d3eabe",
 			"+lhdichR3TOKcNz1Naoqkv7ng23Wr/EiZYPojgmWKT8WvACcZSgm4PxccGaVoDzdzjcvE57/TROVnabx9dPqvg==",
 		},
 	}
@@ -324,27 +329,32 @@ func TestHmacSha512(t *testing.T) {
 	}{
 		{
 			[]interface{}{[]byte("12345678")},
-			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523dbf80b99e1f8ea890fe8ab1de19a33d3da497dce",
+			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523d" +
+				"bf80b99e1f8ea890fe8ab1de19a33d3da497dce",
 			"3v36/b29SI1AaRJGz/ymiMdSVc6bvHJg9jtuAPX8RFOv9GXmQwy3xzA/tSPb+AuZ4fjqiQ/oqx3hmjPT2kl9zg==",
 		},
 		{
 			[]interface{}{"12345678"},
-			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523dbf80b99e1f8ea890fe8ab1de19a33d3da497dce",
+			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523d" +
+				"bf80b99e1f8ea890fe8ab1de19a33d3da497dce",
 			"3v36/b29SI1AaRJGz/ymiMdSVc6bvHJg9jtuAPX8RFOv9GXmQwy3xzA/tSPb+AuZ4fjqiQ/oqx3hmjPT2kl9zg==",
 		},
 		{
 			[]interface{}{"1234", "5678"},
-			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523dbf80b99e1f8ea890fe8ab1de19a33d3da497dce",
+			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523d" +
+				"bf80b99e1f8ea890fe8ab1de19a33d3da497dce",
 			"3v36/b29SI1AaRJGz/ymiMdSVc6bvHJg9jtuAPX8RFOv9GXmQwy3xzA/tSPb+AuZ4fjqiQ/oqx3hmjPT2kl9zg==",
 		},
 		{
 			[]interface{}{1234, 5678},
-			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523dbf80b99e1f8ea890fe8ab1de19a33d3da497dce",
+			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523d" +
+				"bf80b99e1f8ea890fe8ab1de19a33d3da497dce",
 			"3v36/b29SI1AaRJGz/ymiMdSVc6bvHJg9jtuAPX8RFOv9GXmQwy3xzA/tSPb+AuZ4fjqiQ/oqx3hmjPT2kl9zg==",
 		},
 		{
 			[]interface{}{123, 456, 78},
-			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523dbf80b99e1f8ea890fe8ab1de19a33d3da497dce",
+			"defdfafdbdbd488d40691246cffca688c75255ce9bbc7260f63b6e00f5fc4453aff465e6430cb7c7303fb523d" +
+				"bf80b99e1f8ea890fe8ab1de19a33d3da497dce",
 			"3v36/b29SI1AaRJGz/ymiMdSVc6bvHJg9jtuAPX8RFOv9GXmQwy3xzA/tSPb+AuZ4fjqiQ/oqx3hmjPT2kl9zg==",
 		},
 	}
@@ -420,8 +430,16 @@ func TestFileSha256(t *testing.T) {
 		hex string
 		b64 string
 	}{
-		{"/dev/null", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="},
-		{fd, "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="},
+		{
+			"/dev/null",
+			"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		},
+		{
+			fd,
+			"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			"47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
+		},
 	}
 
 	for _, v := range tests {
@@ -447,8 +465,18 @@ func TestFileSha512(t *testing.T) {
 		hex string
 		b64 string
 	}{
-		{"/dev/null", "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="},
-		{fd, "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="},
+		{
+			"/dev/null",
+			"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d28" +
+				"77eec2f63b931bd47417a81a538327af927da3e",
+			"z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==",
+		},
+		{
+			fd,
+			"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d28" +
+				"77eec2f63b931bd47417a81a538327af927da3e",
+			"z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==",
+		},
 	}
 
 	for _, v := range tests {

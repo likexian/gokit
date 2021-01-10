@@ -46,6 +46,25 @@ import (
 	"github.com/likexian/gokit/xtime"
 )
 
+var (
+	// DefaultRequest is default request
+	DefaultRequest = New()
+
+	// Caching is http request cache
+	caching = xcache.New(xcache.MemoryCache)
+
+	// supportMethod list all supported http method
+	supportMethod = []string{
+		"GET",
+		"HEAD",
+		"POST",
+		"PUT",
+		"PATCH",
+		"DELETE",
+		"OPTIONS",
+	}
+)
+
 // Timeout storing timeout setting
 type Timeout struct {
 	ConnectTimeout        int
@@ -169,29 +188,9 @@ func (p *param) IsEmpty() bool {
 	return p.Values == nil
 }
 
-var (
-	// DefaultRequest is default request
-	DefaultRequest = New()
-)
-
-var (
-	// supportMethod list all supported http method
-	supportMethod = []string{
-		"GET",
-		"HEAD",
-		"POST",
-		"PUT",
-		"PATCH",
-		"DELETE",
-		"OPTIONS",
-	}
-	// Caching is http request cache
-	caching = xcache.New(xcache.MemoryCache)
-)
-
 // Version returns package version
 func Version() string {
-	return "0.17.0"
+	return "0.18.0"
 }
 
 // Author returns package author
@@ -396,9 +395,12 @@ func (r *Request) SetTimeout(timeout Timeout) *Request {
 		Timeout:   time.Duration(r.Timeout.ConnectTimeout) * time.Second,
 		KeepAlive: time.Duration(r.Timeout.KeepAliveTimeout) * time.Second,
 	}).DialContext
-	r.Client.Transport.(*http.Transport).TLSHandshakeTimeout = time.Duration(r.Timeout.TLSHandshakeTimeout) * time.Second
-	r.Client.Transport.(*http.Transport).ResponseHeaderTimeout = time.Duration(r.Timeout.ResponseHeaderTimeout) * time.Second
-	r.Client.Transport.(*http.Transport).ExpectContinueTimeout = time.Duration(r.Timeout.ExpectContinueTimeout) * time.Second
+	r.Client.Transport.(*http.Transport).TLSHandshakeTimeout =
+		time.Duration(r.Timeout.TLSHandshakeTimeout) * time.Second
+	r.Client.Transport.(*http.Transport).ResponseHeaderTimeout =
+		time.Duration(r.Timeout.ResponseHeaderTimeout) * time.Second
+	r.Client.Transport.(*http.Transport).ExpectContinueTimeout =
+		time.Duration(r.Timeout.ExpectContinueTimeout) * time.Second
 	r.Client.Timeout = time.Duration(r.Timeout.ClientTimeout) * time.Second
 	return r
 }
@@ -472,7 +474,7 @@ func (r *Request) EnableCache(method string, ttl int64) *Request {
 // 0: no retry (default), -1: retry until success, > 1: retry x times
 func (r *Request) SetRetries(args ...interface{}) *Request {
 	if len(args) == 0 {
-		panic("xhttp: no args pass to SetRetries")
+		panic("xhttp: the arguments is empty")
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -744,12 +746,12 @@ func (r *Response) File(paths ...string) (size int64, err error) {
 	}
 
 	if xfile.Exists(fpath) {
-		return 0, fmt.Errorf("file %s is exists", fpath)
+		return 0, fmt.Errorf("xhttp: file %s is exists", fpath)
 	}
 
 	defer r.Response.Body.Close()
 	if r.Response.StatusCode != http.StatusOK {
-		return 0, fmt.Errorf("bad status code: %d", r.Response.StatusCode)
+		return 0, fmt.Errorf("xhttp: bad status code: %d", r.Response.StatusCode)
 	}
 
 	startAt := xtime.Ms()

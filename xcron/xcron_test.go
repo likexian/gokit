@@ -211,11 +211,16 @@ func TestIsDue(t *testing.T) {
 		rule Rule
 		out  bool
 	}{
-		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
-		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{0}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
-		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{0, 1}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
-		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{1}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
-		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC), Rule{[]int{1, 2}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC),
+			Rule{[]int{}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC),
+			Rule{[]int{0}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC),
+			Rule{[]int{0, 1}, []int{}, []int{}, []int{}, []int{}, []int{}}, true},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC),
+			Rule{[]int{1}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
+		{time.Date(2019, 04, 10, 0, 0, 0, 0, time.UTC),
+			Rule{[]int{1, 2}, []int{}, []int{}, []int{}, []int{}, []int{}}, false},
 	}
 
 	for _, v := range tests {

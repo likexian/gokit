@@ -38,9 +38,14 @@ const (
 	EB
 )
 
+var (
+	// ErrStringByteSizeInvalid is string of byte size invalid error
+	ErrStringByteSizeInvalid = errors.New("xhuman: string of byte size is invalid")
+)
+
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -93,7 +98,7 @@ func ParseByteSize(s string) (int64, error) {
 	}
 
 	if bytes < 0 {
-		return 0, errors.New("byte size string invalid")
+		return 0, ErrStringByteSizeInvalid
 	}
 
 	switch unit {
@@ -112,7 +117,7 @@ func ParseByteSize(s string) (int64, error) {
 	case "B":
 		return int64(bytes * B), nil
 	default:
-		return 0, errors.New("byte size string invalid")
+		return 0, ErrStringByteSizeInvalid
 	}
 }
 

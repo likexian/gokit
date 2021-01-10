@@ -788,7 +788,7 @@ func TestSetRetries(t *testing.T) {
 	}()
 
 	// retry until success, sleep 1 second per request
-	req.SetRetries(-1, time.Duration(100*time.Millisecond))
+	req.SetRetries(-1, 100*time.Millisecond)
 	rsp, err = req.Do(ctx, "Get", "http://127.0.0.1:5555/after3/")
 	assert.Nil(t, err)
 	defer rsp.Close()
@@ -887,7 +887,8 @@ func TestEnableCache(t *testing.T) {
 	assert.Equal(t, newText, text)
 	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
 
-	newRsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"}, FormParam{"d": "v", "x": "likexian", "q": "a"})
+	newRsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"},
+		FormParam{"d": "v", "x": "likexian", "q": "a"})
 	assert.Nil(t, err)
 	defer newRsp.Close()
 
@@ -1004,7 +1005,8 @@ func ServerForTesting(listen string) string {
 	go func() {
 		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
-			fmt.Fprintf(w, `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>HTTP Server For Testing</title></head><body>Hello Testing!</body></html>`)
+			fmt.Fprintf(w, `<!DOCTYPE html><html><head><meta charset="UTF-8">`+
+				`<title>HTTP Server For Testing</title></head><body>Hello Testing!</body></html>`)
 		})
 		http.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -1134,7 +1136,7 @@ func ServerForTesting(listen string) string {
 			w.WriteHeader(s)
 		})
 		http.HandleFunc("/time", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprint(w, fmt.Sprintf("%d", time.Now().UnixNano()))
+			fmt.Fprintf(w, "%d", time.Now().UnixNano())
 		})
 		http.HandleFunc("/sleep", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")

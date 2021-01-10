@@ -106,7 +106,7 @@ func TestHttpStatus(t *testing.T) {
 
 	req := xhttp.New()
 	for {
-		_, err := req.Do(context.Background(), "GET", fmt.Sprintf("http://127.0.0.1:6666/"))
+		_, err := req.Do(context.Background(), "GET", fmt.Sprintf("http://127.0.0.1:6666/%s", ""))
 		if err == nil {
 			break
 		}

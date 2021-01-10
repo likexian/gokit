@@ -20,9 +20,18 @@
 package memory
 
 import (
-	"fmt"
+	"errors"
 	"sync"
 	"time"
+)
+
+var (
+	// ErrKeyNotExists is key not exists error
+	ErrKeyNotExists = errors.New("xcache: the key is not exists")
+	// ErrDataTypeNotSupported is data type not supported error
+	ErrDataTypeNotSupported = errors.New("xcache: data type is not supported")
+	// ErrValueLessThanZero is value less than zero error
+	ErrValueLessThanZero = errors.New("xcache: object value is less than zero")
 )
 
 // Object is storing single object
@@ -42,7 +51,7 @@ type Objects struct {
 
 // Version returns package version
 func Version() string {
-	return "0.1.1"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -136,7 +145,7 @@ func (o *Objects) Incr(key string) error {
 
 	v, ok := o.values[key]
 	if !ok {
-		return fmt.Errorf("xcache: key %s not exists", key)
+		return ErrKeyNotExists
 	}
 
 	switch vv := v.value.(type) {
@@ -153,7 +162,7 @@ func (o *Objects) Incr(key string) error {
 	case uint64:
 		v.value = vv + 1
 	default:
-		return fmt.Errorf("xcache: not supported data type")
+		return ErrDataTypeNotSupported
 	}
 
 	return nil
@@ -166,7 +175,7 @@ func (o *Objects) Decr(key string) error {
 
 	v, ok := o.values[key]
 	if !ok {
-		return fmt.Errorf("xcache: key %s not exists", key)
+		return ErrKeyNotExists
 	}
 
 	switch vv := v.value.(type) {
@@ -177,25 +186,22 @@ func (o *Objects) Decr(key string) error {
 	case int64:
 		v.value = vv - 1
 	case uint:
-		if vv > 0 {
-			v.value = vv - 1
-		} else {
-			return fmt.Errorf("xcache: object value is less than zero")
+		if vv <= 0 {
+			return ErrValueLessThanZero
 		}
+		v.value = vv - 1
 	case uint32:
-		if vv > 0 {
-			v.value = vv - 1
-		} else {
-			return fmt.Errorf("xcache: object value is less than zero")
+		if vv <= 0 {
+			return ErrValueLessThanZero
 		}
+		v.value = vv - 1
 	case uint64:
-		if vv > 0 {
-			v.value = vv - 1
-		} else {
-			return fmt.Errorf("xcache: object value is less than zero")
+		if vv <= 0 {
+			return ErrValueLessThanZero
 		}
+		v.value = vv - 1
 	default:
-		return fmt.Errorf("xcache: not supported data type")
+		return ErrDataTypeNotSupported
 	}
 
 	return nil

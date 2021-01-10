@@ -23,6 +23,11 @@ import (
 	"github.com/likexian/gokit/xcache/memory"
 )
 
+// Cacher list
+const (
+	MemoryCache = iota
+)
+
 // Cachex is cache interface
 type Cachex interface {
 	Get(key string) interface{}
@@ -37,14 +42,9 @@ type Cachex interface {
 	Close() error
 }
 
-// Cacher list
-const (
-	MemoryCache = iota
-)
-
 // Version returns package version
 func Version() string {
-	return "0.1.1"
+	return "0.2.0"
 }
 
 // Author returns package author

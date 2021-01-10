@@ -32,33 +32,6 @@ import (
 	"github.com/likexian/gokit/xtime"
 )
 
-// Rule is parsed cron rule
-type Rule struct {
-	Second     []int
-	Minute     []int
-	Hour       []int
-	DayOfMonth []int
-	Month      []int
-	DayOfWeek  []int
-}
-
-// Job is a cron job
-type Job struct {
-	rule string
-	loop func()
-	tidy func()
-	stop chan bool
-}
-
-// Service is cron service
-type Service struct {
-	jobs   map[string]Job
-	ctx    context.Context
-	cancel context.CancelFunc
-	wg     *sync.WaitGroup
-	sync.RWMutex
-}
-
 // Field type of rule
 const (
 	Second = iota
@@ -97,9 +70,36 @@ var (
 	}
 )
 
+// Rule is parsed cron rule
+type Rule struct {
+	Second     []int
+	Minute     []int
+	Hour       []int
+	DayOfMonth []int
+	Month      []int
+	DayOfWeek  []int
+}
+
+// Job is a cron job
+type Job struct {
+	rule string
+	loop func()
+	tidy func()
+	stop chan bool
+}
+
+// Service is cron service
+type Service struct {
+	jobs   map[string]Job
+	ctx    context.Context
+	cancel context.CancelFunc
+	wg     *sync.WaitGroup
+	sync.RWMutex
+}
+
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.6.0"
 }
 
 // Author returns package author

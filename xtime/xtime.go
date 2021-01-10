@@ -24,18 +24,19 @@ import (
 	"time"
 )
 
+var (
+	// ErrCanceled is canceled error
+	ErrCanceled = errors.New("xtime: canceled")
+	// ErrTimeouted is timeouted error
+	ErrTimeouted = errors.New("xtime: timeouted")
+)
+
 // TimeCallback is a callback with one return value
 type TimeCallback func() interface{}
 
-// ErrCanceled is canceled error
-var ErrCanceled = errors.New("xtime: canceled")
-
-// ErrTimeouted is timeouted error
-var ErrTimeouted = errors.New("xtime: timeouted")
-
 // Version returns package version
 func Version() string {
-	return "0.3.1"
+	return "0.4.0"
 }
 
 // Author returns package author

@@ -25,6 +25,17 @@ import (
 	"reflect"
 )
 
+var (
+	// ErrNotStruct is data not a valid struct
+	ErrNotStruct = errors.New("xstruct: not a valid struct")
+	// ErrNotField is field not found
+	ErrNotField = errors.New("xstruct: not a valid field name")
+	// ErrNotExported is field not a export field
+	ErrNotExported = errors.New("xstruct: not a exported field")
+	// errNotSettable is field is not settable
+	errNotSettable = errors.New("xstruct: not a settable field")
+)
+
 // Structx storing struct data
 type Structx struct {
 	data  interface{}
@@ -37,21 +48,9 @@ type Fieldx struct {
 	value reflect.Value
 }
 
-// ErrNotStruct is data not a valid struct
-var ErrNotStruct = errors.New("xstruct: not a valid struct")
-
-// ErrNotField is field not found
-var ErrNotField = errors.New("xstruct: not a valid field name")
-
-// ErrNotExported is field not a export field
-var ErrNotExported = errors.New("xstruct: not a exported field")
-
-// errNotSettable is field is not settable
-var errNotSettable = errors.New("xstruct: not a settable field")
-
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author

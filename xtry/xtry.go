@@ -25,22 +25,19 @@ import (
 	"time"
 )
 
+const (
+	// Timeout is retry exhausted timeout
+	Timeout ExhaustedType = "Timeout"
+	// MaxTries is retry exhausted max times
+	MaxTries ExhaustedType = "MaxTries"
+	// Cancelled is retry is cancelled
+	Cancelled ExhaustedType = "Cancelled"
+	// NonRetry is non retryable
+	NonRetry ExhaustedType = "NonRetry"
+)
+
 // ExhaustedType is retry exhausted type
 type ExhaustedType string
-
-const (
-	// TIMEOUT is retry exhausted timeout
-	TIMEOUT ExhaustedType = "Timeout"
-
-	// MAXTRIES is retry exhausted max times
-	MAXTRIES ExhaustedType = "MaxTries"
-
-	// CANCELLED is retry is cancelled
-	CANCELLED ExhaustedType = "Cancelled"
-
-	// NONRETRY is non retryable
-	NONRETRY ExhaustedType = "NonRetry"
-)
 
 // Config represents a retry config
 type Config struct {
@@ -59,7 +56,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.3.0"
 }
 
 // Author returns package author
@@ -92,7 +89,7 @@ func (c Config) Run(ctx context.Context, fn func(context.Context) error) error {
 	var err error
 	for try := 0; ; try++ {
 		if c.MaxTries != 0 && try == c.MaxTries {
-			return &RetryExhaustedError{Err: err, Type: MAXTRIES, Times: try}
+			return &RetryExhaustedError{Err: err, Type: MaxTries, Times: try}
 		}
 		if err = fn(ctx); err == nil {
 			return nil
@@ -102,18 +99,18 @@ func (c Config) Run(ctx context.Context, fn func(context.Context) error) error {
 				return nil
 			}
 			if !e.Retryable {
-				return &RetryExhaustedError{Err: e.Err, Type: NONRETRY, Times: try}
+				return &RetryExhaustedError{Err: e.Err, Type: NonRetry, Times: try}
 			}
 		} else {
 			if !shouldRetry(err) {
-				return &RetryExhaustedError{Err: err, Type: NONRETRY, Times: try}
+				return &RetryExhaustedError{Err: err, Type: NonRetry, Times: try}
 			}
 		}
 		select {
 		case <-ctx.Done():
-			return &RetryExhaustedError{Err: err, Type: CANCELLED, Times: try}
+			return &RetryExhaustedError{Err: err, Type: Cancelled, Times: try}
 		case <-timeout:
-			return &RetryExhaustedError{Err: err, Type: TIMEOUT, Times: try}
+			return &RetryExhaustedError{Err: err, Type: Timeout, Times: try}
 		default:
 			time.Sleep(retryDelay())
 		}
@@ -138,7 +135,7 @@ func (err *RetryExhaustedError) Error() string {
 		return "<nil>"
 	}
 
-	return fmt.Sprintf("Retry exhausted, type: %s, error: %s", err.Type, err.Err)
+	return fmt.Sprintf("xtry: retry exhausted, type: %s, error: %s", err.Type, err.Err)
 }
 
 // RetryError is an error with retryable info
@@ -154,10 +151,10 @@ func (err *RetryError) Error() string {
 	}
 
 	if err.Retryable {
-		return fmt.Sprintf("Retryable error: %s", err.Err)
+		return fmt.Sprintf("xtry: retryable error: %s", err.Err)
 	}
 
-	return fmt.Sprintf("NonRetryable error: %s", err.Err)
+	return fmt.Sprintf("xtry: nonretryable error: %s", err.Err)
 }
 
 // RetryableError returns a retryable error

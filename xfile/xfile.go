@@ -29,18 +29,21 @@ import (
 	"strings"
 )
 
-// File type list
 const (
+	// TypeAll list dir and file
 	TypeAll int = iota
+	// TypeDir list only dir
 	TypeDir
+	// TypeFile list only file
 	TypeFile
 )
 
-// ErrNotExists file is exists error
-var ErrNotExists = errors.New("xfile: file is not exists")
-
-// ErrHasExists file is exists error
-var ErrHasExists = errors.New("xfile: file is exists")
+var (
+	// ErrNotExists file is exists error
+	ErrNotExists = errors.New("xfile: file is not exists")
+	// ErrHasExists file is exists error
+	ErrHasExists = errors.New("xfile: file is exists")
+)
 
 // LsFile is list file info
 type LsFile struct {
@@ -51,7 +54,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.11.1"
+	return "0.12.0"
 }
 
 // Author returns package author

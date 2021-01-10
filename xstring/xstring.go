@@ -95,7 +95,7 @@ func ToString(v interface{}) string {
 	case int32:
 		return strconv.FormatInt(int64(vv), 10)
 	case int64:
-		return strconv.FormatInt(int64(vv), 10)
+		return strconv.FormatInt(vv, 10)
 	case uint:
 		return strconv.FormatUint(uint64(vv), 10)
 	case uint8:
@@ -105,11 +105,11 @@ func ToString(v interface{}) string {
 	case uint32:
 		return strconv.FormatUint(uint64(vv), 10)
 	case uint64:
-		return strconv.FormatUint(uint64(vv), 10)
+		return strconv.FormatUint(vv, 10)
 	case float32:
 		return strconv.FormatFloat(float64(vv), 'f', 2, 64)
 	case float64:
-		return strconv.FormatFloat(float64(vv), 'f', 2, 64)
+		return strconv.FormatFloat(vv, 'f', 2, 64)
 	default:
 		return fmt.Sprintf("%v", v)
 	}

@@ -41,7 +41,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -151,9 +151,9 @@ func (h Hashx) B64() string {
 // writeString write string content to hash
 func (h Hashx) writeString(s ...interface{}) {
 	for _, v := range s {
-		switch v.(type) {
+		switch v := v.(type) {
 		case []byte:
-			_, _ = h.Hash.Write(v.([]byte))
+			_, _ = h.Hash.Write(v)
 		default:
 			_, _ = h.Hash.Write([]byte(xstring.ToString(v)))
 		}
@@ -162,9 +162,9 @@ func (h Hashx) writeString(s ...interface{}) {
 
 // writeFile write file content to hash
 func (h Hashx) writeFile(f interface{}) error {
-	switch f.(type) {
+	switch f := f.(type) {
 	case string:
-		fd, err := os.Open(f.(string))
+		fd, err := os.Open(f)
 		if err != nil {
 			return err
 		}
@@ -172,9 +172,9 @@ func (h Hashx) writeFile(f interface{}) error {
 		_, err = io.Copy(h.Hash, fd)
 		return err
 	case *os.File:
-		_, err := io.Copy(h.Hash, f.(*os.File))
+		_, err := io.Copy(h.Hash, f)
 		return err
 	default:
-		panic("xhash: not supported args type")
+		panic("xhash: not supported file type")
 	}
 }

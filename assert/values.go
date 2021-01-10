@@ -28,17 +28,17 @@ import (
 	"strings"
 )
 
-// ErrInvalid is value invalid for operation
-var ErrInvalid = errors.New("value if invalid")
+var (
+	// ErrInvalid is value invalid for operation
+	ErrInvalid = errors.New("assert: value if invalid")
+	// ErrLess is expect to be greater error
+	ErrLess = errors.New("assert: left is less the right")
+	// ErrGreater is expect to be less error
+	ErrGreater = errors.New("assert: left is greater then right")
+)
 
-// ErrLess is expect to be greater error
-var ErrLess = errors.New("left is less the right")
-
-// ErrGreater is expect to be less error
-var ErrGreater = errors.New("left is greater then right")
-
-// CMP is compare operation
-var CMP = struct {
+// Comparer is compare operator
+var Comparer = struct {
 	LT string
 	LE string
 	GT string
@@ -153,22 +153,22 @@ func Length(v interface{}) int {
 
 // IsLt returns if x less than y, value invalid will returns false
 func IsLt(x, y interface{}) bool {
-	return Compare(x, y, CMP.LT) == nil
+	return Compare(x, y, Comparer.LT) == nil
 }
 
 // IsLe returns if x less than or equal to y, value invalid will returns false
 func IsLe(x, y interface{}) bool {
-	return Compare(x, y, CMP.LE) == nil
+	return Compare(x, y, Comparer.LE) == nil
 }
 
 // IsGt returns if x greater than y, value invalid will returns false
 func IsGt(x, y interface{}) bool {
-	return Compare(x, y, CMP.GT) == nil
+	return Compare(x, y, Comparer.GT) == nil
 }
 
 // IsGe returns if x greater than or equal to y, value invalid will returns false
 func IsGe(x, y interface{}) bool {
-	return Compare(x, y, CMP.GE) == nil
+	return Compare(x, y, Comparer.GE) == nil
 }
 
 // Compare compare x and y, by operation
@@ -177,7 +177,7 @@ func IsGe(x, y interface{}) bool {
 //   Compare("a", "a", ">=") // string compare -> true
 //   Compare([]string{"a", "b"}, []string{"a"}, "<") // slice len compare -> false
 func Compare(x, y interface{}, op string) error {
-	if !IsContains([]string{CMP.LT, CMP.LE, CMP.GT, CMP.GE}, op) {
+	if !IsContains([]string{Comparer.LT, Comparer.LE, Comparer.GT, Comparer.GE}, op) {
 		return ErrInvalid
 	}
 
@@ -226,7 +226,7 @@ func Compare(x, y interface{}, op string) error {
 		if err != nil {
 			return ErrInvalid
 		}
-		c = float64(vv.Float() - yy)
+		c = vv.Float() - yy
 	default:
 		return ErrInvalid
 	}
@@ -234,23 +234,23 @@ func Compare(x, y interface{}, op string) error {
 	switch {
 	case c < 0:
 		switch op {
-		case CMP.LT, CMP.LE:
+		case Comparer.LT, Comparer.LE:
 			return nil
 		default:
 			return ErrLess
 		}
 	case c > 0:
 		switch op {
-		case CMP.GT, CMP.GE:
+		case Comparer.GT, Comparer.GE:
 			return nil
 		default:
 			return ErrGreater
 		}
 	default:
 		switch op {
-		case CMP.LT:
+		case Comparer.LT:
 			return ErrGreater
-		case CMP.GT:
+		case Comparer.GT:
 			return ErrLess
 		default:
 			return nil
@@ -263,7 +263,7 @@ func ToInt64(v interface{}) (int64, error) {
 	vv := reflect.ValueOf(v)
 	switch vv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return int64(vv.Int()), nil
+		return vv.Int(), nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return int64(vv.Uint()), nil
 	case reflect.Float32, reflect.Float64:
@@ -286,7 +286,7 @@ func ToUint64(v interface{}) (uint64, error) {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return uint64(vv.Int()), nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return uint64(vv.Uint()), nil
+		return vv.Uint(), nil
 	case reflect.Float32, reflect.Float64:
 		return uint64(vv.Float()), nil
 	case reflect.String:
@@ -309,7 +309,7 @@ func ToFloat64(v interface{}) (float64, error) {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		return float64(vv.Uint()), nil
 	case reflect.Float32, reflect.Float64:
-		return float64(vv.Float()), nil
+		return vv.Float(), nil
 	case reflect.String:
 		r, err := strconv.ParseFloat(vv.String(), 64)
 		if err != nil {

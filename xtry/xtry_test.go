@@ -56,7 +56,7 @@ func TestCancel(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, CANCELLED)
+	assert.Equal(t, e.Type, Cancelled)
 	assert.Equal(t, e.Times, 1)
 }
 
@@ -73,7 +73,7 @@ func TestTimeout(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, TIMEOUT)
+	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
 }
 
@@ -90,7 +90,7 @@ func TestMaxTries(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, MAXTRIES)
+	assert.Equal(t, e.Type, MaxTries)
 	assert.Equal(t, e.Times, 1)
 }
 
@@ -108,7 +108,7 @@ func TestRetryDelay(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, TIMEOUT)
+	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 2)
 }
 
@@ -126,7 +126,7 @@ func TestShouldRetry(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, TIMEOUT)
+	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
 }
 
@@ -143,7 +143,7 @@ func TestNonShouldRetry(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, NONRETRY)
+	assert.Equal(t, e.Type, NonRetry)
 	assert.Equal(t, e.Times, 0)
 }
 
@@ -163,7 +163,7 @@ func TestRetryableError(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, TIMEOUT)
+	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
 }
 
@@ -183,7 +183,7 @@ func TestNonRetryableError(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, NONRETRY)
+	assert.Equal(t, e.Type, NonRetry)
 	assert.Equal(t, e.Times, 0)
 }
 
@@ -197,18 +197,18 @@ func TestRetry(t *testing.T) {
 
 	e, ok := err.(*RetryExhaustedError)
 	assert.True(t, ok)
-	assert.Equal(t, e.Type, TIMEOUT)
+	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
 }
 
 func TestRetryExhaustedError(t *testing.T) {
 	t.Parallel()
 
-	err := RetryExhaustedError{Err: nil, Type: TIMEOUT}
+	err := RetryExhaustedError{Err: nil, Type: Timeout}
 	assert.Equal(t, err.Error(), "<nil>")
 
-	err = RetryExhaustedError{Err: fmt.Errorf("error"), Type: TIMEOUT}
-	assert.Equal(t, err.Error(), "Retry exhausted, type: Timeout, error: error")
+	err = RetryExhaustedError{Err: fmt.Errorf("error"), Type: Timeout}
+	assert.Equal(t, err.Error(), "xtry: retry exhausted, type: Timeout, error: error")
 }
 
 func TestRetryError(t *testing.T) {
@@ -218,8 +218,8 @@ func TestRetryError(t *testing.T) {
 	assert.Equal(t, err.Error(), "<nil>")
 
 	err = &RetryError{Err: fmt.Errorf("error"), Retryable: true}
-	assert.Equal(t, err.Error(), "Retryable error: error")
+	assert.Equal(t, err.Error(), "xtry: retryable error: error")
 
 	err = &RetryError{Err: fmt.Errorf("error"), Retryable: false}
-	assert.Equal(t, err.Error(), "NonRetryable error: error")
+	assert.Equal(t, err.Error(), "xtry: nonretryable error: error")
 }

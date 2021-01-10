@@ -31,6 +31,25 @@ import (
 	"github.com/likexian/gokit/xfile"
 )
 
+var (
+	// ErrTooManyArguments is too many arguments error
+	ErrTooManyArguments = errors.New("xjson: too many arguments")
+	// ErrInvalidArgumentType is invalid argument type error
+	ErrInvalidArgumentType = errors.New("xjson: argument type is invalid")
+	// ErrInvalidValueType is invalid value type error
+	ErrInvalidValueType = errors.New("xjson: valud type is invalid")
+	// ErrAssertToMap is assert to map error
+	ErrAssertToMap = errors.New("xjson: assert to map failed")
+	// ErrAssertToArray is assert to array error
+	ErrAssertToArray = errors.New("xjson: assert to array failed")
+	// ErrAssertToBool is assert to bool error
+	ErrAssertToBool = errors.New("xjson: assert to bool failed")
+	// ErrAssertToString is assert to string error
+	ErrAssertToString = errors.New("xjson: assert to string failed")
+	// ErrAssertToStringArray is assert to string array error
+	ErrAssertToStringArray = errors.New("xjson: assert to string array failed")
+)
+
 // Json storing json data
 type Json struct {
 	data       interface{}
@@ -39,7 +58,7 @@ type Json struct {
 
 // Version returns package version
 func Version() string {
-	return "0.13.0"
+	return "0.14.0"
 }
 
 // Author returns package author
@@ -351,7 +370,7 @@ func (j *Json) IsArray() bool {
 func (j *Json) Map() (result map[string]interface{}, err error) {
 	result, ok := (j.data).(map[string]interface{})
 	if !ok {
-		err = errors.New("assert to map failed")
+		err = ErrAssertToMap
 	}
 	return
 }
@@ -360,7 +379,7 @@ func (j *Json) Map() (result map[string]interface{}, err error) {
 func (j *Json) Array() (result []interface{}, err error) {
 	result, ok := (j.data).([]interface{})
 	if !ok {
-		err = errors.New("assert to array failed")
+		err = ErrAssertToArray
 	}
 	return
 }
@@ -369,7 +388,7 @@ func (j *Json) Array() (result []interface{}, err error) {
 func (j *Json) Bool() (result bool, err error) {
 	result, ok := (j.data).(bool)
 	if !ok {
-		err = errors.New("assert to bool failed")
+		err = ErrAssertToBool
 	}
 	return
 }
@@ -378,7 +397,7 @@ func (j *Json) Bool() (result bool, err error) {
 func (j *Json) String() (result string, err error) {
 	result, ok := (j.data).(string)
 	if !ok {
-		err = errors.New("assert to string failed")
+		err = ErrAssertToString
 	}
 	return
 }
@@ -396,7 +415,7 @@ func (j *Json) StringArray() (result []string, err error) {
 		} else {
 			r, ok := v.(string)
 			if !ok {
-				err = errors.New("assert to []string failed")
+				err = ErrAssertToStringArray
 				return
 			}
 			result = append(result, r)
@@ -415,7 +434,7 @@ func (j *Json) Time(args ...string) (result time.Time, err error) {
 	switch j.data.(type) {
 	case string:
 		if len(args) > 1 {
-			return result, errors.New("Too many arguments")
+			return result, ErrTooManyArguments
 		}
 		format := time.RFC3339
 		if len(args) == 1 && strings.TrimSpace(args[0]) != "" {
@@ -424,7 +443,7 @@ func (j *Json) Time(args ...string) (result time.Time, err error) {
 		return time.ParseInLocation(format, j.data.(string), time.Local)
 	default:
 		if len(args) > 0 {
-			return result, errors.New("Too many arguments")
+			return result, ErrTooManyArguments
 		}
 		r, e := j.Int64()
 		if e != nil {
@@ -446,7 +465,7 @@ func (j *Json) Float64() (result float64, err error) {
 	case uint, uint8, uint16, uint32, uint64:
 		return float64(reflect.ValueOf(j.data).Uint()), nil
 	default:
-		return 0, errors.New("invalid value type")
+		return 0, ErrInvalidValueType
 	}
 }
 
@@ -463,7 +482,7 @@ func (j *Json) Int() (result int, err error) {
 	case uint, uint8, uint16, uint32, uint64:
 		return int(reflect.ValueOf(j.data).Uint()), nil
 	default:
-		return 0, errors.New("invalid value type")
+		return 0, ErrInvalidValueType
 	}
 }
 
@@ -479,7 +498,7 @@ func (j *Json) Int64() (result int64, err error) {
 	case uint, uint8, uint16, uint32, uint64:
 		return int64(reflect.ValueOf(j.data).Uint()), nil
 	default:
-		return 0, errors.New("invalid value type")
+		return 0, ErrInvalidValueType
 	}
 }
 
@@ -495,7 +514,7 @@ func (j *Json) Uint64() (result uint64, err error) {
 	case uint, uint8, uint16, uint32, uint64:
 		return reflect.ValueOf(j.data).Uint(), nil
 	default:
-		return 0, errors.New("invalid value type")
+		return 0, ErrInvalidValueType
 	}
 }
 
@@ -503,7 +522,7 @@ func (j *Json) Uint64() (result uint64, err error) {
 // if error return default(if set) or panic
 func (j *Json) MustMap(args ...map[string]interface{}) map[string]interface{} {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Map()
@@ -522,7 +541,7 @@ func (j *Json) MustMap(args ...map[string]interface{}) map[string]interface{} {
 // if error return default(if set) or panic
 func (j *Json) MustArray(args ...[]interface{}) []interface{} {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Array()
@@ -541,7 +560,7 @@ func (j *Json) MustArray(args ...[]interface{}) []interface{} {
 // if error return default(if set) or panic
 func (j *Json) MustBool(args ...bool) bool {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Bool()
@@ -560,7 +579,7 @@ func (j *Json) MustBool(args ...bool) bool {
 // if error return default(if set) or panic
 func (j *Json) MustString(args ...string) string {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.String()
@@ -579,7 +598,7 @@ func (j *Json) MustString(args ...string) string {
 // if error return default(if set) or panic
 func (j *Json) MustStringArray(args ...[]string) []string {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.StringArray()
@@ -602,7 +621,7 @@ func (j *Json) MustStringArray(args ...[]string) []string {
 //   json.Time("2006-01-02 15:04:05", time.Unix(1548907870, 0))  // Has format, Has default
 func (j *Json) MustTime(args ...interface{}) time.Time {
 	if len(args) > 2 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	format := ""
@@ -617,7 +636,7 @@ func (j *Json) MustTime(args ...interface{}) time.Time {
 			defbak = args[i].(time.Time)
 			defset = true
 		default:
-			panic("Invalid argument type")
+			panic(ErrInvalidArgumentType)
 		}
 	}
 
@@ -644,7 +663,7 @@ func (j *Json) MustTime(args ...interface{}) time.Time {
 // if error return default(if set) or panic
 func (j *Json) MustFloat64(args ...float64) float64 {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Float64()
@@ -663,7 +682,7 @@ func (j *Json) MustFloat64(args ...float64) float64 {
 // if error return default(if set) or panic
 func (j *Json) MustInt(args ...int) int {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Int()
@@ -682,7 +701,7 @@ func (j *Json) MustInt(args ...int) int {
 // if error return default(if set) or panic
 func (j *Json) MustInt64(args ...int64) int64 {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Int64()
@@ -701,7 +720,7 @@ func (j *Json) MustInt64(args ...int64) int64 {
 // if error return default(if set) or panic
 func (j *Json) MustUint64(args ...uint64) uint64 {
 	if len(args) > 1 {
-		panic("Too many arguments")
+		panic(ErrTooManyArguments)
 	}
 
 	r, err := j.Uint64()

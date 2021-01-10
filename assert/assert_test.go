@@ -23,11 +23,11 @@ import (
 	"testing"
 )
 
-type A struct {
+type a struct {
 	x, y int
 }
 
-type B struct {
+type b struct {
 	x, y int
 }
 
@@ -51,7 +51,7 @@ func TestEqual(t *testing.T) {
 	Equal(t, map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1, "b": 2}, "testing Equal failed")
 	Equal(t, map[string]interface{}{"a": 1, "b": "2"}, map[string]interface{}{"a": 1, "b": "2"}, "testing Equal failed")
 	Equal(t, map[string]interface{}{"a": []int{1, 2}}, map[string]interface{}{"a": []int{1, 2}}, "testing Equal failed")
-	Equal(t, A{1, 2}, A{1, 2}, "testing Equal failed")
+	Equal(t, a{1, 2}, a{1, 2}, "testing Equal failed")
 }
 
 func TestNotEqual(t *testing.T) {
@@ -66,10 +66,12 @@ func TestNotEqual(t *testing.T) {
 	NotEqual(t, []int{1, 2, 3}, []int{1, 2, 4}, "testing NotEqual failed")
 	NotEqual(t, []float64{1.0, 2.0, 3.0}, []float64{1.0, 2.0, 4.0}, "testing NotEqual failed")
 	NotEqual(t, map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1, "b": 3}, "testing NotEqual failed")
-	NotEqual(t, map[string]interface{}{"a": 1, "b": "2"}, map[string]interface{}{"a": 1, "b": "3"}, "testing NotEqual failed")
-	NotEqual(t, map[string]interface{}{"a": []int{1, 2}}, map[string]interface{}{"a": []int{1, 3}}, "testing NotEqual failed")
-	NotEqual(t, A{1, 1}, A{1, 2}, "testing NotEqual failed")
-	NotEqual(t, A{1, 2}, B{1, 2}, "testing NotEqual failed")
+	NotEqual(t, map[string]interface{}{"a": 1, "b": "2"}, map[string]interface{}{"a": 1, "b": "3"},
+		"testing NotEqual failed")
+	NotEqual(t, map[string]interface{}{"a": []int{1, 2}}, map[string]interface{}{"a": []int{1, 3}},
+		"testing NotEqual failed")
+	NotEqual(t, a{1, 1}, a{1, 2}, "testing NotEqual failed")
+	NotEqual(t, a{1, 2}, b{1, 2}, "testing NotEqual failed")
 }
 
 func TestNil(t *testing.T) {

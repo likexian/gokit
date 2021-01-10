@@ -32,7 +32,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.1.1"
+	return "0.1.2"
 }
 
 // Author returns package author
@@ -48,12 +48,12 @@ func License() string {
 // Create compress a list of files
 func Create(tarFile string, files ...string) (err error) {
 	if xfile.Exists(tarFile) {
-		err = fmt.Errorf("File name %s is exists", tarFile)
+		err = fmt.Errorf("xtar: file name %s is exists", tarFile)
 		return
 	}
 
 	if len(files) == 0 {
-		err = fmt.Errorf("No input file specify")
+		err = fmt.Errorf("xtar: no input file specify")
 		return
 	}
 
@@ -141,7 +141,7 @@ func addFile(tw *tar.Writer, file string, prefix string) error {
 			}
 		}
 	default:
-		return fmt.Errorf("unsupport file mode: %v", mode)
+		return fmt.Errorf("xtar: unsupport file mode: %v", mode)
 	}
 
 	return nil
@@ -215,7 +215,7 @@ func Extract(tarFile, dstFolder string) (err error) {
 				}
 			}
 		default:
-			return fmt.Errorf("unsupport file type: %v", h.Typeflag)
+			return fmt.Errorf("xtar: unsupport file type: %v", h.Typeflag)
 		}
 		_ = os.Chtimes(dstFile, h.AccessTime, h.ModTime)
 		_ = os.Chmod(dstFile, os.FileMode(h.Mode))

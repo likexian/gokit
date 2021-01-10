@@ -36,36 +36,6 @@ import (
 	"github.com/likexian/gokit/xhash"
 )
 
-// LogLevel storing log level
-type LogLevel int
-
-// LogFlag storing log flag
-type LogFlag int
-
-// Logger storing logger
-type Logger struct {
-	logFile   logFile
-	logLevel  LogLevel
-	logFlag   LogFlag
-	logQueue  chan string
-	logExit   chan bool
-	logClosed bool
-	sync.RWMutex
-}
-
-// logFile storing log file info
-type logFile struct {
-	name          string
-	fd            *os.File
-	writer        io.Writer
-	rotateType    string
-	rotateNum     int64
-	rotateSize    int64
-	rotateNowDate string
-	rotateNowSize int64
-	rotateNextNum int64
-}
-
 // Log level const
 const (
 	DEBUG LogLevel = iota
@@ -98,9 +68,39 @@ var levelMap = map[LogLevel]string{
 // log once cache
 var onceCache = xcache.New(xcache.MemoryCache)
 
+// LogLevel storing log level
+type LogLevel int
+
+// LogFlag storing log flag
+type LogFlag int
+
+// Logger storing logger
+type Logger struct {
+	logFile   logFile
+	logLevel  LogLevel
+	logFlag   LogFlag
+	logQueue  chan string
+	logExit   chan bool
+	logClosed bool
+	sync.RWMutex
+}
+
+// logFile storing log file info
+type logFile struct {
+	name          string
+	fd            *os.File
+	writer        io.Writer
+	rotateType    string
+	rotateNum     int64
+	rotateSize    int64
+	rotateNowDate string
+	rotateNowSize int64
+	rotateNextNum int64
+}
+
 // Version returns package version
 func Version() string {
-	return "0.5.1"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -186,11 +186,11 @@ func (l *Logger) SetRotate(rotateType string, rotateNum int64, rotateSize int64)
 	defer l.Unlock()
 
 	if l.logFile.name == "" {
-		return errors.New("Only file log support rotate")
+		return errors.New("xlog: rotate require log to file")
 	}
 
 	if rotateType != "date" && rotateType != "size" {
-		return errors.New("Not support rotateType")
+		return fmt.Errorf("xlog: not supported rotate type: %s", rotateType)
 	}
 
 	l.logFile.rotateType = rotateType
@@ -275,7 +275,7 @@ func (l *Logger) writeLog() {
 				l.Unlock()
 				return
 			}
-			_, err := fmt.Fprintf(l.logFile.writer, s)
+			_, err := fmt.Fprint(l.logFile.writer, s)
 			if err == nil {
 				l.logFile.rotateNowSize += int64(len(s))
 			}

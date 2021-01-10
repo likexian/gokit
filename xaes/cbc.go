@@ -23,22 +23,18 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"errors"
 	"fmt"
 )
 
-// PKCS7Padding do PKCS7 padding
-func PKCS7Padding(data []byte, blockSize int) []byte {
-	paddingSize := blockSize - len(data)%blockSize
-	paddingText := bytes.Repeat([]byte{byte(paddingSize)}, paddingSize)
-	return append(data, paddingText...)
-}
-
-// PKCS7Unpadding do PKCS7 unpadding
-func PKCS7Unpadding(data []byte) []byte {
-	dataSize := len(data)
-	paddingSize := int(data[dataSize-1])
-	return data[:(dataSize - paddingSize)]
-}
+var (
+	// ErrMissingEncryptKey is missing encrypt key error
+	ErrMissingEncryptKey = errors.New("xaes: key for encrypting is missing")
+	// ErrMissingDecryptKey is missing decrypt key error
+	ErrMissingDecryptKey = errors.New("xaes: key for decrypting is missing")
+	// ErrInvalidIVSize is invalid IV size error
+	ErrInvalidIVSize = fmt.Errorf("xaes: length of iv must be %d", aes.BlockSize)
+)
 
 // CBCEncrypt do AES CBC encrypt
 func CBCEncrypt(plaintext, key, iv []byte) ([]byte, error) {
@@ -47,7 +43,7 @@ func CBCEncrypt(plaintext, key, iv []byte) ([]byte, error) {
 	}
 
 	if key == nil {
-		return nil, fmt.Errorf("xaes: key for encrypt is missing")
+		return nil, ErrMissingEncryptKey
 	}
 
 	if iv == nil {
@@ -55,12 +51,12 @@ func CBCEncrypt(plaintext, key, iv []byte) ([]byte, error) {
 	}
 
 	if len(iv) != aes.BlockSize {
-		return nil, fmt.Errorf("xaes: length of iv must be %d", aes.BlockSize)
+		return nil, ErrInvalidIVSize
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("xaes: %s", err)
+		return nil, err
 	}
 
 	blockSize := block.BlockSize()
@@ -79,7 +75,7 @@ func CBCDecrypt(ciphertext, key, iv []byte) ([]byte, error) {
 	}
 
 	if key == nil {
-		return nil, fmt.Errorf("xaes: key for decrypt is missing")
+		return nil, ErrMissingDecryptKey
 	}
 
 	if iv == nil {
@@ -87,12 +83,12 @@ func CBCDecrypt(ciphertext, key, iv []byte) ([]byte, error) {
 	}
 
 	if len(iv) != aes.BlockSize {
-		return nil, fmt.Errorf("xaes: length of iv must be %d", aes.BlockSize)
+		return nil, ErrInvalidIVSize
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, fmt.Errorf("xaes: %s", err)
+		return nil, err
 	}
 
 	plaintext := make([]byte, len(ciphertext))
@@ -101,4 +97,18 @@ func CBCDecrypt(ciphertext, key, iv []byte) ([]byte, error) {
 	plaintext = PKCS7Unpadding(plaintext)
 
 	return plaintext, nil
+}
+
+// PKCS7Padding do PKCS7 padding
+func PKCS7Padding(data []byte, blockSize int) []byte {
+	paddingSize := blockSize - len(data)%blockSize
+	paddingText := bytes.Repeat([]byte{byte(paddingSize)}, paddingSize)
+	return append(data, paddingText...)
+}
+
+// PKCS7Unpadding do PKCS7 unpadding
+func PKCS7Unpadding(data []byte) []byte {
+	dataSize := len(data)
+	paddingSize := int(data[dataSize-1])
+	return data[:(dataSize - paddingSize)]
 }
