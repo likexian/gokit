@@ -71,33 +71,46 @@ func TestIsStruct(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	assert.Panic(t, func() { New(nil) })
-	assert.Panic(t, func() { New("") })
-	assert.Panic(t, func() { New(map[string]interface{}{}) })
+	_, err := New(nil)
+	assert.NotNil(t, err)
 
-	s := New(student)
+	_, err = New("nil")
+	assert.NotNil(t, err)
+
+	_, err = New(map[string]interface{}{})
+	assert.NotNil(t, err)
+
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 }
 
 func TestName(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	name := s.Name()
 	assert.Equal(t, name, "Student")
 
-	name = Name(student)
+	name, err = Name(student)
+	assert.Nil(t, err)
 	assert.Equal(t, name, "Student")
 }
 
 func TestStruct(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
-	assert.Panic(t, func() { s.Struct("not-exists") })
-	assert.Panic(t, func() { s.Struct("Id") })
+	_, err = s.Struct("Id")
+	assert.NotNil(t, err)
 
-	ss := s.Struct("Techer")
+	_, err = s.Struct("not-exists")
+	assert.NotNil(t, err)
+
+	ss, err := s.Struct("Techer")
+	assert.Nil(t, err)
 	assert.NotNil(t, ss)
 	assert.Equal(t, ss.Name(), "Techer")
 
@@ -116,37 +129,43 @@ func TestStruct(t *testing.T) {
 	b := f.IsAnonymous()
 	assert.False(t, b)
 
-	ss = Struct(student, "Techer")
+	ss, err = Struct(student, "Techer")
+	assert.Nil(t, err)
 	assert.NotNil(t, ss)
 	assert.Equal(t, ss.Name(), "Techer")
 }
 
 func TestMap(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	v := s.Map()
 	assert.Len(t, v, 4)
 	assert.Equal(t, v["Name"], "kexian.li")
 
-	v = Map(student)
+	v, err = Map(student)
+	assert.Nil(t, err)
 	assert.Len(t, v, 4)
 	assert.Equal(t, v["Name"], "kexian.li")
 }
 
 func TestNames(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	n := s.Names()
 	assert.Len(t, n, 5)
 
-	n = Names(student)
+	n, err = Names(student)
+	assert.Nil(t, err)
 	assert.Len(t, n, 5)
 }
 
 func TestTags(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	m, err := s.Tags("json")
@@ -161,29 +180,34 @@ func TestTags(t *testing.T) {
 }
 
 func TestValues(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	v := s.Values()
 	assert.Len(t, v, 4)
 
-	v = Values(student)
+	v, err = Values(student)
+	assert.Nil(t, err)
 	assert.Len(t, v, 4)
 }
 
 func TestFields(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f := s.Fields()
 	assert.Len(t, f, 5)
 
-	f = Fields(student)
+	f, err = Fields(student)
+	assert.Nil(t, err)
 	assert.Len(t, f, 5)
 }
 
 func TestField(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	_, ok := s.Field("not-exists")
@@ -211,7 +235,8 @@ func TestField(t *testing.T) {
 }
 
 func TestMustField(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	assert.Panic(t, func() { s.MustField("not-exists") })
@@ -242,7 +267,8 @@ func TestMustField(t *testing.T) {
 }
 
 func TestHasField(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	b := s.HasField("not-exists")
@@ -256,7 +282,8 @@ func TestHasField(t *testing.T) {
 }
 
 func TestFieldTag(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok := s.Field("Name")
@@ -270,7 +297,8 @@ func TestFieldTag(t *testing.T) {
 }
 
 func TestFieldIsExport(t *testing.T) {
-	s := New(student)
+	s, err := New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok := s.Field("Name")
@@ -285,7 +313,8 @@ func TestFieldIsExport(t *testing.T) {
 }
 
 func TestFieldIsZero(t *testing.T) {
-	s := New(Student{})
+	s, err := New(Student{})
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok := s.Field("Name")
@@ -293,7 +322,8 @@ func TestFieldIsZero(t *testing.T) {
 	b := f.IsZero()
 	assert.True(t, b)
 
-	s = New(student)
+	s, err = New(student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok = s.Field("Name")
@@ -307,13 +337,14 @@ func TestFieldIsZero(t *testing.T) {
 }
 
 func TestFieldSet(t *testing.T) {
-	s := New(&student)
+	s, err := New(&student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok := s.Field("score")
 	assert.True(t, ok)
 
-	err := f.Set(0)
+	err = f.Set(0)
 	assert.Equal(t, err, ErrNotExported)
 
 	f, ok = s.Field("Name")
@@ -327,7 +358,7 @@ func TestFieldSet(t *testing.T) {
 	assert.NotNil(t, err)
 
 	err = s.Set("not-exists", 0)
-	assert.Equal(t, err, ErrNotField)
+	assert.Equal(t, err, ErrNoField)
 
 	err = s.Set("score", 0)
 	assert.Equal(t, err, ErrNotExported)
@@ -336,14 +367,14 @@ func TestFieldSet(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, student.Name, "likexian")
 
-	s = New(student)
+	s, err = New(student)
 	assert.Nil(t, err)
 
 	f, ok = s.Field("Name")
 	assert.True(t, ok)
 
 	err = f.Set("lkx")
-	assert.Equal(t, err, errNotSettable)
+	assert.Equal(t, err, ErrNotSettable)
 
 	err = Set(&student, "Name", "likexian")
 	assert.Nil(t, err)
@@ -351,13 +382,14 @@ func TestFieldSet(t *testing.T) {
 }
 
 func TestFieldZero(t *testing.T) {
-	s := New(&student)
+	s, err := New(&student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	f, ok := s.Field("score")
 	assert.True(t, ok)
 
-	err := f.Zero()
+	err = f.Zero()
 	assert.Equal(t, err, ErrNotExported)
 
 	f, ok = s.Field("Id")
@@ -377,7 +409,7 @@ func TestFieldZero(t *testing.T) {
 	assert.True(t, f.IsZero())
 
 	err = s.Zero("not-exists")
-	assert.Equal(t, err, ErrNotField)
+	assert.Equal(t, err, ErrNoField)
 
 	err = s.Zero("score")
 	assert.Equal(t, err, ErrNotExported)
@@ -392,7 +424,8 @@ func TestFieldZero(t *testing.T) {
 }
 
 func TestFieldIsStruct(t *testing.T) {
-	s := New(&student)
+	s, err := New(&student)
+	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
 	b := s.IsStruct("not-exists")
@@ -404,6 +437,8 @@ func TestFieldIsStruct(t *testing.T) {
 	b = s.IsStruct("Techer")
 	assert.True(t, b)
 
-	b = s.Struct("Techer").IsStruct("Id")
+	s, err = s.Struct("Techer")
+	assert.Nil(t, err)
+	b = s.IsStruct("Id")
 	assert.False(t, b)
 }

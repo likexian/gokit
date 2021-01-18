@@ -36,16 +36,16 @@ staff := Staff{1, "likexian", true}
 
 ```go
 // ["Id", "Name", "Enabled"]
-names := xstruct.Names(staff)
+names, _ := xstruct.Names(staff)
 
 // [1, "likexian", true]
-values := xstruct.Values(staff)
+values, _ := xstruct.Values(staff)
 
 // list all field as [*Field]
-fields := xstruct.Fields(staff)
+fields, _ := xstruct.Fields(staff)
 
 // get struct field value
-value := xstruct.Field(staff, "Name").Value()
+value, _ := xstruct.Field(staff, "Name").Value()
 
 // set struct field value
 xstruct.Set(staff, "Name", "kexian.li")

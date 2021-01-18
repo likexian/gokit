@@ -26,14 +26,14 @@ import (
 )
 
 var (
-	// ErrNotStruct is data not a valid struct
+	// ErrNotStruct not a valid struct
 	ErrNotStruct = errors.New("xstruct: not a valid struct")
-	// ErrNotField is field not found
-	ErrNotField = errors.New("xstruct: not a valid field name")
-	// ErrNotExported is field not a export field
-	ErrNotExported = errors.New("xstruct: not a exported field")
-	// errNotSettable is field is not settable
-	errNotSettable = errors.New("xstruct: not a settable field")
+	// ErrNoField field name is not exists
+	ErrNoField = errors.New("xstruct: field name is not exists")
+	// ErrNotExported not an exported field
+	ErrNotExported = errors.New("xstruct: not an exported field")
+	// ErrNotSettable not a settable field
+	ErrNotSettable = errors.New("xstruct: not a settable field")
 )
 
 // Structx storing struct data
@@ -50,7 +50,7 @@ type Fieldx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -66,6 +66,7 @@ func License() string {
 // IsStruct returns if v is a struct
 func IsStruct(v interface{}) bool {
 	vv := reflect.ValueOf(v)
+
 	if vv.Kind() == reflect.Ptr {
 		vv = vv.Elem()
 	}
@@ -74,64 +75,119 @@ func IsStruct(v interface{}) bool {
 }
 
 // Name returns name of struct
-func Name(v interface{}) string {
-	return New(v).Name()
+func Name(v interface{}) (string, error) {
+	s, err := New(v)
+	if err != nil {
+		return "", err
+	}
+
+	return s.Name(), nil
 }
 
-// Struct returns nested struct with name, it panic if not field
-func Struct(v interface{}, name string) *Structx {
-	return New(v).Struct(name)
+// Struct returns nested struct with name
+func Struct(v interface{}, name string) (*Structx, error) {
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Struct(name)
 }
 
 // Map returns struct name value as map
-func Map(v interface{}) map[string]interface{} {
-	return New(v).Map()
+func Map(v interface{}) (map[string]interface{}, error) {
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Map(), nil
 }
 
 // Names returns names of struct
-func Names(v interface{}) []string {
-	return New(v).Names()
+func Names(v interface{}) ([]string, error) {
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Names(), nil
 }
 
 // Tags returns tags of struct
 func Tags(v interface{}, key string) (map[string]string, error) {
-	return New(v).Tags(key)
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Tags(key)
 }
 
 // Values returns values of struct
-func Values(v interface{}) []interface{} {
-	return New(v).Values()
+func Values(v interface{}) ([]interface{}, error) {
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Values(), nil
 }
 
 // Fields return fields of struct
-func Fields(v interface{}) []*Fieldx {
-	return New(v).Fields()
+func Fields(v interface{}) ([]*Fieldx, error) {
+	s, err := New(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.Fields(), nil
 }
 
 // MustField returns a field with name, panic if error
 func MustField(v interface{}, name string) *Fieldx {
-	return New(v).MustField(name)
+	s, err := New(v)
+	if err != nil {
+		panic(err)
+	}
+
+	return s.MustField(name)
 }
 
 // Field returns a field with name
 func Field(v interface{}, name string) (*Fieldx, bool) {
-	return New(v).Field(name)
+	s, err := New(v)
+	if err != nil {
+		return nil, false
+	}
+
+	return s.Field(name)
 }
 
 // Set set value to the field name, must be exported field
 func Set(v interface{}, name string, value interface{}) error {
-	return New(v).Set(name, value)
+	s, err := New(v)
+	if err != nil {
+		return err
+	}
+
+	return s.Set(name, value)
 }
 
 // Zero set zero value to the field name, must be exported field
 func Zero(v interface{}, name string) error {
-	return New(v).Zero(name)
+	s, err := New(v)
+	if err != nil {
+		return err
+	}
+
+	return s.Zero(name)
 }
 
-// New return a new xstruct object, it panic if not struct
-func New(v interface{}) *Structx {
+// New returns a new xstruct object
+func New(v interface{}) (*Structx, error) {
 	if !IsStruct(v) {
-		panic(ErrNotStruct)
+		return nil, ErrNotStruct
 	}
 
 	vv := reflect.ValueOf(v)
@@ -144,7 +200,7 @@ func New(v interface{}) *Structx {
 		value: vv,
 	}
 
-	return s
+	return s, nil
 }
 
 // Name returns name of struct
@@ -152,11 +208,11 @@ func (s *Structx) Name() string {
 	return s.value.Type().Name()
 }
 
-// Struct returns nested struct with name, it panic if not field
-func (s *Structx) Struct(name string) *Structx {
+// Struct returns nested struct with name
+func (s *Structx) Struct(name string) (*Structx, error) {
 	f, ok := s.Field(name)
 	if !ok {
-		panic(ErrNotField)
+		return nil, ErrNoField
 	}
 
 	return New(f.Value())
@@ -246,7 +302,7 @@ func (s *Structx) HasField(name string) bool {
 func (s *Structx) MustField(name string) *Fieldx {
 	f, ok := s.Field(name)
 	if !ok {
-		panic(ErrNotField)
+		panic(ErrNoField)
 	}
 
 	return f
@@ -281,7 +337,7 @@ func (s *Structx) IsStruct(name string) bool {
 func (s *Structx) Set(name string, value interface{}) error {
 	f, ok := s.Field(name)
 	if !ok {
-		return ErrNotField
+		return ErrNoField
 	}
 
 	return f.Set(value)
@@ -291,7 +347,7 @@ func (s *Structx) Set(name string, value interface{}) error {
 func (s *Structx) Zero(name string) error {
 	f, ok := s.Field(name)
 	if !ok {
-		return ErrNotField
+		return ErrNoField
 	}
 
 	return f.Zero()
@@ -341,7 +397,7 @@ func (f *Fieldx) Set(v interface{}) error {
 	}
 
 	if !f.value.CanSet() {
-		return errNotSettable
+		return ErrNotSettable
 	}
 
 	vv := reflect.ValueOf(v)
