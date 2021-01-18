@@ -50,7 +50,7 @@ type Fieldx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.5.0"
+	return "0.5.1"
 }
 
 // Author returns package author
@@ -121,7 +121,7 @@ func Tags(v interface{}, key string) (map[string]string, error) {
 		return nil, err
 	}
 
-	return s.Tags(key)
+	return s.Tags(key), nil
 }
 
 // Values returns values of struct
@@ -186,13 +186,14 @@ func Zero(v interface{}, name string) error {
 
 // New returns a new xstruct object
 func New(v interface{}) (*Structx, error) {
-	if !IsStruct(v) {
-		return nil, ErrNotStruct
-	}
-
 	vv := reflect.ValueOf(v)
+
 	if vv.Kind() == reflect.Ptr {
 		vv = vv.Elem()
+	}
+
+	if vv.Kind() != reflect.Struct {
+		return nil, ErrNotStruct
 	}
 
 	s := &Structx{
@@ -203,11 +204,6 @@ func New(v interface{}) (*Structx, error) {
 	return s, nil
 }
 
-// Name returns name of struct
-func (s *Structx) Name() string {
-	return s.value.Type().Name()
-}
-
 // Struct returns nested struct with name
 func (s *Structx) Struct(name string) (*Structx, error) {
 	f, ok := s.Field(name)
@@ -216,6 +212,11 @@ func (s *Structx) Struct(name string) (*Structx, error) {
 	}
 
 	return New(f.Value())
+}
+
+// Name returns name of struct
+func (s *Structx) Name() string {
+	return s.value.Type().Name()
 }
 
 // Map returns struct name value as map
@@ -246,7 +247,7 @@ func (s *Structx) Names() []string {
 }
 
 // Tags returns tags of struct
-func (s *Structx) Tags(key string) (map[string]string, error) {
+func (s *Structx) Tags(key string) map[string]string {
 	result := map[string]string{}
 
 	fs := s.Fields()
@@ -257,7 +258,7 @@ func (s *Structx) Tags(key string) (map[string]string, error) {
 		result[v.Name()] = v.Tag(key)
 	}
 
-	return result, nil
+	return result
 }
 
 // Values returns values of struct

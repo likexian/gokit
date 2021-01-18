@@ -93,6 +93,9 @@ func TestName(t *testing.T) {
 	name := s.Name()
 	assert.Equal(t, name, "Student")
 
+	_, err = Name(nil)
+	assert.NotNil(t, err)
+
 	name, err = Name(student)
 	assert.Nil(t, err)
 	assert.Equal(t, name, "Student")
@@ -129,6 +132,9 @@ func TestStruct(t *testing.T) {
 	b := f.IsAnonymous()
 	assert.False(t, b)
 
+	_, err = Struct(nil, "Techer")
+	assert.NotNil(t, err)
+
 	ss, err = Struct(student, "Techer")
 	assert.Nil(t, err)
 	assert.NotNil(t, ss)
@@ -144,6 +150,9 @@ func TestMap(t *testing.T) {
 	assert.Len(t, v, 4)
 	assert.Equal(t, v["Name"], "kexian.li")
 
+	_, err = Map(nil)
+	assert.NotNil(t, err)
+
 	v, err = Map(student)
 	assert.Nil(t, err)
 	assert.Len(t, v, 4)
@@ -158,6 +167,9 @@ func TestNames(t *testing.T) {
 	n := s.Names()
 	assert.Len(t, n, 5)
 
+	_, err = Names(nil)
+	assert.NotNil(t, err)
+
 	n, err = Names(student)
 	assert.Nil(t, err)
 	assert.Len(t, n, 5)
@@ -168,10 +180,12 @@ func TestTags(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, s)
 
-	m, err := s.Tags("json")
-	assert.Nil(t, err)
+	m := s.Tags("json")
 	assert.Len(t, m, 4)
 	assert.Equal(t, m["Name"], "name")
+
+	_, err = Tags(nil, "json")
+	assert.NotNil(t, err)
 
 	m, err = Tags(student, "json")
 	assert.Nil(t, err)
@@ -187,6 +201,9 @@ func TestValues(t *testing.T) {
 	v := s.Values()
 	assert.Len(t, v, 4)
 
+	_, err = Values(nil)
+	assert.NotNil(t, err)
+
 	v, err = Values(student)
 	assert.Nil(t, err)
 	assert.Len(t, v, 4)
@@ -199,6 +216,9 @@ func TestFields(t *testing.T) {
 
 	f := s.Fields()
 	assert.Len(t, f, 5)
+
+	_, err = Fields(nil)
+	assert.NotNil(t, err)
 
 	f, err = Fields(student)
 	assert.Nil(t, err)
@@ -227,6 +247,9 @@ func TestField(t *testing.T) {
 
 	b := f.IsAnonymous()
 	assert.False(t, b)
+
+	_, ok = Field(nil, "Name")
+	assert.Equal(t, ok, false)
 
 	f, ok = Field(student, "Name")
 	assert.True(t, ok)
@@ -260,6 +283,8 @@ func TestMustField(t *testing.T) {
 
 	v = s.MustField("Enabled").Value()
 	assert.Equal(t, v, true)
+
+	assert.Panic(t, func() { MustField(nil, "not-exists") })
 
 	f = MustField(student, "Name")
 	n = f.Name()
@@ -376,6 +401,9 @@ func TestFieldSet(t *testing.T) {
 	err = f.Set("lkx")
 	assert.Equal(t, err, ErrNotSettable)
 
+	err = Set(nil, "Name", "likexian")
+	assert.NotNil(t, err)
+
 	err = Set(&student, "Name", "likexian")
 	assert.Nil(t, err)
 	assert.Equal(t, student.Name, "likexian")
@@ -417,6 +445,9 @@ func TestFieldZero(t *testing.T) {
 	err = s.Zero("Name")
 	assert.Nil(t, err)
 	assert.Equal(t, student.Name, "")
+
+	err = Zero(nil, "Name")
+	assert.NotNil(t, err)
 
 	err = Zero(&student, "Name")
 	assert.Nil(t, err)
