@@ -50,7 +50,7 @@ type Fieldx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.5.1"
+	return "0.6.0"
 }
 
 // Author returns package author
@@ -367,6 +367,11 @@ func (f *Fieldx) Kind() reflect.Kind {
 // Tag returns tag of field by key
 func (f *Fieldx) Tag(key string) string {
 	return f.data.Tag.Get(key)
+}
+
+// Addr returns address of field
+func (f *Fieldx) Addr() interface{} {
+	return f.value.Addr().Interface()
 }
 
 // Value returns value of field

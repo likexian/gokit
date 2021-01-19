@@ -473,3 +473,15 @@ func TestFieldIsStruct(t *testing.T) {
 	b = s.IsStruct("Id")
 	assert.False(t, b)
 }
+
+func TestFieldAddr(t *testing.T) {
+	s, err := New(&student)
+	assert.Nil(t, err)
+	assert.NotNil(t, s)
+
+	f, ok := s.Field("Name")
+	assert.True(t, ok)
+
+	a := f.Addr()
+	assert.Equal(t, a, &student.Name)
+}
