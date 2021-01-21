@@ -20,15 +20,17 @@
 package xstring
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -185,4 +187,29 @@ func LastInIndex(s, f string) int {
 	}
 
 	return i
+}
+
+// ToSnake returns snake case of string
+func ToSnake(s string) string {
+	buf := bytes.Buffer{}
+
+	for k, v := range s {
+		if unicode.IsUpper(v) {
+			if k != 0 {
+				buf.WriteByte('_')
+			}
+			buf.WriteRune(unicode.ToLower(v))
+		} else {
+			buf.WriteRune(v)
+		}
+	}
+
+	return buf.String()
+}
+
+// ToCamel returns camel case of string
+func ToCamel(s string) string {
+	s = strings.Replace(s, "_", " ", -1)
+	s = strings.Title(s)
+	return strings.Replace(s, " ", "", -1)
 }

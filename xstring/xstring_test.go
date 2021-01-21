@@ -223,3 +223,25 @@ func TestLastInIndex(t *testing.T) {
 		assert.Equal(t, LastInIndex(v.s, v.f), v.out)
 	}
 }
+
+func TestSnakeCamel(t *testing.T) {
+	tests := []struct {
+		x string
+		y string
+	}{
+		{"Xyz", "xyz"},
+		{"XYz", "x_yz"},
+		{"XYZ", "x_y_z"},
+		{"XabcYdefZghi", "xabc_ydef_zghi"},
+		{"中国人", "中国人"},
+		{"X中国人", "x中国人"},
+		{"X中Y国人", "x中_y国人"},
+		{"X中Y国Z人", "x中_y国_z人"},
+		{"Xab中cYd国efZg人hi", "xab中c_yd国ef_zg人hi"},
+	}
+
+	for _, v := range tests {
+		assert.Equal(t, ToSnake(v.x), v.y)
+		assert.Equal(t, ToCamel(v.y), v.x)
+	}
+}
