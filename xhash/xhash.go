@@ -41,7 +41,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -150,12 +150,16 @@ func (h Hashx) B64() string {
 
 // writeString write string content to hash
 func (h Hashx) writeString(s ...interface{}) {
+	length := len(s)
 	for _, v := range s {
 		switch v := v.(type) {
 		case []byte:
 			_, _ = h.Hash.Write(v)
 		default:
 			_, _ = h.Hash.Write([]byte(xstring.ToString(v)))
+		}
+		if length > 1 {
+			_, _ = h.Hash.Write([]byte("\n"))
 		}
 	}
 }
