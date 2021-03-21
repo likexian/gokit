@@ -33,18 +33,18 @@ import (
 )
 
 var (
-	check_cache_listen = ""
-	check_cache_file   = "check.cache"
+	checkCacheListen = ""
+	checkCacheFile   = "check.cache"
 
-	check_cache_req = &CheckUpdateRequest{
+	checkCacheReq = &CheckUpdateRequest{
 		Product:       "test",
 		Current:       "1.0.0",
-		CacheFile:     check_cache_file,
+		CacheFile:     checkCacheFile,
 		CacheDuration: 1 * time.Hour,
 		CheckPoint:    "",
 	}
 
-	check_cache_rsp = &CheckUpdateResponse{
+	checkCacheRsp = &CheckUpdateResponse{
 		Product:   "test",
 		Current:   "1.0.0",
 		Latest:    "1.0.1",
@@ -54,7 +54,7 @@ var (
 )
 
 func init() {
-	check_cache_listen = ServerForTesting()
+	checkCacheListen = ServerForTesting()
 }
 
 func TestVersion(t *testing.T) {
@@ -64,32 +64,32 @@ func TestVersion(t *testing.T) {
 }
 
 func TestCheckUpdate(t *testing.T) {
-	defer os.Remove(check_cache_file)
+	defer os.Remove(checkCacheFile)
 
 	ctx := context.Background()
-	_, err := check_cache_req.Run(ctx)
+	_, err := checkCacheReq.Run(ctx)
 	assert.NotNil(t, err)
 
-	check_cache_req.CheckPoint = fmt.Sprintf("http://%s/todo/check", "%s")
-	_, err = check_cache_req.Run(ctx)
+	checkCacheReq.CheckPoint = fmt.Sprintf("http://%s/todo/check", "%s")
+	_, err = checkCacheReq.Run(ctx)
 	assert.NotNil(t, err)
 
-	check_cache_req.CheckPoint = fmt.Sprintf("http://%s/todo/check", check_cache_listen)
-	_, err = check_cache_req.Run(ctx)
+	checkCacheReq.CheckPoint = fmt.Sprintf("http://%s/todo/check", checkCacheListen)
+	_, err = checkCacheReq.Run(ctx)
 	assert.NotNil(t, err)
 
-	check_cache_req.CheckPoint = fmt.Sprintf("http://%s/update/nofound", check_cache_listen)
-	_, err = check_cache_req.Run(ctx)
+	checkCacheReq.CheckPoint = fmt.Sprintf("http://%s/update/nofound", checkCacheListen)
+	_, err = checkCacheReq.Run(ctx)
 	assert.NotNil(t, err)
 
-	check_cache_req.CheckPoint = fmt.Sprintf("http://%s/update/check", check_cache_listen)
-	rsp, err := check_cache_req.Run(ctx)
+	checkCacheReq.CheckPoint = fmt.Sprintf("http://%s/update/check", checkCacheListen)
+	rsp, err := checkCacheReq.Run(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, rsp, check_cache_rsp)
+	assert.Equal(t, rsp, checkCacheRsp)
 
-	rsp, err = check_cache_req.Run(ctx)
+	rsp, err = checkCacheReq.Run(ctx)
 	assert.Nil(t, err)
-	assert.Equal(t, rsp, check_cache_rsp)
+	assert.Equal(t, rsp, checkCacheRsp)
 }
 
 func ServerForTesting() string {
@@ -101,7 +101,7 @@ func ServerForTesting() string {
 			func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNotFound) })
 		http.HandleFunc("/update/check", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			text, _ := xjson.Dumps(check_cache_rsp)
+			text, _ := xjson.Dumps(checkCacheRsp)
 			fmt.Fprint(w, text)
 		})
 		_ = http.ListenAndServe(listen, http.DefaultServeMux)
