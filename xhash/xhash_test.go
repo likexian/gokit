@@ -20,6 +20,7 @@
 package xhash
 
 import (
+	"encoding/base64"
 	"os"
 	"testing"
 
@@ -67,8 +68,11 @@ func TestMd5(t *testing.T) {
 
 	for _, v := range tests {
 		h := Md5(v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -107,8 +111,11 @@ func TestSha1(t *testing.T) {
 
 	for _, v := range tests {
 		h := Sha1(v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -147,8 +154,11 @@ func TestSha256(t *testing.T) {
 
 	for _, v := range tests {
 		h := Sha256(v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -192,8 +202,11 @@ func TestSha512(t *testing.T) {
 
 	for _, v := range tests {
 		h := Sha512(v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -233,8 +246,11 @@ func TestHmacMd5(t *testing.T) {
 
 	for _, v := range tests {
 		h := HmacMd5(key, v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -274,8 +290,11 @@ func TestHmacSha1(t *testing.T) {
 
 	for _, v := range tests {
 		h := HmacSha1(key, v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -315,8 +334,11 @@ func TestHmacSha256(t *testing.T) {
 
 	for _, v := range tests {
 		h := HmacSha256(key, v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -361,8 +383,11 @@ func TestHmacSha512(t *testing.T) {
 
 	for _, v := range tests {
 		h := HmacSha512(key, v.in...)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 }
 
@@ -383,8 +408,11 @@ func TestFileMd5(t *testing.T) {
 	for _, v := range tests {
 		h, err := FileMd5(v.in)
 		assert.Nil(t, err)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 
 	_, err = FileMd5("/i-am-not-exists")
@@ -410,8 +438,11 @@ func TestFileSha1(t *testing.T) {
 	for _, v := range tests {
 		h, err := FileSha1(v.in)
 		assert.Nil(t, err)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 
 	_, err = FileSha1("/i-am-not-exists")
@@ -445,8 +476,11 @@ func TestFileSha256(t *testing.T) {
 	for _, v := range tests {
 		h, err := FileSha256(v.in)
 		assert.Nil(t, err)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 
 	_, err = FileSha256("/i-am-not-exists")
@@ -482,8 +516,11 @@ func TestFileSha512(t *testing.T) {
 	for _, v := range tests {
 		h, err := FileSha512(v.in)
 		assert.Nil(t, err)
+		bs, _ := base64.StdEncoding.DecodeString(v.b64)
+
+		assert.Equal(t, h.Bytes(), bs)
 		assert.Equal(t, h.Hex(), v.hex)
-		assert.Equal(t, h.B64(), v.b64)
+		assert.Equal(t, h.Base64(), v.b64)
 	}
 
 	_, err = FileSha512("/i-am-not-exists")

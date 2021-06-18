@@ -41,7 +41,7 @@ type Hashx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.8.0"
+	return "0.9.0"
 }
 
 // Author returns package author
@@ -138,13 +138,18 @@ func FileSha512(f interface{}) (h Hashx, err error) {
 	return
 }
 
+// Bytes returns hash sum as bytes
+func (h Hashx) Bytes() []byte {
+	return h.Hash.Sum(nil)
+}
+
 // Hex encoding hash sum as hex string
 func (h Hashx) Hex() string {
 	return hex.EncodeToString(h.Hash.Sum(nil))
 }
 
-// B64 encoding hash sum as base64 string
-func (h Hashx) B64() string {
+// Base64 encoding hash sum as base64 string
+func (h Hashx) Base64() string {
 	return base64.StdEncoding.EncodeToString(h.Hash.Sum(nil))
 }
 
