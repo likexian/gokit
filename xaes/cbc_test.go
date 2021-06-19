@@ -20,6 +20,7 @@
 package xaes
 
 import (
+	"crypto/aes"
 	"strconv"
 	"testing"
 
@@ -27,9 +28,14 @@ import (
 )
 
 var (
-	cbcAESKey     = []byte("1234567812345678")
-	cbcPlaintext  = []byte("hello xaes!")
-	cbcCiphertext = []byte{32, 73, 238, 61, 249, 194, 179, 122, 136, 105, 227, 59, 55, 89, 10, 97}
+	cbcAESKey         = []byte("1234567812345678")
+	cbcPlaintext      = []byte("hello xaes!")
+	cbcCiphertext     = []byte{32, 73, 238, 61, 249, 194, 179, 122, 136, 105, 227, 59, 55, 89, 10, 97}
+	cbcHmacCiphertext = []byte{56, 91, 201, 6, 75, 116, 161, 43, 218, 129, 203,
+		149, 23, 197, 144, 175, 49, 50, 51, 52, 53, 54, 55, 56, 49, 50, 51, 52, 53,
+		54, 55, 56, 183, 182, 120, 158, 253, 33, 84, 16, 240, 33, 44, 163, 38, 26,
+		103, 57, 96, 131, 128, 47, 251, 7, 180, 234, 107, 134, 0, 126, 1, 1, 227, 15,
+	}
 )
 
 func TestCBCEncrypt(t *testing.T) {
@@ -52,9 +58,9 @@ func TestCBCEncrypt(t *testing.T) {
 }
 
 func TestCBCDecrypt(t *testing.T) {
-	cbcPlaintext, err := CBCDecrypt(nil, cbcAESKey, nil)
+	plaintext, err := CBCDecrypt(nil, cbcAESKey, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, cbcPlaintext, []byte(nil))
+	assert.Equal(t, plaintext, []byte(nil))
 
 	_, err = CBCDecrypt(cbcCiphertext, nil, nil)
 	assert.NotNil(t, err)
@@ -65,9 +71,12 @@ func TestCBCDecrypt(t *testing.T) {
 	_, err = CBCDecrypt(cbcCiphertext, cbcAESKey, cbcAESKey[:1])
 	assert.NotNil(t, err)
 
-	cbcPlaintext, err = CBCDecrypt(cbcCiphertext, cbcAESKey, nil)
+	_, err = CBCDecrypt(cbcCiphertext, []byte("1234567812345677"), nil)
+	assert.NotNil(t, err)
+
+	plaintext, err = CBCDecrypt(cbcCiphertext, cbcAESKey, nil)
 	assert.Nil(t, err)
-	assert.Equal(t, cbcPlaintext, cbcPlaintext)
+	assert.Equal(t, plaintext, cbcPlaintext)
 }
 
 func TestCBC(t *testing.T) {
@@ -83,4 +92,65 @@ func TestCBC(t *testing.T) {
 
 		assert.Equal(t, plaintext, []byte(data))
 	}
+}
+
+func TestCBCEncryptWithHmacWithHmac(t *testing.T) {
+	ciphertext, err := CBCEncryptWithHmac(nil, cbcAESKey, nil)
+	assert.Nil(t, err)
+	assert.Equal(t, ciphertext, []byte(nil))
+
+	_, err = CBCEncryptWithHmac(cbcPlaintext, nil, nil)
+	assert.NotNil(t, err)
+
+	_, err = CBCEncryptWithHmac(cbcPlaintext, cbcAESKey[:1], nil)
+	assert.Nil(t, err)
+
+	_, err = CBCEncryptWithHmac(cbcPlaintext, cbcAESKey, cbcAESKey[:1])
+	assert.NotNil(t, err)
+
+	ciphertext, err = CBCEncryptWithHmac(cbcPlaintext, cbcAESKey, cbcAESKey)
+	assert.Nil(t, err)
+	assert.Equal(t, ciphertext, cbcHmacCiphertext)
+}
+
+func TestCBCDecryptWithHmac(t *testing.T) {
+	plaintext, err := CBCDecryptWithHmac(nil, cbcAESKey)
+	assert.Nil(t, err)
+	assert.Equal(t, plaintext, []byte(nil))
+
+	_, err = CBCDecryptWithHmac(cbcHmacCiphertext, nil)
+	assert.NotNil(t, err)
+
+	_, err = CBCDecryptWithHmac(cbcHmacCiphertext, cbcAESKey[:1])
+	assert.NotNil(t, err)
+
+	_, err = CBCDecryptWithHmac(cbcHmacCiphertext[:1], cbcAESKey)
+	assert.NotNil(t, err)
+
+	_, err = CBCDecryptWithHmac(append(cbcHmacCiphertext, '1'), cbcAESKey)
+	assert.NotNil(t, err)
+
+	plaintext, err = CBCDecryptWithHmac(cbcHmacCiphertext, cbcAESKey)
+	assert.Nil(t, err)
+	assert.Equal(t, plaintext, cbcPlaintext)
+}
+
+func TestCBCWithHmac(t *testing.T) {
+	data := ""
+	for i := 0; i < 1000; i++ {
+		data += strconv.Itoa(i)
+
+		ciphertext, err := CBCEncryptWithHmac([]byte(data), cbcAESKey, nil)
+		assert.Nil(t, err)
+
+		plaintext, err := CBCDecryptWithHmac(ciphertext, cbcAESKey)
+		assert.Nil(t, err)
+
+		assert.Equal(t, plaintext, []byte(data))
+	}
+}
+
+func TestPKCS7Padding(t *testing.T) {
+	_, err := PKCS7Padding(nil, aes.BlockSize)
+	assert.NotNil(t, err)
 }
