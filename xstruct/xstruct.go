@@ -50,7 +50,7 @@ type Fieldx struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -236,7 +236,7 @@ func (s *Structx) Map() map[string]interface{} {
 
 // Names returns names of struct
 func (s *Structx) Names() []string {
-	var result []string
+	result := []string{}
 
 	fs := s.Fields()
 	for _, v := range fs {
@@ -263,7 +263,7 @@ func (s *Structx) Tags(key string) map[string]string {
 
 // Values returns values of struct
 func (s *Structx) Values() []interface{} {
-	var result []interface{}
+	result := []interface{}{}
 
 	fs := s.Fields()
 	for _, v := range fs {

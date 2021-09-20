@@ -28,9 +28,53 @@ import (
 	"unicode"
 )
 
+var (
+	// initialisms is known initialisms
+	initialisms = map[string]bool{
+		"acl":   true,
+		"api":   true,
+		"ascii": true,
+		"cpu":   true,
+		"css":   true,
+		"dns":   true,
+		"eof":   true,
+		"guid":  true,
+		"html":  true,
+		"http":  true,
+		"https": true,
+		"id":    true,
+		"ip":    true,
+		"json":  true,
+		"lhs":   true,
+		"qps":   true,
+		"ram":   true,
+		"rhs":   true,
+		"rpc":   true,
+		"sla":   true,
+		"smtp":  true,
+		"sql":   true,
+		"ssh":   true,
+		"tcp":   true,
+		"tls":   true,
+		"ttl":   true,
+		"udp":   true,
+		"ui":    true,
+		"uid":   true,
+		"uuid":  true,
+		"uri":   true,
+		"url":   true,
+		"utf":   true,
+		"vm":    true,
+		"xml":   true,
+		"xmpp":  true,
+		"xsrf":  true,
+		"xss":   true,
+	}
+)
+
 // Version returns package version
 func Version() string {
-	return "0.4.0"
+	return "0.5.0"
 }
 
 // Author returns package author
@@ -193,15 +237,19 @@ func LastInIndex(s, f string) int {
 func ToSnake(s string) string {
 	buf := bytes.Buffer{}
 
-	for k, v := range s {
+	data := []rune(s)
+	isLower := func(i int) bool {
+		return i >= 0 && i < len(data) && unicode.IsLower(data[i])
+	}
+
+	for k, v := range data {
 		if unicode.IsUpper(v) {
-			if k != 0 {
-				buf.WriteByte('_')
+			v = unicode.ToLower(v)
+			if k > 0 && data[k-1] != '_' && (isLower(k-1) || isLower(k+1)) {
+				buf.WriteRune('_')
 			}
-			buf.WriteRune(unicode.ToLower(v))
-		} else {
-			buf.WriteRune(v)
 		}
+		buf.WriteRune(v)
 	}
 
 	return buf.String()
@@ -210,6 +258,15 @@ func ToSnake(s string) string {
 // ToCamel returns camel case of string
 func ToCamel(s string) string {
 	s = strings.Replace(s, "_", " ", -1)
-	s = strings.Title(s)
-	return strings.Replace(s, " ", "", -1)
+
+	var result string
+	for _, v := range strings.Split(s, " ") {
+		if _, ok := initialisms[v]; ok {
+			result += strings.ToUpper(v)
+		} else {
+			result += strings.Title(v)
+		}
+	}
+
+	return result
 }

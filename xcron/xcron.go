@@ -99,7 +99,7 @@ type Service struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -452,7 +452,7 @@ func fieldToi(s string, t int) (int, error) {
 
 // parseMacros parse nonstandard predefined scheduling definitions
 // returns as standard scheduling definitions
-func parseMacros(s string) (string, error) {
+func parseMacros(s string) (string, error) { //nolint:cyclop
 	switch s {
 	case "@yearly", "@annually":
 		return "0 0 1 1 *", nil

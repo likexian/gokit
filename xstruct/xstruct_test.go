@@ -27,13 +27,13 @@ import (
 )
 
 type Techer struct {
-	Id      int64  `json:"id"`
+	ID      int64  `json:"id"`
 	Name    string `json:"name"`
 	Enabled bool   `json:"enabled"`
 }
 
 type Student struct {
-	Id      int64  `json:"id"`
+	ID      int64  `json:"id"`
 	Name    string `json:"name"`
 	Enabled bool   `json:"enabled"`
 	Techer  Techer `json:"techer"`
@@ -299,7 +299,7 @@ func TestHasField(t *testing.T) {
 	b := s.HasField("not-exists")
 	assert.False(t, b)
 
-	b = s.HasField("Id")
+	b = s.HasField("ID")
 	assert.True(t, b)
 
 	b = s.HasField("Techer")
@@ -420,12 +420,12 @@ func TestFieldZero(t *testing.T) {
 	err = f.Zero()
 	assert.Equal(t, err, ErrNotExported)
 
-	f, ok = s.Field("Id")
+	f, ok = s.Field("ID")
 	assert.True(t, ok)
 
 	err = f.Zero()
 	assert.Nil(t, err)
-	assert.Equal(t, student.Id, int64(0))
+	assert.Equal(t, student.ID, int64(0))
 	assert.True(t, f.IsZero())
 
 	f, ok = s.Field("Name")

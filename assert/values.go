@@ -176,7 +176,7 @@ func IsGe(x, y interface{}) bool {
 //   Compare(1, 2, ">") // number compare -> true
 //   Compare("a", "a", ">=") // string compare -> true
 //   Compare([]string{"a", "b"}, []string{"a"}, "<") // slice len compare -> false
-func Compare(x, y interface{}, op string) error {
+func Compare(x, y interface{}, op string) error { //nolint:cyclop
 	if !IsContains([]string{Comparer.LT, Comparer.LE, Comparer.GT, Comparer.GE}, op) {
 		return ErrInvalid
 	}

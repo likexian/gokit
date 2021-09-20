@@ -88,7 +88,7 @@ func TestFileLine(t *testing.T) {
 	assert.Equal(t, result, 1000)
 }
 
-func TestHttpStatus(t *testing.T) {
+func TestHTTPStatus(t *testing.T) {
 	go func() {
 		http.HandleFunc("/status/", func(w http.ResponseWriter, r *http.Request) {
 			s := 200
@@ -130,7 +130,7 @@ func TestHttpStatus(t *testing.T) {
 		if _, ok := rr[tt]; !ok {
 			rr[tt] = 0
 		}
-		rr[tt] += 1
+		rr[tt]++
 
 		return r
 	}

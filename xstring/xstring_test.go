@@ -229,14 +229,16 @@ func TestSnakeCamel(t *testing.T) {
 		x string
 		y string
 	}{
-		{"Xyz", "xyz"},
-		{"XYz", "x_yz"},
-		{"XYZ", "x_y_z"},
+		{"ID", "id"},
+		{"URL", "url"},
+		{"HTTP", "http"},
+		{"Snake", "snake"},
+		{"SnakeID", "snake_id"},
+		{"SnakeCase", "snake_case"},
 		{"XabcYdefZghi", "xabc_ydef_zghi"},
 		{"中国人", "中国人"},
 		{"X中国人", "x中国人"},
-		{"X中Y国人", "x中_y国人"},
-		{"X中Y国Z人", "x中_y国_z人"},
+		{"XiX中国人", "xi_x中国人"},
 		{"Xab中cYd国efZg人hi", "xab中c_yd国ef_zg人hi"},
 	}
 

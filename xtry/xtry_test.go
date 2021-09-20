@@ -21,6 +21,7 @@ package xtry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -54,7 +55,8 @@ func TestCancel(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Cancelled)
 	assert.Equal(t, e.Times, 1)
@@ -71,7 +73,8 @@ func TestTimeout(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
@@ -88,7 +91,8 @@ func TestMaxTries(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, MaxTries)
 	assert.Equal(t, e.Times, 1)
@@ -106,7 +110,8 @@ func TestRetryDelay(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 2)
@@ -124,7 +129,8 @@ func TestShouldRetry(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
@@ -141,7 +147,8 @@ func TestNonShouldRetry(t *testing.T) {
 	err := c.Run(ctx, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, NonRetry)
 	assert.Equal(t, e.Times, 0)
@@ -161,7 +168,8 @@ func TestRetryableError(t *testing.T) {
 	err = c.Run(ctx, func(context.Context) error { return RetryableError(fmt.Errorf("RetryableError")) })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)
@@ -181,7 +189,8 @@ func TestNonRetryableError(t *testing.T) {
 	err = c.Run(ctx, func(context.Context) error { return NonRetryableError(fmt.Errorf("NonRetryableError")) })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, NonRetry)
 	assert.Equal(t, e.Times, 0)
@@ -195,7 +204,8 @@ func TestRetry(t *testing.T) {
 	err := Retry(ctx, 1*time.Second, func(context.Context) error { return fmt.Errorf("error") })
 	assert.NotNil(t, err)
 
-	e, ok := err.(*RetryExhaustedError)
+	var e *RetryExhaustedError
+	ok := errors.As(err, &e)
 	assert.True(t, ok)
 	assert.Equal(t, e.Type, Timeout)
 	assert.Equal(t, e.Times, 1)

@@ -68,7 +68,7 @@ func (p *Pidx) Create() (int, error) {
 	}
 
 	err = syscall.Flock(int(fd.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
-	if err == syscall.EWOULDBLOCK {
+	if errors.Is(err, syscall.EWOULDBLOCK) {
 		return pid, ErrPidLockFailed
 	}
 

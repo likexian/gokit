@@ -54,7 +54,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.12.0"
+	return "0.13.0"
 }
 
 // Author returns package author
@@ -272,7 +272,7 @@ func ReadLines(fpath string, n int) (lines []string, err error) {
 	scanner := bufio.NewScanner(fd)
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
-		nRead += 1
+		nRead++
 		if n > 0 && nRead >= n {
 			break
 		}

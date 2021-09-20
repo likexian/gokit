@@ -29,7 +29,7 @@ import (
 	"github.com/likexian/gokit/assert"
 )
 
-type JsonResult struct {
+type JSONResult struct {
 	Result Result `json:"result"`
 	Status Status `json:"status"`
 }
@@ -46,7 +46,7 @@ type Status struct {
 }
 
 var (
-	jsonResult = JsonResult{}
+	jsonResult = JSONResult{}
 	textResult = `{"result":{"intlist":[0,1,2,3,4],"online":true,"rate":0.8},"status":{"code":1,"message":"success"}}`
 	textFile   = "xjson.json"
 	jsonName   = "Li Kexian"
@@ -737,7 +737,7 @@ func Test_HTML_Escape(t *testing.T) {
 	assert.Equal(t, jsonText, `{"param":"a=1&b=2&c=3","title":"<title>test escape</title>"}`)
 
 	// dumps escaped html
-	jsonData.SetHtmlEscape(true)
+	jsonData.SetHTMLEscape(true)
 	jsonText, err = jsonData.Dumps()
 	assert.Nil(t, err)
 	assert.Equal(t, jsonText, `{"param":"a=1\u0026b=2\u0026c=3","title":"\u003ctitle\u003etest escape\u003c/title\u003e"}`)

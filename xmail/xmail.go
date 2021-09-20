@@ -46,8 +46,8 @@ type auth struct {
 	auth   smtp.Auth
 }
 
-// message storing mail message
-type message struct {
+// Message storing mail message
+type Message struct {
 	from        string
 	to          []string
 	cc          []string
@@ -61,7 +61,7 @@ type message struct {
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.8.0"
 }
 
 // Author returns package author
@@ -75,8 +75,8 @@ func License() string {
 }
 
 // New returns a new xmail
-func New(server, username, password string, tls bool) (m *message) {
-	m = &message{
+func New(server, username, password string, tls bool) (m *Message) {
+	m = &Message{
 		from:        username,
 		to:          []string{username},
 		cc:          []string{},
@@ -99,44 +99,44 @@ func New(server, username, password string, tls bool) (m *message) {
 }
 
 // From set mail from
-func (m *message) From(s string) error {
+func (m *Message) From(s string) error {
 	m.from = s
 	return nil
 }
 
 // To set mail to
-func (m *message) To(s ...string) error {
+func (m *Message) To(s ...string) error {
 	m.to = s
 	return nil
 }
 
 // Cc set mail cc
-func (m *message) Cc(s ...string) error {
+func (m *Message) Cc(s ...string) error {
 	m.cc = s
 	return nil
 }
 
 // BCc set mail bcc
-func (m *message) BCc(s ...string) error {
+func (m *Message) BCc(s ...string) error {
 	m.bcc = s
 	return nil
 }
 
 // ContentType set mail content type
-func (m *message) ContentType(t string) error {
+func (m *Message) ContentType(t string) error {
 	m.contentType = t
 	return nil
 }
 
 // Content set mail content
-func (m *message) Content(subject, body string) error {
+func (m *Message) Content(subject, body string) error {
 	m.subject = subject
 	m.body = body
 	return nil
 }
 
 // Attach add a attachment
-func (m *message) Attach(fname string) (err error) {
+func (m *Message) Attach(fname string) (err error) {
 	data, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return
@@ -152,7 +152,7 @@ func (m *message) Attach(fname string) (err error) {
 }
 
 // Send do the sending
-func (m *message) Send() (err error) {
+func (m *Message) Send() (err error) {
 	if !m.auth.tls {
 		return smtp.SendMail(m.auth.server, m.auth.auth, m.from, m.innerTo(), m.innerBody())
 	}
@@ -161,7 +161,7 @@ func (m *message) Send() (err error) {
 }
 
 // tlsSendMail send using tls
-func (m *message) tlsSendMail() (err error) {
+func (m *Message) tlsSendMail() (err error) {
 	conn, err := tls.Dial("tcp", m.auth.server, nil)
 	if err != nil {
 		return
@@ -214,7 +214,7 @@ func (m *message) tlsSendMail() (err error) {
 }
 
 // innerTo returns mail receipt
-func (m *message) innerTo() (to []string) {
+func (m *Message) innerTo() (to []string) {
 	to = m.to
 	for _, v := range m.cc {
 		if v == "" {
@@ -234,7 +234,7 @@ func (m *message) innerTo() (to []string) {
 }
 
 // innerBody returns mail body
-func (m *message) innerBody() (body []byte) {
+func (m *Message) innerBody() (body []byte) {
 	now := time.Now()
 	date := now.Format(time.RFC822)
 	buf := bytes.NewBuffer(nil)

@@ -55,7 +55,7 @@ if err != nil {
 }
 
 defer rsp.Close()
-json, err := rsp.Json()
+json, err := rsp.JSON()
 if err == nil {
     // http response {"status": {"code": 1, "message": "ok"}}
     code, _ := json.Get("status.code").Int()

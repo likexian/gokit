@@ -83,7 +83,7 @@ type Retries struct {
 
 // Dumping storing http dump setting
 type Dumping struct {
-	DumpHttp bool
+	DumpHTTP bool
 	DumpBody bool
 }
 
@@ -94,7 +94,7 @@ type Caching struct {
 
 // Request storing request data
 type Request struct {
-	ClientId  string
+	ClientID  string
 	Request   *http.Request
 	Client    *http.Client
 	ClientKey string
@@ -106,8 +106,8 @@ type Request struct {
 
 // Tracing storing tracing data
 type Tracing struct {
-	ClientId  string
-	RequestId string
+	ClientID  string
+	RequestID string
 	Timestamp string
 	Nonce     string
 	SendTime  int64
@@ -139,8 +139,8 @@ type QueryParam map[string]interface{}
 // FormParam is form param map pass to xhttp
 type FormParam map[string]interface{}
 
-// JsonParam is json param map pass to xhttp
-type JsonParam map[string]interface{}
+// JSONParam is json param map pass to xhttp
+type JSONParam map[string]interface{}
 
 // FormFile is form file for upload, formfield: filename
 type FormFile map[string]string
@@ -190,7 +190,7 @@ func (p *param) IsEmpty() bool {
 
 // Version returns package version
 func Version() string {
-	return "0.18.0"
+	return "0.19.0"
 }
 
 // Author returns package author
@@ -232,7 +232,7 @@ func New() (r *Request) {
 	}
 
 	r = &Request{
-		ClientId:  xhash.Sha1("xhttp", xtime.Ns()).Hex(),
+		ClientID:  xhash.Sha1("xhttp", xtime.Ns()).Hex(),
 		Request:   request,
 		Client:    client,
 		ClientKey: "",
@@ -356,8 +356,8 @@ func (r *Request) SetGzip(gzip bool) *Request {
 	return r
 }
 
-// SetVerifyTls set http request tls verify
-func (r *Request) SetVerifyTls(verify bool) *Request {
+// SetVerifyTLS set http request tls verify
+func (r *Request) SetVerifyTLS(verify bool) *Request {
 	r.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify = !verify
 	return r
 }
@@ -416,8 +416,8 @@ func (r *Request) SetProxy(proxy func(*http.Request) (*url.URL, error)) *Request
 	return r
 }
 
-// SetProxyUrl set http request proxy url
-func (r *Request) SetProxyUrl(proxy string) *Request {
+// SetProxyURL set http request proxy url
+func (r *Request) SetProxyURL(proxy string) *Request {
 	if !strings.HasPrefix(proxy, "http://") &&
 		!strings.HasPrefix(proxy, "https://") &&
 		!strings.HasPrefix(proxy, "socks5://") {
@@ -490,14 +490,15 @@ func (r *Request) SetRetries(args ...interface{}) *Request {
 }
 
 // SetDump set http dump
-func (r *Request) SetDump(dumpHttp, dumpBody bool) *Request {
-	r.Dumping.DumpHttp = dumpHttp
+func (r *Request) SetDump(dumpHTTP, dumpBody bool) *Request {
+	r.Dumping.DumpHTTP = dumpHTTP
 	r.Dumping.DumpBody = dumpBody
 	return r
 }
 
 // Do send http request and return response
-func (r *Request) Do(ctx context.Context, method, surl string, args ...interface{}) (s *Response, err error) {
+func (r *Request) Do(ctx context.Context, //nolint:cyclop
+	method, surl string, args ...interface{}) (s *Response, err error) {
 	r.Request.Host = ""
 	r.Request.Header.Del("Cookie")
 	r.Request.Header.Del("Content-Type")
@@ -548,10 +549,10 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 			} else {
 				queryParam.Update(param{vv})
 			}
-		case JsonParam:
+		case JSONParam:
 			formBody, err = xjson.Dumps(vv)
 			if err != nil {
-				return nil, fmt.Errorf("xhttp: encode json param failed: %s", err.Error())
+				return nil, fmt.Errorf("xhttp: encode json param failed: %w", err)
 			}
 			r.Request.Header.Set("Content-Type", "application/json")
 		case string:
@@ -626,7 +627,7 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 
 	u, err := url.Parse(surl)
 	if err != nil {
-		return nil, fmt.Errorf("xhttp: parse url failed: %s", err.Error())
+		return nil, fmt.Errorf("xhttp: parse url failed: %w", err)
 	}
 	r.Request.URL = u
 
@@ -636,7 +637,7 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 		Tracing: Tracing{
 			Timestamp: fmt.Sprintf("%d", xtime.S()),
 			Nonce:     fmt.Sprintf("%d", xrand.IntRange(1000000, 9999999)),
-			ClientId:  r.ClientId,
+			ClientID:  r.ClientID,
 			Retries:   -1,
 		},
 	}
@@ -646,13 +647,13 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 		s.Tracing.SendTime = xtime.Ms() - startAt
 	}()
 
-	s.Tracing.RequestId = xhash.Sha1("xhttp", s.Tracing.Timestamp,
+	s.Tracing.RequestID = xhash.Sha1("xhttp", s.Tracing.Timestamp,
 		s.Tracing.Nonce, s.Method, s.URL.Path, s.URL.RawQuery, r.ClientKey).Hex()
 	r.Request.Header.Set("X-HTTP-GoKit-RequestId", fmt.Sprintf("%s-%s-%s", s.Tracing.Timestamp,
-		s.Tracing.Nonce, s.Tracing.RequestId))
+		s.Tracing.Nonce, s.Tracing.RequestID))
 
 	cacheTTL, cacheEnabled := r.Caching.Method[s.Method]
-	if cacheEnabled || r.Dumping.DumpHttp {
+	if cacheEnabled || r.Dumping.DumpHTTP {
 		dumpBody := r.Dumping.DumpBody
 		if cacheEnabled {
 			dumpBody = true
@@ -680,7 +681,7 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 	}
 
 	for i := 0; r.Retries.Times == -1 || i <= r.Retries.Times; i++ {
-		s.Tracing.Retries += 1
+		s.Tracing.Retries++
 		s.Response, err = r.Client.Do(r.Request)
 		if err == nil {
 			break
@@ -695,7 +696,7 @@ func (r *Request) Do(ctx context.Context, method, surl string, args ...interface
 		s.ContentLength = s.Response.ContentLength
 	}
 
-	if r.Dumping.DumpHttp {
+	if r.Dumping.DumpHTTP {
 		d, err := httputil.DumpResponse(s.Response, r.Dumping.DumpBody)
 		if err == nil {
 			s.Dumping = append(s.Dumping, d)
@@ -797,12 +798,12 @@ func (r *Response) String() (s string, err error) {
 	return string(b), nil
 }
 
-// Json returns response body as *xjson.Json
+// JSON returns response body as *xjson.JSON
 // For more please refer to gokit/xjson
-func (r *Response) Json() (*xjson.Json, error) {
+func (r *Response) JSON() (*xjson.JSON, error) {
 	s, err := r.String()
 	if err != nil {
-		return &xjson.Json{}, err
+		return &xjson.JSON{}, err
 	}
 
 	return xjson.Loads(s)

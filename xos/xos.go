@@ -33,7 +33,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -113,9 +113,9 @@ func SetUser(user string) (err error) {
 		return
 	}
 
-	err = SetGid(gid)
+	err = SetGID(gid)
 	if err == nil {
-		err = SetUid(uid)
+		err = SetUID(uid)
 	}
 
 	return
@@ -136,8 +136,8 @@ func LookupUser(name string) (uid, gid int, err error) {
 	return
 }
 
-// SetUid set the uid of process
-func SetUid(uid int) (err error) {
+// SetUID set the uid of process
+func SetUID(uid int) (err error) {
 	_, _, errno := syscall.RawSyscall(syscall.SYS_SETUID, uintptr(uid), 0, 0)
 	if errno != 0 {
 		err = errno
@@ -146,8 +146,8 @@ func SetUid(uid int) (err error) {
 	return
 }
 
-// SetGid set the gid of process
-func SetGid(gid int) (err error) {
+// SetGID set the gid of process
+func SetGID(gid int) (err error) {
 	_, _, errno := syscall.RawSyscall(syscall.SYS_SETGID, uintptr(gid), 0, 0)
 	if errno != 0 {
 		err = errno

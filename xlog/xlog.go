@@ -100,7 +100,7 @@ type logFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.7.0"
 }
 
 // Author returns package author
@@ -296,7 +296,7 @@ func (l *Logger) rotateFile() (err error) {
 		return
 	}
 
-	l.logFile.rotateNextNum += 1
+	l.logFile.rotateNextNum++
 	if l.logFile.rotateNextNum >= l.logFile.rotateNum {
 		l.logFile.rotateNextNum = 1
 	}

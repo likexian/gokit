@@ -51,13 +51,13 @@ type CheckUpdateResponse struct {
 	Latest      string `json:"latest"`
 	Outdated    bool   `json:"outdated"`
 	Emergency   bool   `json:"emergency"`
-	DownloadUrl string `json:"download_url"`
-	ProductUrl  string `json:"product_url"`
+	DownloadURL string `json:"download_url"`
+	ProductURL  string `json:"product_url"`
 }
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -81,7 +81,7 @@ func (req *CheckUpdateRequest) Run(ctx context.Context) (rsp *CheckUpdateRespons
 				if e == nil {
 					err = json.Unmarshal(data, rsp)
 					if err == nil {
-						return
+						return rsp, nil
 					}
 				}
 			}

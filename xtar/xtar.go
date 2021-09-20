@@ -22,6 +22,7 @@ package xtar
 import (
 	"archive/tar"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -32,7 +33,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.1.2"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -175,11 +176,10 @@ func Extract(tarFile, dstFolder string) (err error) {
 	for {
 		h, err := tr.Next()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
-			} else {
-				return err
 			}
+			return err
 		}
 		fname := strings.TrimPrefix(h.Name, "/")
 		if fname == "" {
@@ -188,34 +188,26 @@ func Extract(tarFile, dstFolder string) (err error) {
 		dstFile := dstFolder + fname
 		switch h.Typeflag {
 		case tar.TypeReg:
-			ffd, err := xfile.New(dstFile)
+			var ffd *os.File
+			ffd, err = xfile.New(dstFile)
 			if err != nil {
 				return err
 			}
+			defer ffd.Close()
 			_, err = io.Copy(ffd, tr)
-			if err != nil {
-				return err
-			}
-			ffd.Close()
 		case tar.TypeLink:
 			err = os.Link(h.Linkname, dstFile)
-			if err != nil {
-				return err
-			}
 		case tar.TypeSymlink:
 			err = os.Symlink(h.Linkname, dstFile)
-			if err != nil {
-				return err
-			}
 		case tar.TypeDir:
 			if !xfile.Exists(dstFile) {
 				err = os.MkdirAll(dstFile, 0755)
-				if err != nil {
-					return err
-				}
 			}
 		default:
-			return fmt.Errorf("xtar: unsupport file type: %v", h.Typeflag)
+			err = fmt.Errorf("xtar: unsupport file type: %v", h.Typeflag)
+		}
+		if err != nil {
+			return err
 		}
 		_ = os.Chtimes(dstFile, h.AccessTime, h.ModTime)
 		_ = os.Chmod(dstFile, os.FileMode(h.Mode))

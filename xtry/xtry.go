@@ -21,6 +21,7 @@ package xtry
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -56,7 +57,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 // Author returns package author
@@ -94,7 +95,8 @@ func (c Config) Run(ctx context.Context, fn func(context.Context) error) error {
 		if err = fn(ctx); err == nil {
 			return nil
 		}
-		if e, ok := err.(*RetryError); ok {
+		var e *RetryError
+		if ok := errors.As(err, &e); ok {
 			if e == nil {
 				return nil
 			}

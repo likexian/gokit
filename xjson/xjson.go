@@ -50,15 +50,15 @@ var (
 	ErrAssertToStringArray = errors.New("xjson: assert to string array failed")
 )
 
-// Json storing json data
-type Json struct {
+// JSON storing json data
+type JSON struct {
 	data       interface{}
-	escapeHtml bool
+	escapeHTML bool
 }
 
 // Version returns package version
 func Version() string {
-	return "0.14.0"
+	return "0.15.0"
 }
 
 // Author returns package author
@@ -71,32 +71,32 @@ func License() string {
 	return "Licensed under the Apache License 2.0"
 }
 
-// New returns a pointer to a new Json object
+// New returns a pointer to a new JSON object
 //   data_json := New()
 //   data_json := New(type Data struct{data string}{"zzz"})
 //   data_json := New(map[string]interface{}{"iam": "Li Kexian"})
-func New(args ...interface{}) *Json {
+func New(args ...interface{}) *JSON {
 	switch len(args) {
 	case 1:
-		return &Json{
+		return &JSON{
 			data: args[0],
 		}
 	default:
-		return &Json{
+		return &JSON{
 			data: make(map[string]interface{}),
 		}
 	}
 }
 
 // Load loads data from file, returns a json object
-func Load(path string) (*Json, error) {
+func Load(path string) (*JSON, error) {
 	j := New()
 	err := j.Load(path)
 	return j, err
 }
 
 // Loads unmarshal json from string, returns json object
-func Loads(text string) (*Json, error) {
+func Loads(text string) (*JSON, error) {
 	j := New()
 	err := j.Loads(text)
 	return j, err
@@ -118,7 +118,7 @@ func PrettyDumps(data interface{}) (string, error) {
 }
 
 // Load loads data from file, returns a json object
-func (j *Json) Load(path string) error {
+func (j *JSON) Load(path string) error {
 	text, err := xfile.ReadText(path)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func (j *Json) Load(path string) error {
 }
 
 // Loads unmarshal json from string, returns json object
-func (j *Json) Loads(text string) error {
+func (j *JSON) Loads(text string) error {
 	dec := json.NewDecoder(bytes.NewBuffer([]byte(text)))
 	dec.UseNumber()
 	err := dec.Decode(&j.data)
@@ -137,7 +137,7 @@ func (j *Json) Loads(text string) error {
 }
 
 // Dump dumps json object to a file
-func (j *Json) Dump(path string) (err error) {
+func (j *JSON) Dump(path string) (err error) {
 	result, err := j.PrettyDumps()
 	if err != nil {
 		return
@@ -147,21 +147,21 @@ func (j *Json) Dump(path string) (err error) {
 }
 
 // Dumps marshal json object to string
-func (j *Json) Dumps() (result string, err error) {
+func (j *JSON) Dumps() (result string, err error) {
 	return j.doDumps("")
 }
 
 // PrettyDumps marshal json object to string, with identation
-func (j *Json) PrettyDumps() (result string, err error) {
+func (j *JSON) PrettyDumps() (result string, err error) {
 	return j.doDumps(strings.Repeat(" ", 4))
 }
 
 // do marshal json to string
-func (j *Json) doDumps(indent string) (result string, err error) {
+func (j *JSON) doDumps(indent string) (result string, err error) {
 	var buf bytes.Buffer
 
 	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(j.escapeHtml)
+	enc.SetEscapeHTML(j.escapeHTML)
 	enc.SetIndent("", indent)
 	err = enc.Encode(j.data)
 	if err != nil {
@@ -174,16 +174,16 @@ func (j *Json) doDumps(indent string) (result string, err error) {
 	return
 }
 
-// SetHtmlEscape set html escape for escaping of <, >, and & in JSON strings
-func (j *Json) SetHtmlEscape(escape bool) {
-	j.escapeHtml = escape
+// SetHTMLEscape set html escape for escaping of <, >, and & in JSON strings
+func (j *JSON) SetHTMLEscape(escape bool) {
+	j.escapeHTML = escape
 }
 
 // Set set key-value to json object, dot(.) separated key is supported
 //   json.Set("status", 1)
 //   json.Set("status.code", 1)
 //   ! NOT SUPPORTED json.Set("result.intlist.3", 666)
-func (j *Json) Set(key string, value interface{}) {
+func (j *JSON) Set(key string, value interface{}) {
 	key = strings.TrimSpace(key)
 	if key == "" {
 		j.data = value
@@ -213,7 +213,7 @@ func (j *Json) Set(key string, value interface{}) {
 //   json.Del("status")
 //   json.Del("status.code")
 //   ! NOT SUPPORTED json.Del("result.intlist.3")
-func (j *Json) Del(key string) {
+func (j *JSON) Del(key string) {
 	result, err := j.Map()
 	if err != nil {
 		return
@@ -241,7 +241,7 @@ func (j *Json) Del(key string) {
 //   json.Has("status")
 //   json.Has("status.code")
 //   json.Has("result.intlist.3")
-func (j *Json) Has(key string) bool {
+func (j *JSON) Has(key string) bool {
 	result := j
 
 	keys := strings.Split(key, ".")
@@ -285,7 +285,7 @@ func (j *Json) Has(key string) bool {
 //   json.Get("status").Int()
 //   json.Get("status.code").Int()
 //   json.Get("result.intlist.3").Int()
-func (j *Json) Get(key string) *Json {
+func (j *JSON) Get(key string) *JSON {
 	result := j
 
 	for _, v := range strings.Split(key, ".") {
@@ -294,20 +294,20 @@ func (j *Json) Get(key string) *Json {
 			tmp, err := result.Map()
 			if err == nil {
 				if _, ok := tmp[v]; ok {
-					result = &Json{tmp[v], j.escapeHtml}
+					result = &JSON{tmp[v], j.escapeHTML}
 				} else {
-					return &Json{nil, j.escapeHtml}
+					return &JSON{nil, j.escapeHTML}
 				}
 			} else {
 				_, err := result.Array()
 				if err == nil {
 					i, err := strconv.Atoi(v)
 					if err != nil {
-						return &Json{nil, j.escapeHtml}
+						return &JSON{nil, j.escapeHTML}
 					}
 					result = result.Index(i)
 				} else {
-					return &Json{nil, j.escapeHtml}
+					return &JSON{nil, j.escapeHTML}
 				}
 			}
 		}
@@ -318,19 +318,19 @@ func (j *Json) Get(key string) *Json {
 
 // Index returns a pointer to the index of json object
 //   json.Get("int_list").Index(1).Int()
-func (j *Json) Index(i int) *Json {
+func (j *JSON) Index(i int) *JSON {
 	data, err := j.Array()
 	if err == nil {
 		if len(data) > i {
-			return &Json{data[i], j.escapeHtml}
+			return &JSON{data[i], j.escapeHTML}
 		}
 	}
 
-	return &Json{nil, j.escapeHtml}
+	return &JSON{nil, j.escapeHTML}
 }
 
 // Len returns len of json object, -1 if type invalid or error
-func (j *Json) Len() int {
+func (j *JSON) Len() int {
 	if v, err := j.Map(); err == nil {
 		return len(v)
 	}
@@ -347,7 +347,7 @@ func (j *Json) Len() int {
 }
 
 // IsMap returns json object is a map
-func (j *Json) IsMap() bool {
+func (j *JSON) IsMap() bool {
 	switch j.data.(type) {
 	case map[string]interface{}:
 		return true
@@ -357,7 +357,7 @@ func (j *Json) IsMap() bool {
 }
 
 // IsArray returns json object is an array
-func (j *Json) IsArray() bool {
+func (j *JSON) IsArray() bool {
 	switch j.data.(type) {
 	case []interface{}:
 		return true
@@ -367,7 +367,7 @@ func (j *Json) IsArray() bool {
 }
 
 // Map returns as map from json object
-func (j *Json) Map() (result map[string]interface{}, err error) {
+func (j *JSON) Map() (result map[string]interface{}, err error) {
 	result, ok := (j.data).(map[string]interface{})
 	if !ok {
 		err = ErrAssertToMap
@@ -376,7 +376,7 @@ func (j *Json) Map() (result map[string]interface{}, err error) {
 }
 
 // Array returns as array from json object
-func (j *Json) Array() (result []interface{}, err error) {
+func (j *JSON) Array() (result []interface{}, err error) {
 	result, ok := (j.data).([]interface{})
 	if !ok {
 		err = ErrAssertToArray
@@ -385,7 +385,7 @@ func (j *Json) Array() (result []interface{}, err error) {
 }
 
 // Bool returns as bool from json object
-func (j *Json) Bool() (result bool, err error) {
+func (j *JSON) Bool() (result bool, err error) {
 	result, ok := (j.data).(bool)
 	if !ok {
 		err = ErrAssertToBool
@@ -394,7 +394,7 @@ func (j *Json) Bool() (result bool, err error) {
 }
 
 // String returns as string from json object
-func (j *Json) String() (result string, err error) {
+func (j *JSON) String() (result string, err error) {
 	result, ok := (j.data).(string)
 	if !ok {
 		err = ErrAssertToString
@@ -403,7 +403,7 @@ func (j *Json) String() (result string, err error) {
 }
 
 // StringArray returns as string array from json object
-func (j *Json) StringArray() (result []string, err error) {
+func (j *JSON) StringArray() (result []string, err error) {
 	data, err := j.Array()
 	if err != nil {
 		return
@@ -430,7 +430,7 @@ func (j *Json) StringArray() (result []string, err error) {
 // if the time is of int, optional args must not set
 //   json.Time()
 //   json.Time("2006-01-02 15:04:05")
-func (j *Json) Time(args ...string) (result time.Time, err error) {
+func (j *JSON) Time(args ...string) (result time.Time, err error) {
 	switch j.data.(type) {
 	case string:
 		if len(args) > 1 {
@@ -454,7 +454,7 @@ func (j *Json) Time(args ...string) (result time.Time, err error) {
 }
 
 // Float64 returns as float64 from json object
-func (j *Json) Float64() (result float64, err error) {
+func (j *JSON) Float64() (result float64, err error) {
 	switch j.data.(type) {
 	case json.Number:
 		return j.data.(json.Number).Float64()
@@ -470,7 +470,7 @@ func (j *Json) Float64() (result float64, err error) {
 }
 
 // Int returns as int from json object
-func (j *Json) Int() (result int, err error) {
+func (j *JSON) Int() (result int, err error) {
 	switch j.data.(type) {
 	case json.Number:
 		r, err := j.data.(json.Number).Int64()
@@ -487,7 +487,7 @@ func (j *Json) Int() (result int, err error) {
 }
 
 // Int64 returns as int64 from json object
-func (j *Json) Int64() (result int64, err error) {
+func (j *JSON) Int64() (result int64, err error) {
 	switch j.data.(type) {
 	case json.Number:
 		return j.data.(json.Number).Int64()
@@ -503,7 +503,7 @@ func (j *Json) Int64() (result int64, err error) {
 }
 
 // Uint64 returns as uint64 from json object
-func (j *Json) Uint64() (result uint64, err error) {
+func (j *JSON) Uint64() (result uint64, err error) {
 	switch j.data.(type) {
 	case json.Number:
 		return strconv.ParseUint(j.data.(json.Number).String(), 10, 64)
@@ -520,7 +520,7 @@ func (j *Json) Uint64() (result uint64, err error) {
 
 // MustMap returns as map from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustMap(args ...map[string]interface{}) map[string]interface{} {
+func (j *JSON) MustMap(args ...map[string]interface{}) map[string]interface{} {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -539,7 +539,7 @@ func (j *Json) MustMap(args ...map[string]interface{}) map[string]interface{} {
 
 // MustArray returns as array from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustArray(args ...[]interface{}) []interface{} {
+func (j *JSON) MustArray(args ...[]interface{}) []interface{} {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -558,7 +558,7 @@ func (j *Json) MustArray(args ...[]interface{}) []interface{} {
 
 // MustBool returns as bool from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustBool(args ...bool) bool {
+func (j *JSON) MustBool(args ...bool) bool {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -577,7 +577,7 @@ func (j *Json) MustBool(args ...bool) bool {
 
 // MustString returns as string from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustString(args ...string) string {
+func (j *JSON) MustString(args ...string) string {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -596,7 +596,7 @@ func (j *Json) MustString(args ...string) string {
 
 // MustStringArray returns as string from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustStringArray(args ...[]string) []string {
+func (j *JSON) MustStringArray(args ...[]string) []string {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -619,7 +619,7 @@ func (j *Json) MustStringArray(args ...[]string) []string {
 //   json.Time("2006-01-02 15:04:05")                            // Has format, No default
 //   json.Time(time.Unix(1548907870, 0))                         // No format,  Has default
 //   json.Time("2006-01-02 15:04:05", time.Unix(1548907870, 0))  // Has format, Has default
-func (j *Json) MustTime(args ...interface{}) time.Time {
+func (j *JSON) MustTime(args ...interface{}) time.Time {
 	if len(args) > 2 {
 		panic(ErrTooManyArguments)
 	}
@@ -661,7 +661,7 @@ func (j *Json) MustTime(args ...interface{}) time.Time {
 
 // MustFloat64 returns as float64 from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustFloat64(args ...float64) float64 {
+func (j *JSON) MustFloat64(args ...float64) float64 {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -680,7 +680,7 @@ func (j *Json) MustFloat64(args ...float64) float64 {
 
 // MustInt returns as int from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustInt(args ...int) int {
+func (j *JSON) MustInt(args ...int) int {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -699,7 +699,7 @@ func (j *Json) MustInt(args ...int) int {
 
 // MustInt64 returns as int64 from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustInt64(args ...int64) int64 {
+func (j *JSON) MustInt64(args ...int64) int64 {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}
@@ -718,7 +718,7 @@ func (j *Json) MustInt64(args ...int64) int64 {
 
 // MustUint64 returns as uint64 from json object with optional default value
 // if error return default(if set) or panic
-func (j *Json) MustUint64(args ...uint64) uint64 {
+func (j *JSON) MustUint64(args ...uint64) uint64 {
 	if len(args) > 1 {
 		panic(ErrTooManyArguments)
 	}

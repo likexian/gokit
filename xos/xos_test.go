@@ -78,10 +78,10 @@ func TestGetPwd(t *testing.T) {
 }
 
 func TestSetid(t *testing.T) {
-	err := SetUid(0)
+	err := SetUID(0)
 	assert.Nil(t, err)
 
-	err = SetGid(0)
+	err = SetGID(0)
 	assert.Nil(t, err)
 
 	err = SetUser("root")
@@ -94,10 +94,10 @@ func TestSetid(t *testing.T) {
 		err = SetUser("nobody")
 		assert.Nil(t, err)
 
-		err = SetUid(0)
+		err = SetUID(0)
 		assert.NotNil(t, err)
 
-		err = SetGid(0)
+		err = SetGID(0)
 		assert.NotNil(t, err)
 
 		err = SetUser("root")

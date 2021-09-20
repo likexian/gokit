@@ -74,11 +74,11 @@ func TestNew(t *testing.T) {
 	assert.Equal(t, req.Request.Method, "POST")
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
 
-	clientId := req.ClientId
+	clientID := req.ClientID
 	req = New()
 	_, err = req.Do(ctx, "GET", LOCALURL)
 	assert.Nil(t, err)
-	assert.NotEqual(t, req.ClientId, clientId)
+	assert.NotEqual(t, req.ClientID, clientID)
 }
 
 func TestMethod(t *testing.T) {
@@ -207,8 +207,8 @@ func TestSetUA(t *testing.T) {
 	req := New()
 	ua := req.GetHeader("User-Agent")
 	assert.Equal(t, ua, fmt.Sprintf("GoKit XHTTP Client/%s", Version()))
-	req.SetUA("Http Client by likexian")
-	assert.Equal(t, req.GetHeader("User-Agent"), "Http Client by likexian")
+	req.SetUA("HTTP Client by likexian")
+	assert.Equal(t, req.GetHeader("User-Agent"), "HTTP Client by likexian")
 }
 
 func TestSetReferer(t *testing.T) {
@@ -275,8 +275,8 @@ func TestBytes(t *testing.T) {
 
 	assert.NotEqual(t, rsp.Tracing.Timestamp, "")
 	assert.NotEqual(t, rsp.Tracing.Nonce, tracing.Nonce)
-	assert.Equal(t, rsp.Tracing.ClientId, tracing.ClientId)
-	assert.NotEqual(t, rsp.Tracing.RequestId, tracing.RequestId)
+	assert.Equal(t, rsp.Tracing.ClientID, tracing.ClientID)
+	assert.NotEqual(t, rsp.Tracing.RequestID, tracing.RequestID)
 
 	tracing = rsp.Tracing
 	req = New()
@@ -284,8 +284,8 @@ func TestBytes(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 404)
-	assert.NotEqual(t, rsp.Tracing.ClientId, tracing.ClientId)
-	assert.NotEqual(t, rsp.Tracing.RequestId, tracing.RequestId)
+	assert.NotEqual(t, rsp.Tracing.ClientID, tracing.ClientID)
+	assert.NotEqual(t, rsp.Tracing.RequestID, tracing.RequestID)
 }
 
 func TestString(t *testing.T) {
@@ -311,7 +311,7 @@ func TestString(t *testing.T) {
 	assert.Equal(t, s[0:1], "{")
 }
 
-func TestJson(t *testing.T) {
+func TestJSON(t *testing.T) {
 	req := New()
 	ctx := context.Background()
 
@@ -319,14 +319,14 @@ func TestJson(t *testing.T) {
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
-	_, err = rsp.Json()
+	_, err = rsp.JSON()
 	assert.NotNil(t, err)
 
 	rsp, err = req.Do(ctx, "GET", LOCALURL+"get")
 	assert.Nil(t, err)
 	defer rsp.Close()
 	assert.Equal(t, rsp.StatusCode, 200)
-	s, err := rsp.Json()
+	s, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, s.Get("url").MustString(""), LOCALURL+"get")
 }
@@ -452,10 +452,10 @@ func TestSetVerifyTls(t *testing.T) {
 	req := New()
 	assert.False(t, req.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 
-	req.SetVerifyTls(false)
+	req.SetVerifyTLS(false)
 	assert.True(t, req.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 
-	req.SetVerifyTls(true)
+	req.SetVerifyTLS(true)
 	assert.False(t, req.Client.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
 }
 
@@ -506,7 +506,7 @@ func TestSetProxy(t *testing.T) {
 }
 
 func TestSetProxyUrl(t *testing.T) {
-	req := New().SetProxyUrl("127.0.0.1:8080")
+	req := New().SetProxyURL("127.0.0.1:8080")
 	ctx := context.Background()
 	_, err := req.Do(ctx, "GET", LOCALURL)
 	assert.NotNil(t, err)
@@ -612,7 +612,7 @@ func TestFormParam(t *testing.T) {
 	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err := rsp.Json()
+	json, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
@@ -620,7 +620,7 @@ func TestFormParam(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", req.Request.URL.String(), form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("a.0").MustString(""), "1")
 	assert.Equal(t, json.Get("form").Get("b.0").MustString(""), "2")
@@ -630,7 +630,7 @@ func TestFormParam(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", form)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	m, _ := json.Get("form").Map()
 	assert.Equal(t, m, map[string]interface{}{})
@@ -639,7 +639,7 @@ func TestFormParam(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormParam(data))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("a.0").MustString(""), "1")
 	assert.Equal(t, json.Get("form").Get("b.0").MustString(""), "2")
@@ -660,7 +660,7 @@ func TestValuesParam(t *testing.T) {
 	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", values)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err := rsp.Json()
+	json, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 }
@@ -673,7 +673,7 @@ func TestPostBody(t *testing.T) {
 	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", "k=v")
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err := rsp.Json()
+	json, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
@@ -681,7 +681,7 @@ func TestPostBody(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", req.Request.URL.String(), []byte("a=1&b=2&c=3"))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("a.0").MustString(""), "1")
 	assert.Equal(t, json.Get("form").Get("b.0").MustString(""), "2")
@@ -693,7 +693,7 @@ func TestPostBody(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", b)
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("form").Get("k.0").MustString(""), "v")
 
@@ -701,16 +701,16 @@ func TestPostBody(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", `{"k": "v"}`, Header{"Content-Type": "application/json"})
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, json.Get("json").Get("k").MustString(""), "v")
 
 	// Post map as json
 	data := map[string]interface{}{"a": "1", "b": 2, "c": 3}
-	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", JsonParam(data))
+	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", JSONParam(data))
 	assert.Nil(t, err)
 	assert.Equal(t, req.Request.URL.String(), LOCALURL+"post")
-	j, err := rsp.Json()
+	j, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Equal(t, j.Get("url").MustString(""), LOCALURL+"post")
 	assert.Equal(t, j.Get("json.a").MustString(""), "1")
@@ -726,7 +726,7 @@ func TestPostFile(t *testing.T) {
 	rsp, err := req.Do(ctx, "POST", LOCALURL+"post", FormFile{"file": "../go.mod"})
 	assert.Nil(t, err)
 	defer rsp.Close()
-	json, err := rsp.Json()
+	json, err := rsp.JSON()
 	assert.Nil(t, err)
 	assert.Contains(t, json.Get("headers.Content-Type.0").MustString(""), "multipart/form-data")
 	assert.Contains(t, json.Get("file").Get("file").MustString(""), "module github.com/likexian/gokit")
@@ -735,7 +735,7 @@ func TestPostFile(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormFile{"file_0": "../go.mod"}, FormFile{"file_1": "../go.sum"})
 	assert.Nil(t, err)
 	defer rsp.Close()
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Contains(t, json.Get("headers.Content-Type.0").MustString(""), "multipart/form-data")
 	assert.Contains(t, json.Get("file").Get("file_0").MustString(""), "module github.com/likexian/gokit")
@@ -745,7 +745,7 @@ func TestPostFile(t *testing.T) {
 	rsp, err = req.Do(ctx, "POST", LOCALURL+"post", FormParam{"k": "v"}, FormFile{"file": "../go.mod", "404": "404.md"})
 	assert.Nil(t, err)
 	defer rsp.Close()
-	json, err = rsp.Json()
+	json, err = rsp.JSON()
 	assert.Nil(t, err)
 	assert.Contains(t, json.Get("headers.Content-Type.0").MustString(""), "multipart/form-data")
 	assert.Contains(t, json.Get("file").Get("file").MustString(""), "module github.com/likexian/gokit")
@@ -836,7 +836,7 @@ func TestEnableCache(t *testing.T) {
 	newText, err := newRsp.String()
 	assert.Nil(t, err)
 	assert.NotEqual(t, newText, text)
-	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+	assert.NotEqual(t, newRsp.Tracing.RequestID, rsp.Tracing.RequestID)
 
 	// enable get cache
 	req.EnableCache("GET", 300)
@@ -856,7 +856,7 @@ func TestEnableCache(t *testing.T) {
 	newText, err = newRsp.String()
 	assert.Nil(t, err)
 	assert.Equal(t, newText, text)
-	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+	assert.Equal(t, newRsp.Tracing.RequestID, rsp.Tracing.RequestID)
 
 	newRsp, err = req.Do(ctx, "GET", LOCALURL+"time", QueryParam{"q": "a"})
 	assert.Nil(t, err)
@@ -865,7 +865,7 @@ func TestEnableCache(t *testing.T) {
 	newText, err = newRsp.String()
 	assert.Nil(t, err)
 	assert.NotEqual(t, newText, text)
-	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+	assert.NotEqual(t, newRsp.Tracing.RequestID, rsp.Tracing.RequestID)
 
 	// enable post cache
 	req.EnableCache("post", 300)
@@ -885,7 +885,7 @@ func TestEnableCache(t *testing.T) {
 	newText, err = newRsp.String()
 	assert.Nil(t, err)
 	assert.Equal(t, newText, text)
-	assert.Equal(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+	assert.Equal(t, newRsp.Tracing.RequestID, rsp.Tracing.RequestID)
 
 	newRsp, err = req.Do(ctx, "POST", LOCALURL+"time", QueryParam{"q": "a"},
 		FormParam{"d": "v", "x": "likexian", "q": "a"})
@@ -895,7 +895,7 @@ func TestEnableCache(t *testing.T) {
 	newText, err = newRsp.String()
 	assert.Nil(t, err)
 	assert.NotEqual(t, newText, text)
-	assert.NotEqual(t, newRsp.Tracing.RequestId, rsp.Tracing.RequestId)
+	assert.NotEqual(t, newRsp.Tracing.RequestID, rsp.Tracing.RequestID)
 }
 
 func TestCheckClient(t *testing.T) {
@@ -1014,13 +1014,13 @@ func ServerForTesting(listen string) string {
 				Args    url.Values  `json:"args"`
 				Headers http.Header `json:"headers"`
 				Origin  string      `json:"origin"`
-				Url     string      `json:"url"`
+				URL     string      `json:"url"`
 			}
 			result := Result{
 				Args:    r.URL.Query(),
 				Headers: r.Header,
 				Origin:  strings.Split(r.RemoteAddr, ":")[0],
-				Url:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
+				URL:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
 			}
 			text, _ := xjson.Dumps(result)
 			fmt.Fprint(w, text)
@@ -1030,26 +1030,26 @@ func ServerForTesting(listen string) string {
 			type Result struct {
 				Args    url.Values             `json:"args"`
 				Form    url.Values             `json:"form"`
-				Json    map[string]interface{} `json:"json"`
+				JSON    map[string]interface{} `json:"json"`
 				File    map[string]string      `json:"file"`
 				Headers http.Header            `json:"headers"`
 				Origin  string                 `json:"origin"`
-				Url     string                 `json:"url"`
+				URL     string                 `json:"url"`
 			}
 
 			result := Result{
 				Args:    r.URL.Query(),
 				Headers: r.Header,
 				Form:    url.Values{},
-				Json:    map[string]interface{}{},
+				JSON:    map[string]interface{}{},
 				File:    map[string]string{},
 				Origin:  strings.Split(r.RemoteAddr, ":")[0],
-				Url:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
+				URL:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
 			}
 			if r.Header.Get("Content-Type") == "application/json" {
 				body, _ := ioutil.ReadAll(r.Body)
 				json, _ := xjson.Loads(string(body))
-				result.Json, _ = json.Map()
+				result.JSON, _ = json.Map()
 			} else {
 				err := r.ParseMultipartForm(32 << 20)
 				if err != nil {

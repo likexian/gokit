@@ -20,6 +20,7 @@
 package xos
 
 import (
+	"errors"
 	"os"
 	"testing"
 	"time"
@@ -94,7 +95,7 @@ func TestConcurrency(t *testing.T) {
 		go func() {
 			_, err := p.Create()
 			if err != nil {
-				if err != ErrPidLockFailed && err != ErrPidExists {
+				if !errors.Is(err, ErrPidLockFailed) && !errors.Is(err, ErrPidExists) {
 					t.Errorf("Unexcepted error: %s", err)
 				}
 			}

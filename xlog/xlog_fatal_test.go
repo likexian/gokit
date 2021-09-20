@@ -21,6 +21,7 @@ package xlog
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -46,7 +47,8 @@ func TestFatal(t *testing.T) {
 	cmd.Stderr = &stderr
 
 	err := cmd.Run()
-	if e, ok := err.(*exec.ExitError); ok && !e.Success() {
+	var exitError *exec.ExitError
+	if ok := errors.As(err, &exitError); ok && !exitError.Success() {
 		output := strings.TrimSpace(stderr.String())
 		if !strings.Contains(output, LogLine) {
 			t.Errorf("Test got %s, expect %s", output, LogLine)

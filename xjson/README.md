@@ -1,6 +1,6 @@
 # GoKit - xjson
 
-Json kits for Golang development.
+JSON kits for Golang development.
 
 ## Features
 
@@ -42,13 +42,13 @@ status := Status{1, "Success"}
 j := xjson.New(status)
 s, err := j.Dumps()
 if err == nil {
-    fmt.Println("Json text is:", s)
+    fmt.Println("JSON text is:", s)
 }
 
 // OR dumps using the easy way
 s, err := xjson.Dumps(status)
 if err == nil {
-    fmt.Println("Json text is:", s)
+    fmt.Println("JSON text is:", s)
 }
 ```
 
@@ -67,14 +67,14 @@ data := map[string]interface{}{
 // Dump to string in the easy way
 s, err := xjson.Dumps(status)
 if err == nil {
-    fmt.Println("Json text is:", s)
+    fmt.Println("JSON text is:", s)
 }
 ```
 
 ### Load the JSON string
 
 ```go
-// Json strig
+// JSON strig
 text := `{"Code": 1, "Message": "Success", "Result": {"Student": [{"Name": "Li Kexian"}]}}`
 
 // Load json string
