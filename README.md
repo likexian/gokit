@@ -1,10 +1,10 @@
 # GoKit
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![GoDoc](https://godoc.org/github.com/likexian/gokit?status.svg)](https://godoc.org/github.com/likexian/gokit)
-[![Build Status](https://travis-ci.org/likexian/gokit.svg?branch=master)](https://travis-ci.org/likexian/gokit)
+[![GoDoc](https://pkg.go.dev/badge/github.com/likexian/gokit.svg)](https://pkg.go.dev/github.com/likexian/gokit)
 [![Go Report Card](https://goreportcard.com/badge/github.com/likexian/gokit)](https://goreportcard.com/report/github.com/likexian/gokit)
-[![Code Cover](https://codecov.io/gh/likexian/gokit/graph/badge.svg)](https://codecov.io/gh/likexian/gokit)
+[![Build Status](https://github.com/likexian/gokit/actions/workflows/gotest.yaml/badge.svg)](https://github.com/likexian/gokit/actions/workflows/gotest.yaml)
+[![Code Cover](https://release.likexian.com/gokit/coverage.svg)](https://github.com/likexian/gokit/actions/workflows/gotest.yaml)
 
 A toolkit for Golang development.
 
@@ -24,7 +24,7 @@ import (
 
 ## Documentation
 
-Visit the docs on [GoDoc](https://godoc.org/github.com/likexian/gokit)
+Visit the docs on [GoDoc](https://pkg.go.dev/github.com/likexian/gokit)
 
 ## License
 
