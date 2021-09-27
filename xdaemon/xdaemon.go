@@ -37,7 +37,7 @@ type Config struct {
 
 // Version returns package version
 func Version() string {
-	return "0.7.1"
+	return "0.7.2"
 }
 
 // Author returns package author
@@ -101,7 +101,7 @@ func (c *Config) doDaemon() (err error) {
 
 	files := make([]*os.File, 3, 6)
 	if c.Log != "" {
-		fp, err := xfile.Append(c.Log)
+		fp, err := xfile.NewFile(c.Log, true)
 		if err != nil {
 			return err
 		}

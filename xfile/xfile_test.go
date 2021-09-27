@@ -159,7 +159,7 @@ func TestFile(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestNewAppend(t *testing.T) {
+func TestNewAndAppend(t *testing.T) {
 	defer os.RemoveAll("tmp")
 
 	testFile := "tmp/test.log"
@@ -181,12 +181,18 @@ func TestNewAppend(t *testing.T) {
 	assert.Equal(t, text, "1")
 
 	// test append mode
-	fd, err = Append(testFile)
+	fd, err = NewFile(testFile, true)
 	assert.Nil(t, err)
 	_, _ = fd.Write([]byte("1"))
 	text, err = ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "11")
+
+	err = AppendText(testFile, "1")
+	assert.Nil(t, err)
+	text, err = ReadText(testFile)
+	assert.Nil(t, err)
+	assert.Equal(t, text, "111")
 }
 
 func TestReadFirstLine(t *testing.T) {

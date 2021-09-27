@@ -42,7 +42,7 @@ var (
 	// ErrNotExists file is exists error
 	ErrNotExists = errors.New("xfile: file is not exists")
 	// ErrHasExists file is exists error
-	ErrHasExists = errors.New("xfile: file is exists")
+	ErrHasExists = errors.New("xfile: the file is exists")
 )
 
 // LsFile is list file info
@@ -54,7 +54,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.13.0"
+	return "0.14.0"
 }
 
 // Author returns package author
@@ -117,7 +117,7 @@ func MTime(fpath string) (int64, error) {
 	return f.ModTime().Unix(), nil
 }
 
-// Copy copy file and folder from src to dst
+// Copy copys file and folder from src to dst
 func Copy(src, dst string) error {
 	if src == "" {
 		src = "."
@@ -194,18 +194,13 @@ func Copy(src, dst string) error {
 	return os.Chmod(dst, f.Mode())
 }
 
-// New open a file for new and return fd
+// New opens a file for new and return fd
 func New(fpath string) (*os.File, error) {
-	return newFile(fpath, false)
+	return NewFile(fpath, false)
 }
 
-// Append open a file for append and return fd
-func Append(fpath string) (*os.File, error) {
-	return newFile(fpath, true)
-}
-
-// newFile open a file and return fd
-func newFile(fpath string, isAppend bool) (*os.File, error) {
+// NewFile opens a file and return fd
+func NewFile(fpath string, isAppend bool) (*os.File, error) {
 	dir, _ := filepath.Split(fpath)
 	if dir != "" && !IsDir(dir) {
 		err := os.MkdirAll(dir, 0755)
@@ -221,9 +216,29 @@ func newFile(fpath string, isAppend bool) (*os.File, error) {
 	return os.OpenFile(fpath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 }
 
-// Write write bytes data to file
+// WriteText writes string data to file
+func WriteText(fpath, text string) (err error) {
+	return Write(fpath, []byte(text))
+}
+
+// AppendText appends string data to file
+func AppendText(fpath, text string) (err error) {
+	return Append(fpath, []byte(text))
+}
+
+// Write writes bytes data to file
 func Write(fpath string, data []byte) (err error) {
-	fd, err := New(fpath)
+	return writeFile(fpath, data, false)
+}
+
+// Append appends bytes data to file
+func Append(fpath string, data []byte) (err error) {
+	return writeFile(fpath, data, true)
+}
+
+// writeFile writes bytes data to file
+func writeFile(fpath string, data []byte, isAppend bool) (err error) {
+	fd, err := NewFile(fpath, isAppend)
 	if err != nil {
 		return
 	}
@@ -238,11 +253,6 @@ func Write(fpath string, data []byte) (err error) {
 	}
 
 	return
-}
-
-// WriteText write text data to file
-func WriteText(fpath, text string) (err error) {
-	return Write(fpath, []byte(text))
 }
 
 // Read returns bytes of file
@@ -304,7 +314,7 @@ func ReadFirstLine(fpath string) (line string, err error) {
 	return
 }
 
-// ListDir list dir without recursion
+// ListDir lists dir without recursion
 func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 	if fpath == "" {
 		fpath = "."
@@ -347,7 +357,7 @@ func ListDir(fpath string, ftype, n int) (ls []LsFile, err error) {
 	return
 }
 
-// ListDirAll list dir and children, filter by type, returns up to n
+// ListDirAll lists dir and children, filter by type, returns up to n
 func ListDirAll(fpath string, ftype, n int) (ls []LsFile, err error) {
 	if fpath == "" {
 		fpath = "."
@@ -398,12 +408,12 @@ func ListDirAll(fpath string, ftype, n int) (ls []LsFile, err error) {
 	return
 }
 
-// Chmod chmod to path without recursion
+// Chmod chmods to path without recursion
 func Chmod(fpath string, mode os.FileMode) error {
 	return os.Chmod(fpath, mode)
 }
 
-// ChmodAll chmod to path and children, returns the first error it encounters
+// ChmodAll chmods to path and children, returns the first error it encounters
 func ChmodAll(root string, mode os.FileMode) error {
 	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -413,12 +423,12 @@ func ChmodAll(root string, mode os.FileMode) error {
 	})
 }
 
-// Chown chown to path without recursion
+// Chown chowns to path without recursion
 func Chown(fpath string, uid, gid int) error {
 	return os.Chown(fpath, uid, gid)
 }
 
-// ChownAll chown to path and children, returns the first error it encounters
+// ChownAll chowns to path and children, returns the first error it encounters
 func ChownAll(root string, uid, gid int) error {
 	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
 		if err != nil {
