@@ -27,6 +27,11 @@ import (
 	"github.com/likexian/gokit/assert"
 )
 
+const (
+	testDir  = "tmp"
+	testFile = "tmp/file"
+)
+
 func TestVersion(t *testing.T) {
 	assert.Contains(t, Version(), ".")
 	assert.Contains(t, Author(), "likexian")
@@ -34,135 +39,133 @@ func TestVersion(t *testing.T) {
 }
 
 func TestFile(t *testing.T) {
-	defer os.RemoveAll("tmp")
+	defer os.RemoveAll(testDir)
 
-	err := os.Mkdir("tmp", 0755)
+	err := os.Mkdir(testDir, 0755)
 	assert.Nil(t, err)
 
-	ok := Exists("tmp/dir")
+	ok := Exists(testDir + "/dir")
 	assert.False(t, ok, "file expect to be not exists")
 
-	err = os.Mkdir("tmp/dir", 0755)
+	err = os.Mkdir(testDir+"/dir", 0755)
 	assert.Nil(t, err)
 
-	ok = Exists("tmp/dir")
+	ok = Exists(testDir + "/dir")
 	assert.True(t, ok, "file expect to be exists")
 
-	ok = IsDir("tmp/dir")
+	ok = IsDir(testDir + "/dir")
 	assert.True(t, ok, "file expect to be dir")
 
-	ok = IsFile("tmp/dir")
+	ok = IsFile(testDir + "/dir")
 	assert.False(t, ok, "file expect to be not file")
 
-	ok = IsFile("tmp/file")
+	ok = IsFile(testDir + "/file")
 	assert.False(t, ok, "file expect to be not file")
 
-	_, err = New("tmp/dir/test/")
+	_, err = New(testDir + "/dir/test/")
 	assert.NotNil(t, err)
 
-	fd, err := New("tmp/file")
+	fd, err := New(testFile)
 	assert.Nil(t, err)
 	err = fd.Close()
 	assert.Nil(t, err)
 
-	_, err = New("tmp/file/test")
+	_, err = New(testFile + "/test")
 	assert.NotNil(t, err)
 
-	ok = IsFile("tmp/file")
+	ok = IsFile(testFile)
 	assert.True(t, ok, "file expect to be file")
 
-	err = Write("tmp/file", []byte("likexian"))
+	err = Write(testFile, []byte("likexian"))
 	assert.Nil(t, err)
 
-	err = Write("tmp/file/test", []byte("likexian"))
+	err = Write(testFile+"/test", []byte("likexian"))
 	assert.NotNil(t, err)
 
-	text, err := ReadText("tmp/file")
+	text, err := ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "likexian")
 
-	err = WriteText("tmp/file", "1\n2\n3\n4\n5")
+	err = WriteText(testFile, "1\n2\n3\n4\n5")
 	assert.Nil(t, err)
 
-	lines, err := ReadLines("tmp/file", 0)
+	lines, err := ReadLines(testFile, 0)
 	assert.Nil(t, err)
 	assert.Equal(t, len(lines), 5)
 
-	lines, err = ReadLines("tmp/file", 1)
+	lines, err = ReadLines(testFile, 1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(lines), 1)
 
-	_, err = ReadText("tmp/not-exists")
+	_, err = ReadText(testDir + "/not-exists")
 	assert.NotNil(t, err)
 
-	_, err = ReadLines("tmp/not-exists", 0)
+	_, err = ReadLines(testDir+"/not-exists", 0)
 	assert.NotNil(t, err)
 
-	err = WriteText("tmp/file", "likexian")
+	err = WriteText(testFile, "likexian")
 	assert.Nil(t, err)
 
-	text, err = ReadText("tmp/file")
+	text, err = ReadText(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, text, "likexian")
 
-	ok = IsFile("tmp/file")
+	ok = IsFile(testFile)
 	assert.True(t, ok, "file expect to be file")
 
-	ok = IsDir("tmp/file")
+	ok = IsDir(testFile)
 	assert.False(t, ok, "file expect to be not dir")
 
-	n, err := Size("tmp/file")
+	n, err := Size(testFile)
 	assert.Nil(t, err)
 	assert.Equal(t, n, int64(8))
 
-	m, err := MTime("tmp/file")
+	m, err := MTime(testFile)
 	assert.Nil(t, err)
 	assert.True(t, m > 0)
 
-	_, err = Size("tmp/not-exists")
+	_, err = Size(testDir + "/not-exists")
 	assert.NotNil(t, err)
 
-	_, err = MTime("tmp/not-exists")
+	_, err = MTime(testDir + "/not-exists")
 	assert.NotNil(t, err)
 
-	ok = IsSymlink("tmp/link")
+	ok = IsSymlink(testDir + "/link")
 	assert.False(t, ok, "file expect to be not expect")
 
-	err = os.Symlink("file", "tmp/link")
+	err = os.Symlink("file", testDir+"/link")
 	assert.Nil(t, err)
 
-	ok = IsSymlink("tmp/link")
+	ok = IsSymlink(testDir + "/link")
 	assert.True(t, ok, "file expect to be symbolic link")
 
-	ok = IsFile("tmp/link")
+	ok = IsFile(testDir + "/link")
 	assert.True(t, ok, "file expect to be file")
 
-	ok = IsDir("tmp/link")
+	ok = IsDir(testDir + "/link")
 	assert.False(t, ok, "file expect to be not dir")
 
-	err = Chmod("tmp", 0777)
+	err = Chmod(testDir, 0777)
 	assert.Nil(t, err)
 
-	err = ChmodAll("tmp", 0777)
+	err = ChmodAll(testDir, 0777)
 	assert.Nil(t, err)
 
-	err = Chown("tmp", 0, 0)
+	err = Chown(testDir, 0, 0)
 	assert.Nil(t, err)
 
-	err = ChownAll("tmp", 0, 0)
+	err = ChownAll(testDir, 0, 0)
 	assert.Nil(t, err)
 
-	err = ChmodAll("tmp/not-exists", 0777)
+	err = ChmodAll(testDir+"/not-exists", 0777)
 	assert.NotNil(t, err)
 
-	err = ChownAll("tmp/not-exists", 0, 0)
+	err = ChownAll(testDir+"/not-exists", 0, 0)
 	assert.NotNil(t, err)
 }
 
 func TestNewAndAppend(t *testing.T) {
-	defer os.RemoveAll("tmp")
-
-	testFile := "tmp/test.log"
+	defer os.RemoveAll(testDir)
 
 	// init test file
 	fd, err := New(testFile)
@@ -188,157 +191,205 @@ func TestNewAndAppend(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, text, "11")
 
+	// test write text
+	err = WriteText(testFile, "1")
+	assert.Nil(t, err)
+	text, err = ReadText(testFile)
+	assert.Nil(t, err)
+	assert.Equal(t, text, "1")
+
+	// test append text
 	err = AppendText(testFile, "1")
 	assert.Nil(t, err)
 	text, err = ReadText(testFile)
 	assert.Nil(t, err)
-	assert.Equal(t, text, "111")
+	assert.Equal(t, text, "11")
 }
 
 func TestReadFirstLine(t *testing.T) {
-	defer os.RemoveAll("tmp")
+	defer os.RemoveAll(testDir)
 
-	err := os.Mkdir("tmp", 0755)
+	err := os.Mkdir(testDir, 0755)
 	assert.Nil(t, err)
 
-	_, err = ReadFirstLine("tmp/file")
+	_, err = ReadFirstLine(testFile)
 	assert.NotNil(t, err)
 
-	err = WriteText("tmp/file", "1\n2\n3\n4\n5")
+	tests := []struct {
+		in  string
+		out string
+	}{
+		{"", ""},
+		{"\n", ""},
+		{"\n\n", ""},
+		{"\n\n\n", ""},
+		{"abc\ndef\nghi", "abc"},
+		{"\nabc\ndef\nghi", "abc"},
+		{"\n\nabc\ndef\nghi", "abc"},
+		{"\n\n\nabc\ndef\nghi", "abc"},
+	}
+
+	for _, v := range tests {
+		err = WriteText(testFile, v.in)
+		assert.Nil(t, err)
+		line, err := ReadFirstLine(testFile)
+		assert.Nil(t, err)
+		assert.Equal(t, line, v.out)
+	}
+}
+
+func TestReadLastLine(t *testing.T) {
+	defer os.RemoveAll(testDir)
+
+	err := os.Mkdir(testDir, 0755)
 	assert.Nil(t, err)
 
-	line, err := ReadFirstLine("tmp/file")
-	assert.Nil(t, err)
-	assert.Equal(t, line, "1")
+	_, err = ReadLastLine(testFile)
+	assert.NotNil(t, err)
 
-	err = WriteText("tmp/file", "\n\n\n\n\n")
-	assert.Nil(t, err)
+	tests := []struct {
+		in  string
+		out string
+	}{
+		{"", ""},
+		{"\n", ""},
+		{"\n\n", ""},
+		{"\n\n\n", ""},
+		{"abc\ndef\nghi", "ghi"},
+		{"abc\ndef\nghi\n", "ghi"},
+		{"abc\ndef\nghi\n\n", "ghi"},
+		{"abc\ndef\nghi\n\n\n", "ghi"},
+	}
 
-	line, err = ReadFirstLine("tmp/file")
-	assert.Nil(t, err)
-	assert.Equal(t, line, "")
+	for _, v := range tests {
+		err = WriteText(testFile, v.in)
+		assert.Nil(t, err)
+		line, err := ReadLastLine(testFile)
+		assert.Nil(t, err)
+		assert.Equal(t, line, v.out)
+	}
 }
 
 func TestListDir(t *testing.T) {
-	defer os.RemoveAll("tmp")
+	defer os.RemoveAll(testDir)
 
 	ls, err := ListDir("", TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 3)
 
-	ls, err = ListDir("tmp", TypeAll, -1)
+	ls, err = ListDir(testDir, TypeAll, -1)
 	assert.NotNil(t, err)
 	assert.Equal(t, len(ls), 0)
 
 	for i := 0; i < 10; i++ {
-		_ = WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
+		_ = WriteText(fmt.Sprintf("%s/%d.txt", testDir, i), ".")
 		for j := 0; j < 10; j++ {
-			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+			_ = WriteText(fmt.Sprintf("%s/%d/%d.txt", testDir, i, j), ".")
 		}
 	}
 
-	ls, err = ListDir("tmp", TypeAll, -1)
+	ls, err = ListDir(testDir, TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 20)
 
-	ls, err = ListDir("tmp", TypeDir, -1)
+	ls, err = ListDir(testDir, TypeDir, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 10)
 
-	ls, err = ListDir("tmp", TypeFile, -1)
+	ls, err = ListDir(testDir, TypeFile, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 10)
 
-	ls, err = ListDir("tmp", TypeAll, 5)
+	ls, err = ListDir(testDir, TypeAll, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDir("tmp", TypeDir, 5)
+	ls, err = ListDir(testDir, TypeDir, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDir("tmp", TypeFile, 5)
+	ls, err = ListDir(testDir, TypeFile, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 }
 
 func TestListDirAll(t *testing.T) {
-	defer os.RemoveAll("tmp")
+	defer os.RemoveAll(testDir)
 
 	ls, err := ListDirAll("", TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 3)
 
-	ls, err = ListDirAll("tmp", TypeAll, -1)
+	ls, err = ListDirAll(testDir, TypeAll, -1)
 	assert.NotNil(t, err)
 	assert.Equal(t, len(ls), 0)
 
 	for i := 0; i < 10; i++ {
-		_ = WriteText(fmt.Sprintf("tmp/%d.txt", i), ".")
+		_ = WriteText(fmt.Sprintf("%s/%d.txt", testDir, i), ".")
 		for j := 0; j < 10; j++ {
-			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), ".")
+			_ = WriteText(fmt.Sprintf("%s/%d/%d.txt", testDir, i, j), ".")
 		}
 	}
 
-	ls, err = ListDirAll("tmp", TypeAll, -1)
+	ls, err = ListDirAll(testDir, TypeAll, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 120)
 
-	ls, err = ListDirAll("tmp", TypeDir, -1)
+	ls, err = ListDirAll(testDir, TypeDir, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 10)
 
-	ls, err = ListDirAll("tmp", TypeFile, -1)
+	ls, err = ListDirAll(testDir, TypeFile, -1)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 110)
 
-	ls, err = ListDirAll("tmp", TypeAll, 5)
+	ls, err = ListDirAll(testDir, TypeAll, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDirAll("tmp", TypeDir, 5)
+	ls, err = ListDirAll(testDir, TypeDir, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 
-	ls, err = ListDirAll("tmp", TypeFile, 5)
+	ls, err = ListDirAll(testDir, TypeFile, 5)
 	assert.Nil(t, err)
 	assert.Equal(t, len(ls), 5)
 }
 
 func TestCopy(t *testing.T) {
-	defer os.RemoveAll("tmp")
+	defer os.RemoveAll(testDir)
 
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			_ = WriteText(fmt.Sprintf("tmp/%d/%d.txt", i, j), fmt.Sprintf("%d", i+j))
+			_ = WriteText(fmt.Sprintf("%s/%d/%d.txt", testDir, i, j), fmt.Sprintf("%d", i+j))
 		}
 	}
 
-	_ = os.Symlink("tmp/0", "tmp/100")
+	_ = os.Symlink(testDir+"/0", testDir+"/100")
 
 	err := Copy("", "")
 	assert.Equal(t, err, ErrHasExists)
 
-	err = Copy("tmp/0", "tmp/1")
+	err = Copy(testDir+"/0", testDir+"/1")
 	assert.Equal(t, err, ErrHasExists)
 
-	err = Copy("tmp/10", "tmp/11")
+	err = Copy(testDir+"/10", testDir+"/11")
 	assert.NotNil(t, err)
 
-	err = Copy("tmp/100", "tmp/101")
+	err = Copy(testDir+"/100", testDir+"/101")
 	assert.Nil(t, err)
-	assert.True(t, Lexists("tmp/101"))
+	assert.True(t, Lexists(testDir+"/101"))
 
-	err = Copy("tmp/0/0.txt", "tmp/0/10.txt")
+	err = Copy(testDir+"/0/0.txt", testDir+"/0/10.txt")
 	assert.Nil(t, err)
-	assert.True(t, Exists("tmp/0/10.txt"))
+	assert.True(t, Exists(testDir+"/0/10.txt"))
 
-	err = Copy("tmp/0", "tmp/102")
+	err = Copy(testDir+"/0", testDir+"/102")
 	assert.Nil(t, err)
-	assert.True(t, Exists("tmp/102"))
-	ls, err := ListDir("tmp/0", TypeAll, -1)
+	assert.True(t, Exists(testDir+"/102"))
+	ls, err := ListDir(testDir+"/0", TypeAll, -1)
 	assert.Nil(t, err)
 	for _, v := range ls {
-		assert.True(t, Exists("tmp/102/"+v.Name))
+		assert.True(t, Exists(testDir+"/102/"+v.Name))
 	}
 }

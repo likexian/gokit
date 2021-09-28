@@ -54,7 +54,7 @@ type LsFile struct {
 
 // Version returns package version
 func Version() string {
-	return "0.14.0"
+	return "0.15.0"
 }
 
 // Author returns package author
@@ -312,6 +312,58 @@ func ReadFirstLine(fpath string) (line string, err error) {
 	err = scanner.Err()
 
 	return
+}
+
+// ReadLastLine returns last NOT empty line
+func ReadLastLine(fpath string) (line string, err error) {
+	fd, err := os.Open(fpath)
+	if err != nil {
+		return
+	}
+
+	defer fd.Close()
+
+	stat, err := fd.Stat()
+	if err != nil {
+		return
+	}
+
+	size := stat.Size()
+	if size == 0 {
+		return
+	}
+
+	var cursor int64
+	data := make([]byte, 0)
+
+	for {
+		cursor--
+		_, err = fd.Seek(cursor, io.SeekEnd)
+		if err != nil {
+			return
+		}
+
+		buf := make([]byte, 1)
+		_, err = fd.Read(buf)
+		if err != nil {
+			return
+		}
+
+		if buf[0] != '\r' && buf[0] != '\n' {
+			data = append([]byte{buf[0]}, data...)
+		} else {
+			if cursor != -1 && strings.TrimSpace(string(data)) != "" {
+				break
+			}
+			data = make([]byte, 0)
+		}
+
+		if cursor == -size {
+			break
+		}
+	}
+
+	return string(data), nil
 }
 
 // ListDir lists dir without recursion
