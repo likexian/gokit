@@ -26,6 +26,9 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -257,14 +260,15 @@ func ToSnake(s string) string {
 
 // ToCamel returns camel case of string
 func ToCamel(s string) string {
-	s = strings.Replace(s, "_", " ", -1)
-
 	var result string
+	caser := cases.Title(language.Und)
+
+	s = strings.Replace(s, "_", " ", -1)
 	for _, v := range strings.Split(s, " ") {
 		if _, ok := initialisms[v]; ok {
 			result += strings.ToUpper(v)
 		} else {
-			result += strings.Title(v)
+			result += caser.String(v)
 		}
 	}
 

@@ -239,7 +239,7 @@ func TestSnakeCamel(t *testing.T) {
 		{"中国人", "中国人"},
 		{"X中国人", "x中国人"},
 		{"XiX中国人", "xi_x中国人"},
-		{"Xab中cYd国efZg人hi", "xab中c_yd国ef_zg人hi"},
+		{"Xab中CYd国EfZg人Hi", "xab中c_yd国_ef_zg人_hi"},
 	}
 
 	for _, v := range tests {
