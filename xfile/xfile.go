@@ -23,7 +23,6 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -257,7 +256,7 @@ func writeFile(fpath string, data []byte, isAppend bool) (err error) {
 
 // Read returns bytes of file
 func Read(fpath string) ([]byte, error) {
-	return ioutil.ReadFile(fpath)
+	return os.ReadFile(fpath)
 }
 
 // ReadText returns text of file

@@ -22,7 +22,6 @@ package xhttp
 import (
 	"compress/gzip"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"sync"
@@ -31,7 +30,7 @@ import (
 // gzPool is gzip writer pool
 var gzPool = sync.Pool{
 	New: func() interface{} {
-		return gzip.NewWriter(ioutil.Discard)
+		return gzip.NewWriter(io.Discard)
 	},
 }
 
@@ -68,7 +67,7 @@ func GzWrap(next http.Handler) http.Handler {
 
 		gz := gzPool.Get().(*gzip.Writer)
 		defer func() {
-			gz.Reset(ioutil.Discard)
+			gz.Reset(io.Discard)
 			gzPool.Put(gz)
 		}()
 

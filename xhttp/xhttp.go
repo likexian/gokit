@@ -25,7 +25,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -601,13 +600,13 @@ func (r *Request) Do(ctx context.Context, //nolint:cyclop
 				pw.Close()
 			}()
 			r.SetHeader("Content-Type", bw.FormDataContentType())
-			r.Request.Body = ioutil.NopCloser(pr)
+			r.Request.Body = io.NopCloser(pr)
 		} else {
 			if !formParam.IsEmpty() {
 				formBody += formParam.Encode()
 			}
 			if formBody != "" {
-				r.Request.Body = ioutil.NopCloser(bytes.NewReader([]byte(formBody)))
+				r.Request.Body = io.NopCloser(bytes.NewReader([]byte(formBody)))
 				r.Request.ContentLength = int64(len(formBody))
 				if r.Request.Header.Get("Content-Type") == "" {
 					r.Request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -778,11 +777,11 @@ func (r *Response) Bytes() (b []byte, err error) {
 		r.Tracing.RecvTime = xtime.Ms() - startAt
 	}()
 
-	b, err = ioutil.ReadAll(r.Response.Body)
+	b, err = io.ReadAll(r.Response.Body)
 	r.Response.Body.Close()
 
 	if r.CacheKey != "" {
-		r.Response.Body = ioutil.NopCloser(bytes.NewBuffer(b))
+		r.Response.Body = io.NopCloser(bytes.NewBuffer(b))
 	}
 
 	return

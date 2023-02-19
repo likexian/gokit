@@ -23,8 +23,8 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/base64"
-	"io/ioutil"
 	"net/smtp"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -137,7 +137,7 @@ func (m *Message) Content(subject, body string) error {
 
 // Attach add a attachment
 func (m *Message) Attach(fname string) (err error) {
-	data, err := ioutil.ReadFile(fname)
+	data, err := os.ReadFile(fname)
 	if err != nil {
 		return
 	}

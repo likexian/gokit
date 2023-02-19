@@ -125,7 +125,7 @@ func MustParse(s string) Rule {
 // Parse parse single cron rule
 // Base on https://en.wikipedia.org/wiki/Cron and extensed
 // Fields: second minute hour dayOfMonth month dayOfWeek
-//         *      *      *    *          *     *
+//   - *      *    *          *     *
 func Parse(s string) (r Rule, err error) {
 	r = Rule{
 		[]int{},

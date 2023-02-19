@@ -218,8 +218,9 @@ func Expand(s string, m map[string]interface{}) string {
 }
 
 // LastInIndex find last position at first index
-//   for example, LastInIndex("{{{{{{{{{{name}", "{")
-//                                      ↑
+//
+//	for example, LastInIndex("{{{{{{{{{{name}", "{")
+//	                                   ↑
 func LastInIndex(s, f string) int {
 	i := strings.Index(s, f)
 	if i < 0 {

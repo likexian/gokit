@@ -72,9 +72,10 @@ func License() string {
 }
 
 // New returns a pointer to a new JSON object
-//   data_json := New()
-//   data_json := New(type Data struct{data string}{"zzz"})
-//   data_json := New(map[string]interface{}{"iam": "Li Kexian"})
+//
+//	data_json := New()
+//	data_json := New(type Data struct{data string}{"zzz"})
+//	data_json := New(map[string]interface{}{"iam": "Li Kexian"})
 func New(args ...interface{}) *JSON {
 	switch len(args) {
 	case 1:
@@ -180,9 +181,10 @@ func (j *JSON) SetHTMLEscape(escape bool) {
 }
 
 // Set set key-value to json object, dot(.) separated key is supported
-//   json.Set("status", 1)
-//   json.Set("status.code", 1)
-//   ! NOT SUPPORTED json.Set("result.intlist.3", 666)
+//
+//	json.Set("status", 1)
+//	json.Set("status.code", 1)
+//	! NOT SUPPORTED json.Set("result.intlist.3", 666)
 func (j *JSON) Set(key string, value interface{}) {
 	key = strings.TrimSpace(key)
 	if key == "" {
@@ -210,9 +212,10 @@ func (j *JSON) Set(key string, value interface{}) {
 }
 
 // Del delete key-value from json object, dot(.) separated key is supported
-//   json.Del("status")
-//   json.Del("status.code")
-//   ! NOT SUPPORTED json.Del("result.intlist.3")
+//
+//	json.Del("status")
+//	json.Del("status.code")
+//	! NOT SUPPORTED json.Del("result.intlist.3")
 func (j *JSON) Del(key string) {
 	result, err := j.Map()
 	if err != nil {
@@ -238,9 +241,10 @@ func (j *JSON) Del(key string) {
 }
 
 // Has check json object has key, dot(.) separated key is supported
-//   json.Has("status")
-//   json.Has("status.code")
-//   json.Has("result.intlist.3")
+//
+//	json.Has("status")
+//	json.Has("status.code")
+//	json.Has("result.intlist.3")
 func (j *JSON) Has(key string) bool {
 	result := j
 
@@ -282,9 +286,10 @@ func (j *JSON) Has(key string) bool {
 }
 
 // Get returns the pointer to json object by key, dot(.) separated key is supported
-//   json.Get("status").Int()
-//   json.Get("status.code").Int()
-//   json.Get("result.intlist.3").Int()
+//
+//	json.Get("status").Int()
+//	json.Get("status.code").Int()
+//	json.Get("result.intlist.3").Int()
 func (j *JSON) Get(key string) *JSON {
 	result := j
 
@@ -317,7 +322,8 @@ func (j *JSON) Get(key string) *JSON {
 }
 
 // Index returns a pointer to the index of json object
-//   json.Get("int_list").Index(1).Int()
+//
+//	json.Get("int_list").Index(1).Int()
 func (j *JSON) Index(i int) *JSON {
 	data, err := j.Array()
 	if err == nil {
@@ -428,8 +434,9 @@ func (j *JSON) StringArray() (result []string, err error) {
 // Time returns as time.Time from json object
 // optional args is to set the time string parsing format, time.RFC3339 by default
 // if the time is of int, optional args must not set
-//   json.Time()
-//   json.Time("2006-01-02 15:04:05")
+//
+//	json.Time()
+//	json.Time("2006-01-02 15:04:05")
 func (j *JSON) Time(args ...string) (result time.Time, err error) {
 	switch j.data.(type) {
 	case string:
@@ -615,10 +622,11 @@ func (j *JSON) MustStringArray(args ...[]string) []string {
 
 // MustTime returns as time.Time from json object
 // if error return default(if set) or panic
-//   json.Time()                                                 // No format,  No default
-//   json.Time("2006-01-02 15:04:05")                            // Has format, No default
-//   json.Time(time.Unix(1548907870, 0))                         // No format,  Has default
-//   json.Time("2006-01-02 15:04:05", time.Unix(1548907870, 0))  // Has format, Has default
+//
+//	json.Time()                                                 // No format,  No default
+//	json.Time("2006-01-02 15:04:05")                            // Has format, No default
+//	json.Time(time.Unix(1548907870, 0))                         // No format,  Has default
+//	json.Time("2006-01-02 15:04:05", time.Unix(1548907870, 0))  // Has format, Has default
 func (j *JSON) MustTime(args ...interface{}) time.Time {
 	if len(args) > 2 {
 		panic(ErrTooManyArguments)

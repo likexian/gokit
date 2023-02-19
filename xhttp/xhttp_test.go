@@ -23,7 +23,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -1047,7 +1047,7 @@ func ServerForTesting(listen string) string {
 				URL:     fmt.Sprintf("http://%s%s", r.Host, r.URL.String()),
 			}
 			if r.Header.Get("Content-Type") == "application/json" {
-				body, _ := ioutil.ReadAll(r.Body)
+				body, _ := io.ReadAll(r.Body)
 				json, _ := xjson.Loads(string(body))
 				result.JSON, _ = json.Map()
 			} else {
@@ -1060,7 +1060,7 @@ func ServerForTesting(listen string) string {
 						for _, f := range v {
 							fd, err := f.Open()
 							if err == nil {
-								ss, _ := ioutil.ReadAll(fd)
+								ss, _ := io.ReadAll(fd)
 								result.File[k] = string(ss)
 							}
 						}
