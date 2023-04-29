@@ -29,7 +29,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.1.0"
+	return "0.2.0"
 }
 
 // Author returns package author
@@ -48,9 +48,9 @@ func Int(max int) int {
 		return 0
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	seed := rand.NewSource(time.Now().UnixNano())
 
-	return rand.Intn(max)
+	return rand.New(seed).Intn(max)
 }
 
 // IntRange returns random int in [min, max)

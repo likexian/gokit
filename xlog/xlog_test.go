@@ -34,7 +34,7 @@ func TestVersion(t *testing.T) {
 	assert.Contains(t, License(), "Apache License")
 }
 
-func TestLogger(t *testing.T) {
+func TestLogger(_ *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 	log.Info("Now setting level to Debug")
@@ -73,7 +73,7 @@ func TestLogger(t *testing.T) {
 	log.Info("Log after closed")
 }
 
-func TestLogOnce(t *testing.T) {
+func TestLogOnce(_ *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 
@@ -98,7 +98,7 @@ func TestLogOnce(t *testing.T) {
 	log.Close()
 }
 
-func TestFlag(t *testing.T) {
+func TestFlag(_ *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 
@@ -135,7 +135,7 @@ func TestFlag(t *testing.T) {
 	log.Close()
 }
 
-func TestConcurrency(t *testing.T) {
+func TestConcurrency(_ *testing.T) {
 	// log to stderr
 	log := New(os.Stderr, DEBUG)
 	for i := 0; i < 10; i++ {

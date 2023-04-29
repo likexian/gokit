@@ -22,13 +22,14 @@ package xslice
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"reflect"
+
+	"github.com/likexian/gokit/xrand"
 )
 
 // Version returns package version
 func Version() string {
-	return "0.22.0"
+	return "0.23.0"
 }
 
 // Author returns package author
@@ -209,7 +210,7 @@ func Shuffle(v interface{}) {
 
 	swap := reflect.Swapper(v)
 	for i := vv.Len() - 1; i >= 1; i-- {
-		j := rand.Intn(i + 1)
+		j := xrand.Int(i + 1)
 		swap(i, j)
 	}
 }

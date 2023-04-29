@@ -158,14 +158,13 @@ func Comma(n float64, precision int) string {
 	for {
 		if len(si) == 0 {
 			break
-		} else {
-			start := len(si) - 3
-			if start < 0 {
-				start = 0
-			}
-			ss = append([]string{si[start:]}, ss...)
-			si = si[:start]
 		}
+		start := len(si) - 3
+		if start < 0 {
+			start = 0
+		}
+		ss = append([]string{si[start:]}, ss...)
+		si = si[:start]
 	}
 
 	s = sc + strings.Join(ss, ",")
