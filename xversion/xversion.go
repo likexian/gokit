@@ -114,7 +114,7 @@ func (req *CheckUpdateRequest) Run(ctx context.Context) (rsp *CheckUpdateRespons
 	}
 
 	if httpRsp.StatusCode != http.StatusOK {
-		return rsp, fmt.Errorf("xversion: bas status code: %d", httpRsp.StatusCode)
+		return rsp, fmt.Errorf("xversion: bad status code: %d", httpRsp.StatusCode)
 	}
 
 	data, err := httpRsp.Bytes()
