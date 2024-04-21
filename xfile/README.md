@@ -43,7 +43,7 @@ if err != nil {
 ### write text to file
 
 ```go
-err := xfile.WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2012-2023 Li Kexian\n")
+err := xfile.WriteText("/tmp/not-exists-dir/LICENSE", "Copyright 2012-2024 Li Kexian\n")
 if err != nil {
     panic(err)
 } else {
@@ -53,7 +53,7 @@ if err != nil {
 
 ## License
 
-Copyright 2012-2023 [Li Kexian](https://www.likexian.com/)
+Copyright 2012-2024 [Li Kexian](https://www.likexian.com/)
 
 Licensed under the Apache License 2.0
 

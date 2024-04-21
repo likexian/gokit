@@ -85,7 +85,7 @@ b := assert.If(a == 1, true, false)
 
 ## License
 
-Copyright 2012-2023 [Li Kexian](https://www.likexian.com/)
+Copyright 2012-2024 [Li Kexian](https://www.likexian.com/)
 
 Licensed under the Apache License 2.0
 

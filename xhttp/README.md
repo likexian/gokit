@@ -128,7 +128,7 @@ for i := 0; i < 100; i++ {
 
 ## License
 
-Copyright 2012-2023 [Li Kexian](https://www.likexian.com/)
+Copyright 2012-2024 [Li Kexian](https://www.likexian.com/)
 
 Licensed under the Apache License 2.0
 
