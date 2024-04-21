@@ -96,10 +96,10 @@ func ServerForTesting() string {
 	listen := "127.0.0.1:8080"
 
 	go func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {})
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { _, _ = w, r })
 		http.HandleFunc("/update/nofound",
-			func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNotFound) })
-		http.HandleFunc("/update/check", func(w http.ResponseWriter, r *http.Request) {
+			func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNotFound) })
+		http.HandleFunc("/update/check", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			text, _ := xjson.Dumps(checkCacheRsp)
 			fmt.Fprint(w, text)

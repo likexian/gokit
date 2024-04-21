@@ -101,7 +101,10 @@ func TestHTTPStatus(t *testing.T) {
 			}
 			w.WriteHeader(s)
 		})
-		_ = http.ListenAndServe("127.0.0.1:6666", nil)
+		err := http.ListenAndServe("127.0.0.1:6666", nil)
+		if err != nil {
+			panic(err)
+		}
 	}()
 
 	req := xhttp.New()
@@ -116,7 +119,10 @@ func TestHTTPStatus(t *testing.T) {
 		ctx := context.Background()
 		rsp, err := xhttp.New().Get(ctx, fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
 		if err != nil {
-			return 0
+			rsp, err = xhttp.New().Get(ctx, fmt.Sprintf("http://127.0.0.1:6666/status/%d", t.(int)))
+			if err != nil {
+				return 0
+			}
 		}
 
 		defer rsp.Close()

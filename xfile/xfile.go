@@ -170,20 +170,22 @@ func Copy(src, dst string) error {
 			return err
 		}
 		return os.Chmod(dst, f.Mode())
-	} else {
-		fd, err := os.Open(src)
-		if err != nil {
-			return err
-		}
-		defer fd.Close()
-		td, err := New(dst)
-		if err != nil {
-			return err
-		}
-		defer td.Close()
-		if _, err = io.Copy(td, fd); err != nil {
-			return err
-		}
+	}
+
+	fd, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+
+	defer fd.Close()
+	td, err := New(dst)
+	if err != nil {
+		return err
+	}
+
+	defer td.Close()
+	if _, err = io.Copy(td, fd); err != nil {
+		return err
 	}
 
 	if err = os.Chtimes(dst, f.ModTime(), f.ModTime()); err != nil {
@@ -466,7 +468,7 @@ func Chmod(fpath string, mode os.FileMode) error {
 
 // ChmodAll chmods to path and children, returns the first error it encounters
 func ChmodAll(root string, mode os.FileMode) error {
-	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
+	return filepath.Walk(root, func(fpath string, _ os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -481,7 +483,7 @@ func Chown(fpath string, uid, gid int) error {
 
 // ChownAll chowns to path and children, returns the first error it encounters
 func ChownAll(root string, uid, gid int) error {
-	return filepath.Walk(root, func(fpath string, info os.FileInfo, err error) error {
+	return filepath.Walk(root, func(fpath string, _ os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}

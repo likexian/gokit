@@ -39,7 +39,7 @@ import (
 )
 
 var (
-	LOCALURL = ServerForTesting("6666")
+	LOCALURL = ServerForTesting("6688")
 )
 
 func TestVersion(t *testing.T) {
@@ -497,7 +497,7 @@ func TestSetTimeout(t *testing.T) {
 }
 
 func TestSetProxy(t *testing.T) {
-	req := New().SetProxy(func(req *http.Request) (*url.URL, error) {
+	req := New().SetProxy(func(_ *http.Request) (*url.URL, error) {
 		return url.ParseRequestURI("http://127.0.0.1:8080")
 	})
 	ctx := context.Background()
@@ -782,7 +782,7 @@ func TestSetRetries(t *testing.T) {
 	// start http server after 3 second, then request shall success
 	go func() {
 		time.AfterFunc(100*time.Millisecond, func() {
-			http.HandleFunc("/after3/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "Hello!") })
+			http.HandleFunc("/after3/", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprintf(w, "Hello!") })
 			_ = http.ListenAndServe("127.0.0.1:5555", nil)
 		})
 	}()
@@ -1003,7 +1003,7 @@ func ServerForTesting(listen string) string {
 	}
 
 	go func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			fmt.Fprintf(w, `<!DOCTYPE html><html><head><meta charset="UTF-8">`+
 				`<title>HTTP Server For Testing</title></head><body>Hello Testing!</body></html>`)
@@ -1070,13 +1070,13 @@ func ServerForTesting(listen string) string {
 			text, _ := xjson.Dumps(result)
 			fmt.Fprint(w, text)
 		})
-		http.HandleFunc("/put", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/put", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 		})
-		http.HandleFunc("/patch", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/patch", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 		})
-		http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/delete", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 		})
 		http.HandleFunc("/cookies", func(w http.ResponseWriter, r *http.Request) {
@@ -1135,10 +1135,10 @@ func ServerForTesting(listen string) string {
 			}
 			w.WriteHeader(s)
 		})
-		http.HandleFunc("/time", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/time", func(w http.ResponseWriter, _ *http.Request) {
 			fmt.Fprintf(w, "%d", time.Now().UnixNano())
 		})
-		http.HandleFunc("/sleep", func(w http.ResponseWriter, r *http.Request) {
+		http.HandleFunc("/sleep", func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			time.Sleep(1 * time.Second)
 		})

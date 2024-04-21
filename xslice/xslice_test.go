@@ -401,18 +401,20 @@ func TestShuffle(t *testing.T) {
 		in  interface{}
 		out interface{}
 	}{
-		{[]int{0, 1, 2, 3, 4}, []int{0, 1, 2, 3, 4}},
-		{[]int8{0, 1, 2, 3, 4}, []int8{0, 1, 2, 3, 4}},
-		{[]int16{0, 1, 2, 3, 4}, []int16{0, 1, 2, 3, 4}},
-		{[]int32{0, 1, 2, 3, 4}, []int32{0, 1, 2, 3, 4}},
-		{[]int64{0, 1, 2, 3, 4}, []int64{0, 1, 2, 3, 4}},
-		{[]float32{0, 1, 2, 3, 4}, []float32{0, 1, 2, 3, 4}},
-		{[]float64{0, 1, 2, 3, 4}, []float64{0, 1, 2, 3, 4}},
-		{[]string{"a", "b", "c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
-		{[]bool{true, false, false, true, true}, []bool{true, false, false, true, true}},
-		{[]interface{}{0, 1, 2, "3", 3}, []interface{}{0, 1, 2, "3", 3}},
-		{[]interface{}{[]int{0, 1}, []int{1, 2}, []int{1, 2}}, []interface{}{[]int{0, 1}, []int{1, 2}, []int{1, 2}}},
-		{[]interface{}{a{0, 1}, a{1, 2}, b{0, 1}}, []interface{}{a{0, 1}, a{1, 2}, b{0, 1}}},
+		{[]int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]int8{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []int8{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]int16{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []int16{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]float32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []float32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]float64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, []float64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}},
+		{[]string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}},
+		{[]bool{true, false, false, true, true, false, false}, []bool{true, false, false, true, true, false, false}},
+		{[]interface{}{0, 1, 2, "3", 3, "4", 5, 6, 7, 8}, []interface{}{0, 1, 2, "3", 3, "4", 5, 6, 7, 8}},
+		{[]interface{}{[]int{0, 1}, []int{1, 2}, []int{2, 3}, []int{3, 4}},
+			[]interface{}{[]int{0, 1}, []int{1, 2}, []int{2, 3}, []int{3, 4}}},
+		{[]interface{}{a{0, 1}, a{1, 2}, b{2, 3}, b{4, 5}, b{6, 7}},
+			[]interface{}{a{0, 1}, a{1, 2}, b{2, 3}, b{4, 5}, b{6, 7}}},
 	}
 
 	for _, v := range tests {
@@ -533,7 +535,7 @@ func TestFilter(t *testing.T) {
 		{[]int{1}, nil, nil},
 		{[]int{1}, 1, nil},
 		{[]int{1}, func() {}, nil},
-		{[]int{1}, func(v int) {}, nil},
+		{[]int{1}, func(v int) { _ = v }, nil},
 		{[]int{1}, func(v int) int { return v }, nil},
 	}
 
@@ -569,7 +571,7 @@ func TestMap(t *testing.T) {
 		{[]int{1}, nil, nil},
 		{[]int{1}, 1, nil},
 		{[]int{1}, func() {}, nil},
-		{[]int{1}, func(v int) {}, nil},
+		{[]int{1}, func(v int) { _ = v }, nil},
 	}
 
 	for _, v := range tests {
@@ -606,11 +608,11 @@ func TestReduce(t *testing.T) {
 		{[]int{0, 1}, nil, nil},
 		{[]int{0, 1}, 1, nil},
 		{[]int{0, 1}, func() {}, nil},
-		{[]int{0, 1}, func(x int) {}, nil},
-		{[]int{0, 1}, func(x, y int) {}, nil},
-		{[]int{0, 1}, func(x bool, y int) int { return y }, nil},
-		{[]int{0, 1}, func(x int, y bool) int { return x }, nil},
-		{[]int{0, 1}, func(x int, y int) bool { return true }, nil},
+		{[]int{0, 1}, func(x int) { _ = x }, nil},
+		{[]int{0, 1}, func(x, y int) { _, _ = x, y }, nil},
+		{[]int{0, 1}, func(x bool, y int) int { _ = x; return y }, nil},
+		{[]int{0, 1}, func(x int, y bool) int { _ = y; return x }, nil},
+		{[]int{0, 1}, func(x int, y int) bool { _, _ = x, y; return true }, nil},
 	}
 
 	for _, v := range tests {
