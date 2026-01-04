@@ -77,7 +77,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.6.0"
+	return "0.6.1"
 }
 
 // Author returns package author
@@ -264,7 +264,7 @@ func ToCamel(s string) string {
 	var result string
 	caser := cases.Title(language.Und)
 
-	s = strings.Replace(s, "_", " ", -1)
+	s = strings.ReplaceAll(s, "_", " ")
 	for _, v := range strings.Split(s, " ") {
 		if _, ok := initialisms[v]; ok {
 			result += strings.ToUpper(v)

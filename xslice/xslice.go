@@ -29,7 +29,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.23.0"
+	return "0.23.1"
 }
 
 // Author returns package author
@@ -376,7 +376,7 @@ func CheckIsFunc(fn interface{}, n ...int) error {
 
 	ft := reflect.TypeOf(fn)
 	if ft.Kind() != reflect.Func {
-		return fmt.Errorf("fn excepted to be a function but got " + ft.Kind().String())
+		return fmt.Errorf("fn excepted to be a function but got %s", ft.Kind().String())
 	}
 
 	if len(n) >= 1 && n[0] != ft.NumIn() {

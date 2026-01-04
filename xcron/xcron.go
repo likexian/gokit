@@ -99,7 +99,7 @@ type Service struct {
 
 // Version returns package version
 func Version() string {
-	return "0.7.0"
+	return "0.7.1"
 }
 
 // Author returns package author
@@ -351,7 +351,7 @@ func (r *Rule) parseField(s string, t int) (err error) {
 }
 
 // getRange get int array from string range, for example 3, 0-23, */3
-func getRange(s string, t, min, max int) ([]int, error) {
+func getRange(s string, t, from, to int) ([]int, error) {
 	r := []int{}
 
 	if s == "*" {
@@ -373,8 +373,8 @@ func getRange(s string, t, min, max int) ([]int, error) {
 			sr = sl
 			sl = st
 		}
-		if sl < min || sr > max {
-			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, min, max)
+		if sl < from || sr > to {
+			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, from, to)
 		}
 		for i := sl; i <= sr; i++ {
 			r = append(r, i)
@@ -385,10 +385,10 @@ func getRange(s string, t, min, max int) ([]int, error) {
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", ss[1])
 		}
-		if sr < min || sr > max {
-			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, min, max)
+		if sr < from || sr > to {
+			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, from, to)
 		}
-		for i := min; i <= max; i++ {
+		for i := from; i <= to; i++ {
 			if i%sr == 0 {
 				r = append(r, i)
 			}
@@ -398,8 +398,8 @@ func getRange(s string, t, min, max int) ([]int, error) {
 		if err != nil {
 			return r, fmt.Errorf("xcron: unrecognized charset: %s", s)
 		}
-		if sr < min || sr > max {
-			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, min, max)
+		if sr < from || sr > to {
+			return r, fmt.Errorf("xcron: %d is not in [%d, %d]", sr, from, to)
 		}
 		r = append(r, sr)
 	}
@@ -408,7 +408,7 @@ func getRange(s string, t, min, max int) ([]int, error) {
 }
 
 // getField get int array from string fields, for example 0,1,2
-func getField(s string, t, min, max int) ([]int, error) {
+func getField(s string, t, from, to int) ([]int, error) {
 	r := []int{}
 
 	for _, v := range strings.Split(s, ",") {
@@ -418,8 +418,8 @@ func getField(s string, t, min, max int) ([]int, error) {
 			if err != nil {
 				return r, fmt.Errorf("xcron: unrecognized charset: %s", v)
 			}
-			if vv < min || vv > max {
-				return r, fmt.Errorf("xcron: %d is not in [%d, %d]", vv, min, max)
+			if vv < from || vv > to {
+				return r, fmt.Errorf("xcron: %d is not in [%d, %d]", vv, from, to)
 			}
 			r = append(r, vv)
 		}

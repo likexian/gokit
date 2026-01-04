@@ -29,7 +29,7 @@ import (
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.2.1"
 }
 
 // Author returns package author
@@ -43,23 +43,23 @@ func License() string {
 }
 
 // Int returns random int in [0, max)
-func Int(max int) int {
-	if max <= 0 {
+func Int(iMax int) int {
+	if iMax <= 0 {
 		return 0
 	}
 
 	seed := rand.NewSource(time.Now().UnixNano())
 
-	return rand.New(seed).Intn(max)
+	return rand.New(seed).Intn(iMax)
 }
 
 // IntRange returns random int in [min, max)
-func IntRange(min, max int) int {
-	if min > max {
-		min, max = max, min
+func IntRange(from, to int) int {
+	if from > to {
+		from, to = to, from
 	}
 
-	return Int(max-min) + min
+	return Int(to-from) + from
 }
 
 // String returns n random string from 0-9,a-z,A-Z

@@ -990,7 +990,7 @@ func ServerForTesting(listen string) string {
 	defaultListenIP := "127.0.0.1"
 	defaultListenPort := "8080"
 
-	listen = strings.TrimSpace(strings.Replace(listen, " ", "", -1))
+	listen = strings.TrimSpace(strings.ReplaceAll(listen, " ", ""))
 	listen = strings.Trim(listen, ":")
 	if !strings.Contains(listen, ":") {
 		if len(listen) == 0 {

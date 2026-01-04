@@ -45,7 +45,7 @@ var (
 
 // Version returns package version
 func Version() string {
-	return "0.2.0"
+	return "0.2.1"
 }
 
 // Author returns package author
@@ -155,10 +155,7 @@ func Comma(n float64, precision int) string {
 	}
 
 	ss := []string{}
-	for {
-		if len(si) == 0 {
-			break
-		}
+	for len(si) > 0 {
 		start := len(si) - 3
 		if start < 0 {
 			start = 0
